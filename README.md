@@ -16,13 +16,49 @@ enpm clone -a package
 enpm install package
 ```
 
+<br>
+***
+<br>
 
 ### :feet: Push
 
+**Push** changes to both *git* and *npm*.
+
 ```bash
-does this work?
+# say:
+# package=pg@7.0.0
+
+# commit "v7.0.1"
+enpm push
+
+# commit "v7.0.1", publish 7.0.1
+enpm push -p
+
+# commit "patch update", publish 7.0.1
+enpm push -p "patch update"
+
+# commit ":+1: major update", publish 8.0.0
+NPM_PUSH_PREFIX=:+1:
+enpm push -v major -p "major update"
 ```
 
+```bash
+> enpm push [flags] [message]
+# [-p|--publish]: publish to npm
+# [-v|--version]: update version (default: patch)
+# [message]: commit message (default: package version)
+# [--help]: show this help
+
+# [[optional environment variables]]
+# NPM_PUSH_PUBLISH: publish to npm (0/1)
+# NPM_PUSH_VERSION: update which version (patch/minor/major/pre...)
+# NPM_PUSH_PREFIX: commit message prefix
+# NPM_PUSH_MESSAGE: commit message
+```
+
+<br>
+***
+<br>
 
 ### :feet: Clone
 
