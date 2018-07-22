@@ -26,10 +26,10 @@ fullTgt() {
 fetchPkg() {
   # fetch npm package to temp-dir/package (returns temp-dir)
   pushd "$2" >/dev/null
-  printf "${cfby}npm pack $1${cr}\n"
+  printf "${cm}npm pack $1${cr}\n"
   npm pack "$1"
   tgz=$(ls *.tgz)
-  printf "${cfby}tar extract ${tgz}${cr}\n"
+  printf "${cm}tar extract ${tgz}${cr}\n"
   tar -xvzf "$tgz"
   popd >/dev/null
 }
@@ -45,7 +45,7 @@ movePkg() {
 
 gitPush() {
   # push packagedir with message
-  printf "${cfby}git push \"$2\"${cr}\n"
+  printf "${cm}git push \"$2\"${cr}\n"
   pushd "$1" >/dev/null
   git add .
   git commit -m "$2"
@@ -74,7 +74,7 @@ if [[ "$tgt" != "" ]]; then
   tgt="$(fullTgt "$tgt")"
   pkgdir="${tgt%.git}"
   pkgdir="${tgt##*/}"
-  printf "${cfby}git clone ${tgt}${cr}\n"
+  printf "${cm}git clone ${tgt}${cr}\n"
   if [[ "$dsc" == "" ]]; then dsc="$(npm view ${pkg} description)"; fi
   if [[ "$url" == "" ]]; then url="https://www.npmjs.com/package/${pkg%%@*}"; fi
   node "${dp0}github" ${tgt:+-t} "$tgt" ${usr:+-u} "$usr" ${pwd:+-p} "$pwd" ${url:+-h} "$url" ${dsc:+-d} "$dsc" createrepo
