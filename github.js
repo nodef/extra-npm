@@ -1,11 +1,11 @@
-const GitHub = require('@octokit/rest');
+const OctoKit = require('@octokit/rest');
 const promptly = require('promptly');
 
 
 // I. global variables
 const E = process.env;
 const A = process.argv;
-var github = new GitHub();
+var octokit = new OctoKit();
 var username = E['GITHUB_USERNAME'];
 var password = E['GITHUB_PASSWORD'];
 var action = E['GITHUB_ACTION']||'';
@@ -25,25 +25,25 @@ function authenticate() {
   var r = Promise.resolve();
   if(!username) r = r.then(() => promptly.prompt('GitHub username: ')).then((v) => username = v);
   if(!password) r = r.then(() => promptly.prompt('GitHub password: ', {silent: true})).then((v) => password = v); 
-  return r = r.then(() => github.authenticate({type: 'basic', username, password}));
+  return r = r.then(() => octokit.authenticate({type: 'basic', username, password}));
 };
 
 function repoExists() {
-  return github.repos.get({owner, repo}).then(() => true, () => false);
+  return octokit.repos.get({owner, repo}).then(() => true, () => false);
 };
 
 function repoCreate() {
   var rdy = [];
   auto_init = auto_init==='1'? true:false;
-  if(owner===username) rdy.push(github.repos.create({name: repo, description, homepage, auto_init, gitignore_template, license_template}));
-  else rdy.push(github.repos.createForOrg({org: owner, name: repo, description, homepage, auto_init, gitignore_template, license_template}));
-  if(topics!=null) rdy.push(github.repos.replaceTopics({owner, repo, names: topics.split(/[,\s]+/g)}));
+  if(owner===username) rdy.push(octokit.repos.create({name: repo, description, homepage, auto_init, gitignore_template, license_template}));
+  else rdy.push(octokit.repos.createForOrg({org: owner, name: repo, description, homepage, auto_init, gitignore_template, license_template}));
+  if(topics!=null) rdy.push(octokit.repos.replaceTopics({owner, repo, names: topics.split(/[,\s]+/g)}));
   return Promise.all(rdy);
 };
 
 function repoEdit() {
-  var rdy = [github.repos.edit({owner, repo, name: repo, description, homepage})];
-  if(topics!=null) rdy.push(github.repos.replaceTopics({owner, repo, names: topics.split(/[,\s]+/g)}));
+  var rdy = [octokit.repos.edit({owner, repo, name: repo, description, homepage})];
+  if(topics!=null) rdy.push(octokit.repos.replaceTopics({owner, repo, names: topics.split(/[,\s]+/g)}));
   return Promise.all(rdy);
 };
 
