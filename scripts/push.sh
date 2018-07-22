@@ -1,7 +1,5 @@
 #!/bin/bash
 # global variables
-cr="\033[0m"
-cm="\033[1;33m"
 pub="$NPM_PUSH_PUBLISH"
 ver="$NPM_PUSH_VERSION"
 pre="$NPM_PUSH_PREFIX"
