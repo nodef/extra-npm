@@ -1,8 +1,7 @@
 Prograde Node Package Manager (NPM) built for professionals and enthusiasts.
 
-<details>
-<summary>Multi-lingual is good for business!</summary>
+### :feet: push
+
 ```bash
-come to papa
+does this work?
 ```
-</details>
