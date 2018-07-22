@@ -17,7 +17,7 @@ enpm install package
 ```
 
 <br>
-***
+<hr>
 <br>
 
 ### :feet: Push
@@ -57,7 +57,7 @@ enpm push -v major -p "major update"
 ```
 
 <br>
-***
+<hr>
 <br>
 
 ### :feet: Clone
