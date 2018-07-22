@@ -2,6 +2,10 @@
 - [Push](#feet-push): push changes to both git and npm.
 - [Clone](#feet-clone): clone package to local or github.
 
+> TODO: browserify, uglify, scss, postman<br>
+> TODO: push, clone flexibility
+
+
 ```bash
 > enpm [command] [options]
 # all existing commands of npm supported
