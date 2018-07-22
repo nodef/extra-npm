@@ -1,9 +1,9 @@
 #!/bin/bash
 # global variables
-pub="$NPM_PUSH_PUBLISH"
-ver="$NPM_PUSH_VERSION"
-pre="$NPM_PUSH_PREFIX"
-msg="$NPM_PUSH_MESSAGE"
+pub="$ENPM_PUSH_PUBLISH"
+ver="$ENPM_PUSH_VERSION"
+pre="$ENPM_PUSH_PREFIX"
+msg="$ENPM_PUSH_MESSAGE"
 
 # read arguments
 while [[ "$#" != "0" ]]; do

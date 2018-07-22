@@ -49,11 +49,11 @@ enpm push -v major -p "major update"
 # [message]: commit message (default: package version)
 # [--help]: show this help
 
-# [[optional environment variables]]
-# NPM_PUSH_PUBLISH: publish to npm (0/1)
-# NPM_PUSH_VERSION: update which version (patch/minor/major/pre...)
-# NPM_PUSH_PREFIX: commit message prefix
-# NPM_PUSH_MESSAGE: commit message
+# [environment variables]
+# ENPM_PUSH_PUBLISH: publish to npm (0/1)
+# ENPM_PUSH_VERSION: update which version (patch/minor/major/pre...)
+# ENPM_PUSH_PREFIX: commit message prefix
+# ENPM_PUSH_MESSAGE: commit message
 ```
 
 <br>
