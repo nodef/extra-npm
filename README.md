@@ -102,9 +102,9 @@ enpm clone <package@version> [flags]
 # GITHUB_PASSWORD: github password for authentication 
 # GITHUB_HOMEPAGE: homepage to set if new repository created 
 # GITHUB_DESCRIPTION: description to set if new repository created 
-# NPM_CLONE_TARGET: target github repository path 
-# NPM_CLONE_PACKAGE: name of package, optionally with @version 
-# NPM_CLONE_PREFIX: optional message prefix for all commits 
-# NPM_CLONE_MESSAGE: message for all commits 
-# NPM_CLONE_ALL: use all versions of package instead of just one (0/1) 
+# ENPM_CLONE_TARGET: target github repository path 
+# ENPM_CLONE_PACKAGE: name of package, optionally with @version 
+# ENPM_CLONE_PREFIX: optional message prefix for all commits 
+# ENPM_CLONE_MESSAGE: message for all commits 
+# ENPM_CLONE_ALL: use all versions of package instead of just one (0/1) 
 ```

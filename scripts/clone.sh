@@ -5,12 +5,12 @@ usr="${GITHUB_USERNAME}"
 pwd="${GITHUB_PASSWORD}"
 url="${GITHUB_HOMEPAGE}"
 dsc="${GITHUB_DESCRIPTION}"
-tgt="${NPM_CLONE_TARGET}"
-tgp="${NPM_CLONE_TARGET_PREFIX}"
-pkg="${NPM_CLONE_PACKAGE}"
-pre="${NPM_CLONE_PREFIX}"
-msg="${NPM_CLONE_MESSAGE}"
-all="${NPM_CLONE_ALL}"
+tgt="${ENPM_CLONE_TARGET}"
+tgp="${ENPM_CLONE_TARGET_PREFIX}"
+pkg="${ENPM_CLONE_PACKAGE}"
+pre="${ENPM_CLONE_PREFIX}"
+msg="${ENPM_CLONE_MESSAGE}"
+all="${ENPM_CLONE_ALL}"
 if [[ "$all" == "1" ]]; then typ="versions"; fi
 if [[ "$tgp" == "" ]]; then tgp="$usr"; fi
 
