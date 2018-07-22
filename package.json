@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Prograde Node Package Manager (NPM) built for professionals and enthusiasts.",
   "main": "index.cmd",
   "preferGlobal": true,
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/nodef/extra-npm#readme",
   "dependencies": {
-    "@octokit/rest": "^15.9.4"
+    "@octokit/rest": "^15.9.4",
+    "promptly": "^3.0.3"
   }
 }
