@@ -83,7 +83,7 @@ if [[ "$tgt" != "" ]]; then
   printf "${cm}git clone ${tgt}${cr}\n"
   if [[ "$dsc" == "" ]]; then dsc="$(npm view ${pkg} description)"; fi
   if [[ "$url" == "" ]]; then url="https://www.npmjs.com/package/${pkg%%@*}"; fi
-  node "${dp0}github" ${tgt:+-t} "$tgt" ${usr:+-u} "$usr" ${pwd:+-p} "$pwd" ${url:+-h} "$url" ${dsc:+-d} "$dsc" repocreate
+  node "${dp0}" ${tgt:+-t} "$tgt" ${usr:+-u} "$usr" ${pwd:+-p} "$pwd" ${url:+-h} "$url" ${dsc:+-d} "$dsc" repocreate
   git clone "$tgt"
 elif [[ "$typ" == "version" ]]; then
   pkgdir="$pkg"
