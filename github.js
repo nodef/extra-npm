@@ -56,9 +56,9 @@ for(var i=2, I=A.length; i<I; i++) {
   else if(A[i]==='-r' || A[i]==='--repo') repo = A[++i];
   else if(A[i]==='-h' || A[i]==='--homepage') homepage = A[++i];
   else if(A[i]==='-d' || A[i]==='--description') description = A[++i];
-  else if(A[i]==='-a' || A[i]==='--auto_init') auto_init = A[++i];
-  else if(A[i]==='-g' || A[i]==='--gitignore_template') gitignore_template = A[++i];
-  else if(A[i]==='-l' || A[i]==='--license_template') license_template = A[++i];
+  else if(A[i]==='-ai' || A[i]==='--auto_init') auto_init = A[++i];
+  else if(A[i]==='-gt' || A[i]==='--gitignore_template') gitignore_template = A[++i];
+  else if(A[i]==='-lt' || A[i]==='--license_template') license_template = A[++i];
   else action = A[i];
 }
 

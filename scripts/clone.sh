@@ -3,14 +3,17 @@
 typ="version"
 usr="${GITHUB_USERNAME}"
 pwd="${GITHUB_PASSWORD}"
-url="${GITHUB_HOMEPAGE}"
-dsc="${GITHUB_DESCRIPTION}"
-tgt="${ENPM_CLONE_TARGET}"
+all="${ENPM_CLONE_ALL}"
 tgp="${ENPM_CLONE_TARGET_PREFIX}"
-pkg="${ENPM_CLONE_PACKAGE}"
+tgt="${ENPM_CLONE_TARGET}"
+dsc="${ENPM_CLONE_DESCRIPTION}"
+url="${ENPM_CLONE_HOMEPAGE}"
+aio="${ENPM_CLONE_AUTO_INIT}"
+gto="${ENPM_CLONE_GITIGNORE_TEMPLATE}"
+lto="${ENPM_CLONE_LICENSE_TEMPLATE}"
 pre="${ENPM_CLONE_PREFIX}"
 msg="${ENPM_CLONE_MESSAGE}"
-all="${ENPM_CLONE_ALL}"
+pkg="${ENPM_CLONE_PACKAGE}"
 if [[ "$all" == "1" ]]; then typ="versions"; fi
 if [[ "$tgp" == "" ]]; then tgp="$usr"; fi
 
@@ -62,6 +65,9 @@ while [[ "$#" != "0" ]]; do
   elif [[ "$1" == "-t" ]] || [[ "$1" == "--target" ]]; then tgt="$2" && shift
   elif [[ "$1" == "-h" ]] || [[ "$1" == "--homepage" ]]; then url="$2" && shift
   elif [[ "$1" == "-d" ]] || [[ "$1" == "--description" ]]; then dsc="$2" && shift
+  elif [[ "$1" == "-ai" ]] || [[ "$1" == "--auto_init" ]]; then aio="$2" && shift
+  elif [[ "$1" == "-gt" ]] || [[ "$1" == "--gitignore_template" ]]; then gto="$2" && shift
+  elif [[ "$1" == "-lt" ]] || [[ "$1" == '--license_template' ]]; then lto="$2" && shift
   elif [[ "$1" == "-m" ]] || [[ "$1" == "--message" ]]; then msg="$2" && shift
   else pkg="$1"
   fi
