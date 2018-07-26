@@ -25,7 +25,7 @@ function repoExists() {
 };
 
 async function repoCreate() {
-  auto_init = auto_init==='1'? true:false;
+  auto_init = auto_init==='1' || auto_init==='true'? true:false;
   if(owner===username) await octokit.repos.create({name: repo, description, homepage, auto_init, gitignore_template, license_template});
   else await octokit.repos.createForOrg({org: owner, name: repo, description, homepage, auto_init, gitignore_template, license_template});
   return topics!=null? octokit.repos.replaceTopics({owner, repo, names: topics.split(/[,\s]+/g), headers}):null;
