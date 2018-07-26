@@ -3,12 +3,12 @@
 yes="${ENPM_INIT_YES}"
 name="${ENPM_INIT_NAME:-${PWD##*/}}"
 version="${ENPM_INIT_VERSION:-0.0.0}"
-description="${ENPM_INIT_DESCRIPTION:-Cloudrise.}"
+description="${ENPM_INIT_DESCRIPTION}"
 main="${ENPM_INIT_MAIN:-index.js}"
 scripts_test="${ENPM_INIT_SCRIPTS_TEST:-exit}"
 repository="${ENPM_INIT_REPOSITORY}"
-keywords="${ENPM_INIT_KEYWORDS:-foggy,day}"
-author="${ENPM_INIT_AUTHOR:-id@mail.com}"
+keywords="${ENPM_INIT_KEYWORDS}"
+author="${ENPM_INIT_AUTHOR}"
 license="${ENPM_INIT_LICENSE:-MIT}"
 author_name=""; author_email=""; author_url=""
 
@@ -76,19 +76,30 @@ if [[ "$yes" != "1" ]]; then
   echo "This utility will walk you through creating a Node.js repository."
   echo "Press ^C at any time to quit."
   if [[ "$_name" == "" ]]; then read -p "package name: ($name) " _name; fi
+  if [[ "$_name" != "" ]]; then name="$_name"; fi
   if [[ "$_version" == "" ]]; then read -p "version: ($version) " _version; fi
+  if [[ "$description" == "" ]]; then description="$name package."; fi
   if [[ "$_description" == "" ]]; then read -p "description: ($description) " _description; fi
   if [[ "$_main" == "" ]]; then read -p "entry point: ($main) " _main; fi
   if [[ "$_scripts_test" == "" ]]; then read -p "test command: ($scripts_test) " _scripts_test; fi
+  if [[ "$repository" == "" ]]; then
+    name_noat="${name//@}"; name_nopath="${name_noat//\//-}"
+    if [[ "$GITHUB_USERNAME" == "" ]]; then repository="$name_nopath"
+    else repository="$GITHUB_USERNAME/$name_nopath"; fi
+  fi
   if [[ "$_repository" == "" ]]; then read -p "git repository: ($repository) " _repository; fi
+  if [[ "$keywords" == "" ]]; then keywords="${name//[^a-z0-9]/,}"; keywords="${keywords#,}"; fi
   if [[ "$_keywords" == "" ]]; then read -p "keywords: ($keywords) " _keywords; fi
+  if [[ "$author" == "" ]]; then
+    if [[ "$GITHUB_USERNAME" == "" ]]; then author="id@mail.com"
+    else author="$GITHUB_USERNAME@users.noreply.github.com"; fi
+  fi
   if [[ "$_author" == "" ]]; then read -p "author: ($author) " _author; fi
   if [[ "$_license" == "" ]]; then read -p "license: ($license) " _license; fi
   echo ""
 fi
 
 # merge user input
-name=${_name:-$name}
 version=${_version:-$version}
 description=${_description:-$description}
 main=${_main:-$main}
@@ -125,32 +136,31 @@ json=$(source "${dp0}scripts/init-json.sh")
 if [[ "$repository" == *"github.com"* ]]; then _s1="1"; fi
 if [[ "$repository" == *"/"* ]]; then _s2="1"; fi
 echo "About to:"
-if [[ "$_s1" != "" ]]; then echo "- Create/update repository at GitHub"; fi
+if [[ "$_s1" != "" ]]; then echo "- Initialize repository at GitHub"; fi
 if [[ "$_s2" != "" ]]; then echo "- Clone repository to local"
 else echo "- Initialize repository locally"; fi
 echo "- Create package.json"
 read -p "OK? (yes) " ok
 if [[ "$ok" == [nN]* ]]; then exit; fi
-echo ""
 
 # init repository
+printf "${cm}\n"
 if [[ "$_s1" != "" ]]; then
-  printf "${cm}github init${cr}\n"
+  printf "Initializing repository $repository ... "
   github_homepage="https://www.npmjs.com/package/$name"
   node "${dp0}scripts/init-github" -r "$repository" -d "$description" -h "$github_homepage" \
     -t "$keywords" -ai "true" -gt "Node" -lt "$license"
+  printf "done.\n"
 fi
 if [[ "$_s2" != "" ]]; then
-  printf "${cm}git clone${cr}\n"
   git clone "$repository"
   cd "$repository_name"
 else
-  printf "${cm}git init${cr}\n"
+  printf "Initializing repository $repository.\n"
   mkdir "$repository_name"
   cd "$repository_name"
   git init
 fi
-echo "$repository_name"
-echo "$PWD"
-printf "${cm}npm init${cr}\n"
+printf "Creating package.json\n"
 echo "$json" > package.json
+printf "${cr}"
