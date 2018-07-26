@@ -1,6 +1,7 @@
 #!/bin/bash
 # global variables
 cr="\033[0m"
+ci="\033[1m"
 cm="\033[2m"
 
 psd() {

@@ -73,8 +73,8 @@ done
 
 # read user input
 if [[ "$yes" != "1" ]]; then
-  echo "This utility will walk you through creating a Node.js repository."
-  echo "Press ^C at any time to quit."
+  printf "This utility will walk you through creating a Node.js repository.\n"
+  printf "Press ^C at any time to quit.${ci}\n"
   if [[ "$_name" == "" ]]; then read -p "package name: ($name) " _name; fi
   if [[ "$_name" != "" ]]; then name="$_name"; fi
   if [[ "$_version" == "" ]]; then read -p "version: ($version) " _version; fi
@@ -96,7 +96,7 @@ if [[ "$yes" != "1" ]]; then
   fi
   if [[ "$_author" == "" ]]; then read -p "author: ($author) " _author; fi
   if [[ "$_license" == "" ]]; then read -p "license: ($license) " _license; fi
-  echo ""
+  printf "${cr}\n"
 fi
 
 # merge user input
@@ -140,7 +140,9 @@ if [[ "$_s1" != "" ]]; then echo "- Initialize repository at GitHub"; fi
 if [[ "$_s2" != "" ]]; then echo "- Clone repository to local"
 else echo "- Initialize repository locally"; fi
 echo "- Create package.json"
+printf "${ci}"
 read -p "OK? (yes) " ok
+printf "${cr}"
 if [[ "$ok" == [nN]* ]]; then exit; fi
 
 # init repository
