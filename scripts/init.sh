@@ -86,7 +86,7 @@ if [[ "$yes" != "1" ]]; then
     printf "Please check https://www.npmjs.com/package/validate-npm-package-name.${cr}${ci}\n"
   done
 fi
-name="${_name:-name}"; description="${description:-$name package.}"
+name="${_name:-$name}"; description="${description:-$name package.}"
 if [[ "$repository" == "" ]]; then
   name_noat="${name//@}"; name_nopath="${name_noat//\//-}"
   if [[ "$GITHUB_USERNAME" == "" ]]; then repository="$name_nopath"
