@@ -142,17 +142,19 @@ fi
 # request permission
 _s1=""; _s2=""; splitAuthor
 json=$(source "${dp0}scripts/init-json.sh")
-if [[ "$repository" == *"github.com"* ]]; then _s1="1"; fi
-if [[ "$repository" == *"/"* ]]; then _s2="1"; fi
-echo "About to:"
-if [[ "$_s1" != "" ]]; then echo "- Initialize repository at GitHub"; fi
-if [[ "$_s2" != "" ]]; then echo "- Clone repository to local"
-else echo "- Initialize repository locally"; fi
-echo "- Create package.json"
-printf "${ci}"
-read -p "OK? (yes) " ok
-printf "${cr}"
-if [[ "$ok" == [nN]* ]]; then exit; fi
+if [[ "$yes" != "1" ]]; then
+  if [[ "$repository" == *"github.com"* ]]; then _s1="1"; fi
+  if [[ "$repository" == *"/"* ]]; then _s2="1"; fi
+  echo "About to:"
+  if [[ "$_s1" != "" ]]; then echo "- Initialize repository at GitHub"; fi
+  if [[ "$_s2" != "" ]]; then echo "- Clone repository to local"
+  else echo "- Initialize repository locally"; fi
+  echo "- Create package.json"
+  printf "${ci}"
+  read -p "OK? (yes) " ok
+  printf "${cr}"
+  if [[ "$ok" == [nN]* ]]; then exit; fi
+fi
 
 # init repository
 printf "${cm}\n"
