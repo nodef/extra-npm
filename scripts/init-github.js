@@ -10,6 +10,7 @@ var action = '', repository = '', owner = '', repo = '';
 var input = '', description = '', homepage = '', topics = '';
 var auto_init = '', gitignore_template = '', license_template = '';
 var username = E['GITHUB_USERNAME'], password = E['GITHUB_PASSWORD'];
+var headers = {accept: 'application/vnd.github.mercy-preview+json'};
 var ready = Promise.resolve();
 
 
@@ -23,18 +24,16 @@ function repoExists() {
   return octokit.repos.get({owner, repo}).then(() => true, () => false);
 };
 
-function repoCreate() {
-  var rdy = [];
+async function repoCreate() {
   auto_init = auto_init==='1'? true:false;
-  if(owner===username) rdy.push(octokit.repos.create({name: repo, description, homepage, auto_init, gitignore_template, license_template}));
-  else rdy.push(octokit.repos.createForOrg({org: owner, name: repo, description, homepage, auto_init, gitignore_template, license_template}));
-  if(topics!=null) rdy.push(octokit.repos.replaceTopics({owner, repo, names: topics.split(/[,\s]+/g)}));
-  return Promise.all(rdy);
+  if(owner===username) await octokit.repos.create({name: repo, description, homepage, auto_init, gitignore_template, license_template});
+  else await octokit.repos.createForOrg({org: owner, name: repo, description, homepage, auto_init, gitignore_template, license_template});
+  return topics!=null? octokit.repos.replaceTopics({owner, repo, names: topics.split(/[,\s]+/g), headers}):null;
 };
 
 function repoEdit() {
   var rdy = [octokit.repos.edit({owner, repo, name: repo, description, homepage})];
-  if(topics!=null) rdy.push(octokit.repos.replaceTopics({owner, repo, names: topics.split(/[,\s]+/g)}));
+  if(topics!=null) rdy.push(octokit.repos.replaceTopics({owner, repo, names: topics.split(/[,\s]+/g), headers}));
   return Promise.all(rdy);
 };
 

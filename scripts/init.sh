@@ -107,7 +107,7 @@ fi
 
 # split repository details
 repository_url=""; bugs_url=""; homepage=""
-repository_type="git"; respository_name="${repository##*/}"
+repository_type="git"; repository_name="${repository##*/}"
 if [[ "$repository" == *"/"* ]]; then
   if [[ "$repository_name" == *"."* ]]; then repository_type="${repository##*.}"
   elif [[ "$repository" != "http"* ]]; then repository_type="${repository%%://*}"
@@ -121,7 +121,7 @@ fi
 
 # request permission
 _s1=""; _s2=""; splitAuthor
-json=$(source ${dp0}scripts/init-json.sh)
+json=$(source "${dp0}scripts/init-json.sh")
 if [[ "$repository" == *"github.com"* ]]; then _s1="1"; fi
 if [[ "$repository" == *"/"* ]]; then _s2="1"; fi
 echo "About to:"
@@ -131,23 +131,26 @@ else echo "- Initialize repository locally"; fi
 echo "- Create package.json"
 read -p "OK? (yes) " ok
 if [[ "$ok" == [nN]* ]]; then exit; fi
+echo ""
 
 # init repository
 if [[ "$_s1" != "" ]]; then
-  printf "\n${cm}github init${cr}\n"
+  printf "${cm}github init${cr}\n"
   github_homepage="https://www.npmjs.com/package/$name"
   node "${dp0}scripts/init-github" -r "$repository" -d "$description" -h "$github_homepage" \
     -t "$keywords" -ai "true" -gt "Node" -lt "$license"
 fi
 if [[ "$_s2" != "" ]]; then
-  echo "\n${cm}git clone${cr}\n"
+  printf "${cm}git clone${cr}\n"
   git clone "$repository"
   cd "$repository_name"
 else
-  echo "${cm}git init${cr}"
+  printf "${cm}git init${cr}\n"
   mkdir "$repository_name"
   cd "$repository_name"
   git init
 fi
-printf "\n${cm}npm init${cr}\n"
+echo "$repository_name"
+echo "$PWD"
+printf "${cm}npm init${cr}\n"
 echo "$json" > package.json

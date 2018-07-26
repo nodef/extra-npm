@@ -23,7 +23,7 @@ EOM
 done
 cat << EOM
     "${keywords_pre##*,}"
-  ]
+  ],
 EOM
 author_extra="$author_email$author_url"
 if [[ "$author_extra" == "" ]]; then
@@ -39,7 +39,7 @@ cat << EOM
   "license": "$license",
   "bugs": {
     "url": "$bugs_url"
-  }
+  },
   "homepage": "$homepage"
 }
 EOM
