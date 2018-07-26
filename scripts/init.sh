@@ -156,7 +156,7 @@ if [[ "$_s2" != "" ]]; then
   git clone "$repository"
   cd "$repository_name"
 else
-  printf "Initializing repository $repository.\n"
+  printf "Initializing repository $repository\n"
   mkdir "$repository_name"
   cd "$repository_name"
   git init

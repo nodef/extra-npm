@@ -1,7 +1,7 @@
 #!/bin/bash
 # global variables
 cr="\033[0m"
-cm="\033[1;33m"
+cm="\033[2m"
 
 psd() {
   # present script directory
