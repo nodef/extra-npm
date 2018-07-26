@@ -11,6 +11,7 @@ keywords="${ENPM_INIT_KEYWORDS}"
 author="${ENPM_INIT_AUTHOR}"
 license="${ENPM_INIT_LICENSE:-MIT}"
 author_name=""; author_email=""; author_url=""
+trap 'printf "${cr}\n"; exit' SIGINT
 
 
 # split author -> author_name, author_email, author_url
@@ -76,8 +77,15 @@ if [[ "$yes" != "1" ]]; then
   printf "This utility will walk you through creating a Node.js repository.\n"
   printf "Press ^C at any time to quit.${ci}\n"
   name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
-  if [[ "$_name" == "" ]]; then read -p "package name: ($name) " _name; fi
-  if [[ "$_name" != "" ]]; then name=$(echo "$_name" | tr '[:upper:]' '[:lower:]'); fi
+  while : ; do
+    if [[ "$_name" == "" ]]; then read -p "package name: ($name) " _name; fi
+    _name=$(echo "$_name" | tr '[:upper:]' '[:lower:]')
+    name_valid=$(node "${dp0}scripts/valid-name" "$_name")
+    if [[ "$name_valid" == "true" ]]; then break; fi
+    _name=""; printf "${cr}${cm}Bad package name. "
+    printf "Please check https://www.npmjs.com/package/validate-npm-package-name.${cr}${ci}\n"
+  done
+  if [[ "$_name" != "" ]]; then name="$_name"; fi
   if [[ "$_version" == "" ]]; then read -p "version: ($version) " _version; fi
   if [[ "$description" == "" ]]; then description="$name package."; fi
   if [[ "$_description" == "" ]]; then read -p "description: ($description) " _description; fi
