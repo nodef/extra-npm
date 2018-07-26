@@ -133,16 +133,14 @@ read -p "OK? (yes) " ok
 if [[ "$ok" == [nN]* ]]; then exit; fi
 
 # init repository
-echo ""
 if [[ "$_s1" != "" ]]; then
-  echo "${cm}github init${cr}"
+  printf "\n${cm}github init${cr}\n"
   github_homepage="https://www.npmjs.com/package/$name"
-  node "${dp0}scripts/init-github.js" -r "$repository" -d "$description" -h "$github_homepage" \
+  node "${dp0}scripts/init-github" -r "$repository" -d "$description" -h "$github_homepage" \
     -t "$keywords" -ai "true" -gt "Node" -lt "$license"
 fi
-echo ""
 if [[ "$_s2" != "" ]]; then
-  echo "${cm}git clone${cr}"
+  echo "\n${cm}git clone${cr}\n"
   git clone "$repository"
   cd "$repository_name"
 else
@@ -151,6 +149,5 @@ else
   cd "$repository_name"
   git init
 fi
-echo ""
-echo "${cm}npm init${cr}"
+printf "\n${cm}npm init${cr}\n"
 echo "$json" > package.json
