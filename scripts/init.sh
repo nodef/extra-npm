@@ -73,10 +73,10 @@ while [[ "$#" != "0" ]]; do
 done
 
 # read user input
+name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
 if [[ "$yes" != "1" ]]; then
   printf "This utility will walk you through creating a Node.js repository.\n"
   printf "Press ^C at any time to quit.${ci}\n"
-  name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
   while : ; do
     if [[ "$_name" == "" ]]; then read -p "package name: ($name) " _name; fi
     _name=$(echo "$_name" | tr '[:upper:]' '[:lower:]')
@@ -85,24 +85,27 @@ if [[ "$yes" != "1" ]]; then
     _name=""; printf "${cr}${cm}Bad package name. "
     printf "Please check https://www.npmjs.com/package/validate-npm-package-name.${cr}${ci}\n"
   done
-  if [[ "$_name" != "" ]]; then name="$_name"; fi
+fi
+name="${_name:-name}"; description="${description:-$name package.}"
+if [[ "$repository" == "" ]]; then
+  name_noat="${name//@}"; name_nopath="${name_noat//\//-}"
+  if [[ "$GITHUB_USERNAME" == "" ]]; then repository="$name_nopath"
+  else repository="$GITHUB_USERNAME/$name_nopath"; fi
+fi
+if [[ "$keywords" == "" ]]; then
+  keywords="${name//[^a-z0-9]/,}"; keywords="${keywords#,}"
+fi
+if [[ "$author" == "" ]]; then
+  if [[ "$GITHUB_USERNAME" == "" ]]; then author="id@mail.com"
+  else author="$GITHUB_USERNAME@users.noreply.github.com"; fi
+fi
+if [[ "$yes" != "1" ]]; then
   if [[ "$_version" == "" ]]; then read -p "version: ($version) " _version; fi
-  if [[ "$description" == "" ]]; then description="$name package."; fi
   if [[ "$_description" == "" ]]; then read -p "description: ($description) " _description; fi
   if [[ "$_main" == "" ]]; then read -p "entry point: ($main) " _main; fi
   if [[ "$_scripts_test" == "" ]]; then read -p "test command: ($scripts_test) " _scripts_test; fi
-  if [[ "$repository" == "" ]]; then
-    name_noat="${name//@}"; name_nopath="${name_noat//\//-}"
-    if [[ "$GITHUB_USERNAME" == "" ]]; then repository="$name_nopath"
-    else repository="$GITHUB_USERNAME/$name_nopath"; fi
-  fi
   if [[ "$_repository" == "" ]]; then read -p "git repository: ($repository) " _repository; fi
-  if [[ "$keywords" == "" ]]; then keywords="${name//[^a-z0-9]/,}"; keywords="${keywords#,}"; fi
   if [[ "$_keywords" == "" ]]; then read -p "keywords: ($keywords) " _keywords; fi
-  if [[ "$author" == "" ]]; then
-    if [[ "$GITHUB_USERNAME" == "" ]]; then author="id@mail.com"
-    else author="$GITHUB_USERNAME@users.noreply.github.com"; fi
-  fi
   if [[ "$_author" == "" ]]; then read -p "author: ($author) " _author; fi
   if [[ "$_license" == "" ]]; then read -p "license: ($license) " _license; fi
   printf "${cr}\n"
