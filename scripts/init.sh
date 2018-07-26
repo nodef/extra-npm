@@ -75,8 +75,9 @@ done
 if [[ "$yes" != "1" ]]; then
   printf "This utility will walk you through creating a Node.js repository.\n"
   printf "Press ^C at any time to quit.${ci}\n"
+  name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
   if [[ "$_name" == "" ]]; then read -p "package name: ($name) " _name; fi
-  if [[ "$_name" != "" ]]; then name="$_name"; fi
+  if [[ "$_name" != "" ]]; then name=$(echo "$_name" | tr '[:upper:]' '[:lower:]'); fi
   if [[ "$_version" == "" ]]; then read -p "version: ($version) " _version; fi
   if [[ "$description" == "" ]]; then description="$name package."; fi
   if [[ "$_description" == "" ]]; then read -p "description: ($description) " _description; fi
@@ -158,11 +159,11 @@ if [[ "$_s2" != "" ]]; then
   git clone "$repository"
   cd "$repository_name"
 else
-  printf "Initializing repository $repository\n"
+  printf "Initializing repository $repository ...\n"
   mkdir "$repository_name"
   cd "$repository_name"
   git init
 fi
-printf "Creating package.json\n"
 echo "$json" > package.json
+printf "Created package.json\n"
 printf "${cr}"
