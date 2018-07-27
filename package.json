@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "Prograde Node Package Manager (NPM) built for professionals and enthusiasts.",
   "main": "index.js",
   "preferGlobal": true,
@@ -28,6 +28,7 @@
   "dependencies": {
     "@octokit/rest": "^15.9.4",
     "promptly": "^3.0.3",
+    "recast": "^0.15.3",
     "validate-npm-package-name": "^3.0.0"
   }
 }

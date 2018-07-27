@@ -17,5 +17,6 @@ if [[ "$1" == "--help" ]]; then less "${dp0}README.md"; exit
 elif [[ "$1" == "init" ]]; then shift; source "${dp0}scripts/init.sh" "$@"
 elif [[ "$1" == "push" ]]; then shift; source "${dp0}scripts/push.sh" "$@"
 elif [[ "$1" == "clone" ]]; then shift; source "${dp0}scripts/clone.sh" "$@"
+elif [[ "$1" == "bundle" ]]; then shift; node "${dp0}scripts/bundle" "$@"
 else npm "$@"
 fi
