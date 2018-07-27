@@ -61,6 +61,39 @@ function globalsRename(glo, win, add) {
   }
   return glo;
 };
+function bodyUpdateExports(ast, add) {
+  var idx = -1;
+  for(var i=0, I=ast.length; i<I; i++) {
+    var s = ast[i];
+    if(s.type!=='ExpressionStatement') continue;
+    if(s.expression.left.type!=='MemberExpression') continue;
+    if(s.expression.left.object.name!=='exports') continue;
+    s.expression.left.object.name = 'exports'+add;
+    if(idx<0) idx = i;
+  }
+  if(idx<0) return null;
+  var astn = recast.parse(`const exports${add} = {};\n`);
+  ast.splice(idx, 0, astn.program.body[0]);
+  return 'exports'+add;
+};
+function bodyUpdateModuleExports(ast, add) {
+  var idx = -1, right = null;
+  for(var i=0, I=ast.length; i<I; i++) {
+    var s = ast[i];
+    if(s.type!=='ExpressionStatement') continue;
+    if(s.expression.left.type!=='MemberExpression') continue;
+    if(s.expression.left.object.name!=='module') continue;
+    if(s.expression.left.property.name!=='exports') continue;
+    right = s.expression.right;
+    ast.splice(idx=i--, 1);
+  }
+  if(right==null) return null;
+  if(right.type==='Identifier') return right.name;
+  var astn = recast.parse(`const exports${add} = 0;\n`);
+  astn.program.body[0].expression.right = right;
+  ast.splice(idx, 0, astn.program.body[0]);
+  return 'exports'+add;
+};
 
 function isIdentifierUnique(sym, val) {
   return sym.window.has(val);
