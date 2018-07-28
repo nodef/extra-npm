@@ -159,10 +159,9 @@ function globalsAddAll(glo, win, suf) {
 
 // Update exports to given name.
 function bodyUpdateExports(ast, nam) {
-  for(var i=0, I=ast.length, idx=-1; i<I; i++) {
+  for(var i=ast.length-1, idx=-1; i>=0; i--) {
     if(!nodeIsExports(ast[i])) continue;
-    ast[i].expression.left.object.name = nam;
-    if(idx<0) idx = i;
+    ast[idx=i].expression.left.object.name = nam;
   }
   if(idx<0) return null;
   var astn = recast.parse(`\nconst ${nam} = {};`);
@@ -172,18 +171,16 @@ function bodyUpdateExports(ast, nam) {
 
 // Update module.exports to given name, if possible.
 function bodyUpdateModuleExports(ast, nam) {
-  for(var i=0, I=ast.length, idx=[]; i<I; i++)
-    if(nodeIsModuleExports(ast[i])) idx.push(i);
-  if(idx.length===0) return null;
-  var right = ast[last(idx)].expression.right;
-  if(right.type==='Identifier') {
-    removeAtAll(ast, idx);
-    return right.name;
+  for(var i=ast.length-1, idx=-1, rgt=null; i>=0; i--) {
+    if(!nodeIsModuleExports(ast[i])) continue;
+    if(idx>=0) ast.splice(idx, 1);
+    rgt = ast[idx=i].expression.right;
   }
+  if(idx<0) return null;
+  if(rgt.type==='Identifier') return rgt.name;
   var astn = recast.parse(`\nconst ${nam} = 0;`);
-  astn.program.body[0].declarations[0].init = right;
-  ast[idx.pop()] = astn.program.body[0];
-  removeAtAll(ast, idx);
+  astn.program.body[0].declarations[0].init = rgt;
+  ast.splice(idx, 0, astn.program.body[0]);
   return nam;
 };
 
