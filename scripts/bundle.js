@@ -116,3 +116,4 @@ var ast = recast.parse(src);
 scriptProcess(sym, ast, '_test_module');
 var mod = recast.print(ast).code;
 console.log(mod);
+console.log(require.resolve('./divisors', {paths: [process.cwd()]}));
