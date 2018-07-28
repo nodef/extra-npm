@@ -15,6 +15,13 @@ function paramName(ast) {
   return null;
 };
 
+// Get function parameter names.
+function functionParams(ast, set=new Set()) {
+  for(var p of ast.params)
+    set.add(paramName(p));
+  return set;
+};
+
 // Check if statement is exports.
 function statementIsExports(ast) {
   if(ast.type!=='ExpressionStatement') return false;
@@ -29,66 +36,72 @@ function statementIsModuleExports(ast) {
   return ast.expression.left.property.name==='exports';
 };
 
-// Get function parameter names.
-// : helps exclude local identifiers.
-function functionParams(ast, set) {
-  for(var p of ast.params)
-    set.add(paramName(p));
+// Get variable declaration names.
+function variableDeclarationNames(ast, set=new Set()) {
+  for(var d of ast.declarations)
+    set.add(d.id.name);
   return set;
 };
 
-// Get empty map of window identifiers.
-// : first step of getting their locations.
-function bodyGetWindow(ast, map) {
-  for(var s of ast) {
-    if(s.type==='FunctionDeclaration') map.set(s.id.name, []);
-    else if(s.type==='VariableDeclaration') {
-      for(var d of s.declarations)
-        map.set(d.id.name, []);
-    }
-  }
-  return map;
+// Get declaration names.
+function declarationNames(ast, set=new Set()) {
+  if(ast.type==='FunctionDeclaration') set.set(ast.id.name);
+  else if(ast.type==='VariableDeclaration') variableDeclarationNames(ast, set);
+  return set;
 };
 
-// Scan locations of window identifiers.
-// : helps rename when necessary.
-function bodyScanWindow(ast, map, exc) {
-  if(ast==null || typeof ast!=='object') return map;
+// Get global identifier names.
+function bodyGlobals(ast, set=new Set()) {
+  for(var s of ast)
+    declarationNames(s, set);
+  return set;
+};
+
+// Get empty window identifier map.
+function bodyEmptyWindow(ast, win=new Map()) {
+  for(var nam of bodyGlobals(ast))
+    win.set(nam, []);
+  return win;
+};
+
+// Get (scanned) window identifier map.
+function bodyWindow(ast, win=bodyEmptyWindow(ast), exc=new Set()) {
+  if(ast==null || typeof ast!=='object') return win;
   if(/Function(Declaration|Expression)/.test(ast.type)) {
     var excn = functionParams(ast, new Set(exc));
-    return bodyScanWindow(ast.body, map, excn);
+    return bodyWindow(ast.body, win, excn);
   }
   if(ast.type==='Identifier') {
-    if(!map.has(ast.name) || exc.has(ast.name)) return map;
-    map.get(ast.name).push(ast); return map;
+    if(!win.has(ast.name) || exc.has(ast.name)) return win;
+    win.get(ast.name).push(ast); return win;
   }
-  for(var k in ast) bodyScanWindow(ast[k], map, exc);
-  return map;
+  for(var k in ast) bodyWindow(ast[k], win, exc);
+  return win;
 };
 
 // Rename a window identifier.
-// : help maintain unique globals.
-function windowRename(win, frm, to) {
-  for(var ast of win.get(frm))
+function windowRename(win, nam, to) {
+  for(var ast of win.get(nam))
     ast.name = to;
   return win;
 };
 
-// Add window identifiers to globals.
-// : they are renamed as necessary.
-function globalsAdd(glo, win, suf) {
-  for(var k of win.keys()) {
-    if(!glo.has(k)) glo.add(k);
-    else if(!glo.has(k+suf)) {
-      windowRename(win, k, k+suf);
-      glo.add(k+suf);
-    }
-    else {
-      for(var i=0; glo.has(k+suf+i); i++) {}
-      windowRename(win, k, k+suf+i);
-      glo.add(k+suf+i);
-    }
+// Add window identifier to globals.
+function globalsAdd(glo, win, nam, suf) {
+  if(!glo.has(nam)) return glo.add(nam);
+  if(!glo.has(nam+suf)) {
+    windowRename(win, nam, nam+suf);
+    return glo.add(nam+suf);
   }
+  for(var i=0; glo.has(nam+suf+i); i++) {}
+  windowRename(win, nam, nam+suf+i);
+  return glo.add(nam+suf+i);
+};
+
+// Add all window identifiers to globals.
+function globalsAddAll(glo, win, suf) {
+  for(var nam of win.keys())
+    globalsAdd(glo, win, nam, suf);
   return glo;
 };
 
@@ -105,6 +118,7 @@ function scriptUpdateExports(ast, exp) {
   body.splice(idx, 0, astn.program.body[0]);
   return exp;
 };
+
 function scriptUpdateModuleExports(ast, exp) {
   var body = ast.program.body, idx = -1, right = null;
   for(var i=0, I=body.length; i<I; i++) {
@@ -142,8 +156,8 @@ function bodyUpdateRequire(exp, astp, astc, paths) {
 
 function scriptScanWindow(ast) {
   var body = ast.program.body;
-  var map = bodyGetWindow(body, new Map());
-  return bodyScanWindow(body, map, new Set());
+  var map = bodyEmptyWindow(body, new Map());
+  return bodyWindow(body, map, new Set());
 };
 
 function scriptProcess(sym, ast, add, del=false) {
@@ -152,7 +166,7 @@ function scriptProcess(sym, ast, add, del=false) {
   var exp = scriptUpdateExports(ast, add);
   exp = exp||scriptUpdateModuleExports(ast, add);
   console.log('exp', exp);
-  globalsAdd(sym.globals, win, add);
+  globalsAddAll(sym.globals, win, add);
   sym.exports.set(add, exp);
   return sym;
 };
