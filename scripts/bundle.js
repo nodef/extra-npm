@@ -7,7 +7,7 @@ const fs = require('fs');
 
 
 function functionGetParams(ast, set) {
-  for(var p in ast.params) {
+  for(var p of ast.params) {
     if(p.type==='Identifier') set.add(p.name);
     else if(p.type==='RestElement') set.add(p.argument.name);
     else if(p.type==='AssignmentPattern') set.add(p.left.name);
@@ -37,7 +37,7 @@ function bodyScanWindow(ast, map, exc) {
   for(var k in ast) bodyScanWindow(ast[k], map, exc);
   return map;
 };
-function astScanWindow(ast) {
+function scriptScanWindow(ast) {
   var body = ast.program.body;
   var map = bodyGetWindow(body, new Map());
   return bodyScanWindow(body, map, new Set());
@@ -95,67 +95,22 @@ function bodyUpdateModuleExports(ast, add) {
   return 'exports'+add;
 };
 
-function isIdentifierUnique(sym, val) {
-  return sym.window.has(val);
+function scriptProcess(sym, ast, add, del=false) {
+  var win = scriptScanWindow(ast);
+  console.log(win);
+  var exp = bodyUpdateExports(ast, add)||bodyUpdateModuleExports(ast, add);
+  globalsRename(sym.globals, win, add);
+  sym.exports.set(add, exp);
+  return sym;
 };
 
-function addIdentifier(sym, val) {
-  sym.window.add(val);
-};
-
-function newIdentifier(sym, pre='exports') {
-  return pre+(sym.identifiers.size());
-};
-
-function addModuleExports(sym, mod, val) {
-  var id = sym.exports.size();
-  sym.exports.set(mod, {id, value: val});
-};
-
-function doModuleExports(mod, ast, sym, del=false) {
-  var body = ast.program.body, idx = -1;
-  for(var i=0, I=body.length; i<I; i++) {
-    var s = body[i];
-    if(s.type!=='ExpressionStatement') continue;
-    if(s.expression.left.type!=='MemberExpression') continue;
-    if(s.expression.left.object.name!=='module') continue;
-    if(s.expression.left.property.name!=='exports') continue;
-    idx = i;
-  }
-  if(idx<0) return false;
-  if(s.expression.right.type==='Identifier') {
-    var name = s.expression.right.name;
-    if(!isIdentifierUnique(sym, name)) name = renameIdentifier(name, ast, sym);
-    addModuleExports(sym, mod, name);
-    if(del) body.splice(idx, 1);
-  }
-  else {
-    var name = newIdentifier(sym);
-    addModuleExports(sym, mod, name);
-    var bodyg = recast.parse(`const ${name} = 0;`).program.body;
-    bodyg[0].declarations[0].init = s.expression.right;
-    body[idx] = bodyg[0];
-  }
-  return true;
-};
 
 // I. global variables
 const A = process.argv;
 
-
+var sym = {globals: new Set(), exports: new Map()};
 var src = fs.readFileSync(A[2]);
 var ast = recast.parse(src);
-var body = ast.program.body;
-
-for(var i=0, I=0; i<I; i++) {
-  var s = body[i];
-  if(s.type!=='ExpressionStatement') continue;
-  if(s.expression.left.type!=='MemberExpression') continue;
-  if(s.expression.left.object.name!=='module') continue;
-  if(s.expression.left.property.name!=='exports') continue;
-  body.splice(i, 1);
-}
+scriptProcess(sym, ast, '_test_module');
 var mod = recast.print(ast).code;
-console.log(astScanWindow(ast));
-
-
+console.log(mod);
