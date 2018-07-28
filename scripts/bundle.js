@@ -61,44 +61,46 @@ function globalsRename(glo, win, add) {
   }
   return glo;
 };
-function bodyUpdateExports(ast, add) {
-  var idx = -1;
-  for(var i=0, I=ast.length; i<I; i++) {
-    var s = ast[i];
+function scriptUpdateExports(ast, exp) {
+  var body = ast.program.body, idx = -1;
+  for(var i=0, I=body.length; i<I; i++) {
+    var s = body[i];
     if(s.type!=='ExpressionStatement') continue;
     if(s.expression.left.type!=='MemberExpression') continue;
     if(s.expression.left.object.name!=='exports') continue;
-    s.expression.left.object.name = 'exports'+add;
+    s.expression.left.object.name = exp;
     if(idx<0) idx = i;
   }
   if(idx<0) return null;
-  var astn = recast.parse(`const exports${add} = {};\n`);
-  ast.splice(idx, 0, astn.program.body[0]);
-  return 'exports'+add;
+  var astn = recast.parse(`\nconst ${exp} = {};`);
+  body.splice(idx, 0, astn.program.body[0]);
+  return exp;
 };
-function bodyUpdateModuleExports(ast, add) {
-  var idx = -1, right = null;
-  for(var i=0, I=ast.length; i<I; i++) {
-    var s = ast[i];
+function scriptUpdateModuleExports(ast, exp) {
+  var body = ast.program.body, idx = -1, right = null;
+  for(var i=0, I=body.length; i<I; i++) {
+    var s = body[i];
     if(s.type!=='ExpressionStatement') continue;
     if(s.expression.left.type!=='MemberExpression') continue;
     if(s.expression.left.object.name!=='module') continue;
     if(s.expression.left.property.name!=='exports') continue;
-    right = s.expression.right;
-    ast.splice(idx=i--, 1);
+    right = s.expression.right; I--;
+    body.splice(idx=i--, 1);
   }
   if(right==null) return null;
   if(right.type==='Identifier') return right.name;
-  var astn = recast.parse(`const exports${add} = 0;\n`);
-  astn.program.body[0].expression.right = right;
-  ast.splice(idx, 0, astn.program.body[0]);
-  return 'exports'+add;
+  var astn = recast.parse(`\nconst ${exp} = 0;`);
+  astn.program.body[0].declarations[0].init = right;
+  body.splice(idx, 0, astn.program.body[0]);
+  return exp;
 };
 
 function scriptProcess(sym, ast, add, del=false) {
   var win = scriptScanWindow(ast);
-  console.log(win);
-  var exp = bodyUpdateExports(ast, add)||bodyUpdateModuleExports(ast, add);
+  console.log('win', win);
+  var exp = scriptUpdateExports(ast, add);
+  exp = exp||scriptUpdateModuleExports(ast, add);
+  console.log('exp', exp);
   globalsRename(sym.globals, win, add);
   sym.exports.set(add, exp);
   return sym;
