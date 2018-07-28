@@ -8,8 +8,15 @@ const fs = require('fs');
 
 
 // Get last value in array.
-function last(arr) {
-  return arr[arr.length-1];
+function last(arr, i=1) {
+  return arr[arr.length-i];
+};
+
+// Remove value from array.
+function remove(arr, val) {
+  var i = arr.indexOf(val);
+  if(i>=0) arr.splice(i, 1);
+  return arr;
 };
 
 // Remove values at all indexes.
@@ -17,6 +24,52 @@ function removeAtAll(arr, idx) {
   for(var i=idx.length-1; i>=0; i--)
     arr.splice(idx[i], 1);
   return arr;
+};
+
+// Get key of value in object.
+function keyOf(obj, val) {
+  for(var k in obj)
+    if(obj[k]===val) return k;
+  return null;
+};
+
+// Check if node is function.
+function nodeIsFunction(ast) {
+  return /Function(Declaration|Expression)/.test(ast.type);
+};
+
+// Check if node is assignment.
+function nodeIsAssignment(ast) {
+  if(ast.type==='VariableDeclarator') return true;
+  return ast.type==='AssignmentExpression';
+};
+
+// Check if node is require().
+function nodeIsRequire(ast) {
+  if(ast.type!=='CallExpression') return false;
+  return ast.callee.name==='require';
+};
+
+// Check if node is exports.
+function nodeIsExports(ast) {
+  if(ast.type!=='ExpressionStatement') return false;
+  if(ast.expression.left.type!=='MemberExpression') return false;
+  return ast.expression.left.object.name==='exports';
+};
+
+// Check if node is module.exports.
+function nodeIsModuleExports(ast) {
+  if(ast.type!=='ExpressionStatement') return false;
+  if(ast.expression.left.type!=='MemberExpression') return false;
+  if(ast.expression.left.object.name!=='module') return false;
+  return ast.expression.left.property.name==='exports';
+};
+
+// Get assignment name.
+function assignmentName(ast) {
+  if(ast.type==='VariableDeclarator') return ast.id.name;
+  else if(ast.type==='AssignmentExpression') return ast.left.name;
+  return null;
 };
 
 // Get function parameter name.
@@ -32,20 +85,6 @@ function functionParams(ast, set=new Set()) {
   for(var p of ast.params)
     set.add(paramName(p));
   return set;
-};
-
-// Check if statement is exports.
-function statementIsExports(ast) {
-  if(ast.type!=='ExpressionStatement') return false;
-  if(ast.expression.left.type!=='MemberExpression') return false;
-  return ast.expression.left.object.name==='exports';
-};
-
-function statementIsModuleExports(ast) {
-  if(ast.type!=='ExpressionStatement') return false;
-  if(ast.expression.left.type!=='MemberExpression') return false;
-  if(ast.expression.left.object.name!=='module') return false;
-  return ast.expression.left.property.name==='exports';
 };
 
 // Get variable declaration names.
@@ -79,7 +118,7 @@ function bodyEmptyWindow(ast, win=new Map()) {
 // Get (scanned) window identifier map.
 function bodyWindow(ast, win=bodyEmptyWindow(ast), exc=new Set()) {
   if(ast==null || typeof ast!=='object') return win;
-  if(/Function(Declaration|Expression)/.test(ast.type)) {
+  if(nodeIsFunction(ast)) {
     var excn = functionParams(ast, new Set(exc));
     return bodyWindow(ast.body, win, excn);
   }
@@ -87,7 +126,8 @@ function bodyWindow(ast, win=bodyEmptyWindow(ast), exc=new Set()) {
     if(!win.has(ast.name) || exc.has(ast.name)) return win;
     win.get(ast.name).push(ast); return win;
   }
-  for(var k in ast) bodyWindow(ast[k], win, exc);
+  for(var k in ast)
+    bodyWindow(ast[k], win, exc);
   return win;
 };
 
@@ -120,7 +160,7 @@ function globalsAddAll(glo, win, suf) {
 // Update exports to given name.
 function bodyUpdateExports(ast, nam) {
   for(var i=0, I=ast.length, idx=-1; i<I; i++) {
-    if(!statementIsExports(ast[i])) continue;
+    if(!nodeIsExports(ast[i])) continue;
     ast[i].expression.left.object.name = nam;
     if(idx<0) idx = i;
   }
@@ -133,7 +173,7 @@ function bodyUpdateExports(ast, nam) {
 // Update module.exports to given name, if possible.
 function bodyUpdateModuleExports(ast, nam) {
   for(var i=0, I=ast.length, idx=[]; i<I; i++)
-    if(statementIsModuleExports(ast[i])) idx.push(i);
+    if(nodeIsModuleExports(ast[i])) idx.push(i);
   if(idx.length===0) return null;
   var right = ast[last(idx)].expression.right;
   if(right.type==='Identifier') {
@@ -147,23 +187,33 @@ function bodyUpdateModuleExports(ast, nam) {
   return nam;
 };
 
-function bodyUpdateRequire(exp, astp, astc, paths) {
-  if(astc==null || typeof astc!=='object') return exp;
-  if(astc.type==='CallExpression' && astc.callee.name==='require') {
-    var id = require.resolve(astc.arguments[0].value, {paths}), left = null;
-    if(astp.type==='VariableDeclarator') left = astp.id.name;
-    else if(astp.type==='AssignmentExpression') left = astp.left.name;
-    if(!exp.has(id)) {
-      var txt = fs.readFileSync(id, 'utf8');
-      var astr = recast.parse(txt);
-      
-      // load require here
+function bodyUpdateRequire(asth, paths, fn) {
+  var ast = last(asth);
+  if(ast==null || typeof ast!=='object') return asth;
+  if(nodeIsRequire(ast)) {
+    var ast2 = last(asth, 2);
+    var id = require.resolve(ast.arguments[0].value, {paths}), right = fn(id);
+    if(!nodeIsAssignment(ast2) || assignmentName(ast2)!==right) {
+      var astr = recast.parse(`const a = ${right};`);
+      ast2[keyOf(ast2, ast)] = astr.program.body[0].declarations[0].init;
+      return asth;
     }
-    if(astp.type==='VariableDeclarator') astp.init = exp.get(id);
-    else if(astp.type==='AssignmentExpression') astp.right = exp.get(id);
+    var ast3 = last(asth, 3), ast4 = last(asth, 4);
+    if(ast2.type==='AssignmentExpression') remove(ast4, ast3);
+    else if(ast2.type==='VariableDeclarator') {
+      var ast5 = last(asth, 5);
+      if(ast3.length>1) remove(ast3, ast2);
+      else remove(ast5, ast4);
+    }
+    return asth;
   }
-  for(var k in astc) bodyUpdateRequire(exp, astc, astc[k], paths);
-  return exp;
+  var al = asth.length;
+  for(var k in ast) {
+    asth[al] = ast[k];
+    bodyUpdateRequire(asth, paths, fn);
+  }
+  asth.pop();
+  return asth;
 };
 
 function scriptScanWindow(ast) {
