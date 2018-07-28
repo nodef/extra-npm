@@ -7,6 +7,18 @@ const fs = require('fs');
 
 
 
+// Get last value in array.
+function last(arr) {
+  return arr[arr.length-1];
+};
+
+// Remove values at all indexes.
+function removeAtAll(arr, idx) {
+  for(var i=idx.length-1; i>=0; i--)
+    arr.splice(idx[i], 1);
+  return arr;
+};
+
 // Get function parameter name.
 function paramName(ast) {
   if(ast.type==='Identifier') return ast.name;
@@ -105,34 +117,34 @@ function globalsAddAll(glo, win, suf) {
   return glo;
 };
 
-function scriptUpdateExports(ast, exp) {
-  var body = ast.program.body, idx = -1;
-  for(var i=0, I=body.length; i<I; i++) {
-    var s = body[i];
-    if(!statementIsExports(s)) continue;
-    s.expression.left.object.name = exp;
+// Update exports to given name.
+function bodyUpdateExports(ast, nam) {
+  for(var i=0, I=ast.length, idx=-1; i<I; i++) {
+    if(!statementIsExports(ast[i])) continue;
+    ast[i].expression.left.object.name = nam;
     if(idx<0) idx = i;
   }
   if(idx<0) return null;
-  var astn = recast.parse(`\nconst ${exp} = {};`);
-  body.splice(idx, 0, astn.program.body[0]);
-  return exp;
+  var astn = recast.parse(`\nconst ${nam} = {};`);
+  ast.splice(idx, 0, astn.program.body[0]);
+  return nam;
 };
 
-function scriptUpdateModuleExports(ast, exp) {
-  var body = ast.program.body, idx = -1, right = null;
-  for(var i=0, I=body.length; i<I; i++) {
-    var s = body[i];
-    if(!statementIsModuleExports(s)) continue;
-    right = s.expression.right; I--;
-    body.splice(idx=i--, 1);
+// Update module.exports to given name, if possible.
+function bodyUpdateModuleExports(ast, nam) {
+  for(var i=0, I=ast.length, idx=[]; i<I; i++)
+    if(statementIsModuleExports(ast[i])) idx.push(i);
+  if(idx.length===0) return null;
+  var right = ast[last(idx)].expression.right;
+  if(right.type==='Identifier') {
+    removeAtAll(ast, idx);
+    return right.name;
   }
-  if(right==null) return null;
-  if(right.type==='Identifier') return right.name;
-  var astn = recast.parse(`\nconst ${exp} = 0;`);
+  var astn = recast.parse(`\nconst ${nam} = 0;`);
   astn.program.body[0].declarations[0].init = right;
-  body.splice(idx, 0, astn.program.body[0]);
-  return exp;
+  ast[idx.pop()] = astn.program.body[0];
+  removeAtAll(ast, idx);
+  return nam;
 };
 
 function bodyUpdateRequire(exp, astp, astc, paths) {
@@ -163,8 +175,8 @@ function scriptScanWindow(ast) {
 function scriptProcess(sym, ast, add, del=false) {
   var win = scriptScanWindow(ast);
   console.log('win', win);
-  var exp = scriptUpdateExports(ast, add);
-  exp = exp||scriptUpdateModuleExports(ast, add);
+  var exp = bodyUpdateExports(ast, add);
+  exp = exp||bodyUpdateModuleExports(ast, add);
   console.log('exp', exp);
   globalsAddAll(sym.globals, win, add);
   sym.exports.set(add, exp);
