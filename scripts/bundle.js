@@ -192,14 +192,15 @@ function bodyUpdateRequire(ast, astp, paths, fn) {
   if(ast==null || typeof ast!=='object') return ast;
   if(!nodeIsRequire(ast)) {
     astp.push(ast);
-    for(var k in ast)
-      bodyUpdateRequire(ast[k], astp, paths, fn);
+    for(var astv of Object.values(ast))
+      bodyUpdateRequire(astv, astp, paths, fn);
     return astp.pop();
   }
+  // console.log('require', ast.arguments[0].value);
   var id = require.resolve(ast.arguments[0].value, {paths});
   var nam = fn(id), ast1 = last(astp);
   if(!nodeIsAssignment(ast1) || assignmentName(ast1)!==nam) {
-    var astr = recast.parse(`const a = ${right};`);
+    var astr = recast.parse(`const a = ${nam};`);
     ast1[keyOf(ast1, ast)] = astr.program.body[0].declarations[0].init;
     return ast;
   }
@@ -224,11 +225,11 @@ function scriptProcess(pth, sym, top=false) {
   var suf = !top? sym.exports.size.toString():'', nam = 'exports'+suf;
   if(!top) nam = bodyUpdateExports(body, nam)||bodyUpdateModuleExports(body, nam);
   var win = bodyWindow(body);
-  console.log('win', win);
   globalsAddAll(sym.globals, win, suf);
+  // console.log('win', win);
   var code = recast.print(ast).code;
   sym.exports.set(pth, {name: nam, suffix: suf, code});
-  return nam;
+  return win.has(nam)? win.get(nam)[0].name:nam;
 };
 
 
