@@ -184,39 +184,29 @@ function bodyUpdateModuleExports(ast, nam) {
   return nam;
 };
 
-function bodyUpdateRequire(asth, paths, fn) {
-  var ast = last(asth);
-  if(ast==null || typeof ast!=='object') return asth;
-  if(nodeIsRequire(ast)) {
-    var ast2 = last(asth, 2);
-    var id = require.resolve(ast.arguments[0].value, {paths}), right = fn(id);
-    if(!nodeIsAssignment(ast2) || assignmentName(ast2)!==right) {
-      var astr = recast.parse(`const a = ${right};`);
-      ast2[keyOf(ast2, ast)] = astr.program.body[0].declarations[0].init;
-      return asth;
-    }
-    var ast3 = last(asth, 3), ast4 = last(asth, 4);
-    if(ast2.type==='AssignmentExpression') remove(ast4, ast3);
-    else if(ast2.type==='VariableDeclarator') {
-      var ast5 = last(asth, 5);
-      if(ast3.length>1) remove(ast3, ast2);
-      else remove(ast5, ast4);
-    }
-    return asth;
+// Update require() using module load function.
+function bodyUpdateRequire(ast, astp, paths, fn) {
+  if(ast==null || typeof ast!=='object') return ast;
+  if(!nodeIsRequire(ast)) {
+    astp.push(ast);
+    for(var k in ast)
+      bodyUpdateRequire(ast[k], astp, paths, fn);
+    return astp.pop();
   }
-  var al = asth.length;
-  for(var k in ast) {
-    asth[al] = ast[k];
-    bodyUpdateRequire(asth, paths, fn);
+  var id = require.resolve(ast.arguments[0].value, {paths});
+  var nam = fn(id), ast1 = last(astp);
+  if(!nodeIsAssignment(ast1) || assignmentName(ast1)!==nam) {
+    var astr = recast.parse(`const a = ${right};`);
+    ast1[keyOf(ast1, ast)] = astr.program.body[0].declarations[0].init;
+    return ast;
   }
-  asth.pop();
-  return asth;
-};
-
-function scriptScanWindow(ast) {
-  var body = ast.program.body;
-  var map = bodyEmptyWindow(body, new Map());
-  return bodyWindow(body, map, new Set());
+  var ast2 = last(astp, 2), ast3 = last(astp, 3);
+  if(ast1.type==='VariableDeclarator') {
+    if(ast2.length>1) remove(ast2, ast1);
+    else remove(last(astp, 4), ast3);
+  }
+  else if(ast1.type==='AssignmentExpression') remove(ast3, ast2);
+  return ast;
 };
 
 function scriptProcess(sym, ast, add, del=false) {
