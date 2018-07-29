@@ -2,6 +2,7 @@
 // 2. process .js + package.json -> package.json
 // 3. process .js + README.md -> README.md
 // 4. create package and publish
+const findNpmPrefix = require('find-npm-prefix');
 const recast = require('recast');
 const path = require('path');
 const fs = require('fs');
@@ -144,6 +145,12 @@ function bodyWindow(ast, win=bodyEmptyWindow(ast), exc=new Set()) {
   return win;
 };
 
+// Get actual name of window identifier.
+function windowName(win, nam) {
+  if(!win.has(nam)) return nam;
+  return win.get(nam)[0].name;
+};
+
 // Rename a window identifier.
 function windowRename(win, nam, to) {
   for(var ast of win.get(nam))
@@ -216,24 +223,20 @@ function bodyUpdateRequire(ast, astp, fn) {
   return ast;
 };
 
-function scriptProcess(pth, sym, top=false) {
-  var dir = path.dirname(pth), paths = [dir];
-  var txt = fs.readFileSync(pth, 'utf8');
-  var ast = recast.parse(txt);
-  var body = ast.program.body;
+// Bundle script with options
+function scriptBundle(pth, sym, opt, top=false) {
+  var code = fs.readFileSync(pth, 'utf8'), paths = [path.dirname(pth)];
+  var ast = recast.parse(code), body = ast.program.body;
   bodyUpdateRequire(body, [], val => {
     var pth = require.resolve(val, {paths});
     if(sym.exports.has(pth)) return sym.exports.get(pth).name;
-    return scriptProcess(pth, sym);
+    return scriptBundle(pth, sym);
   });
   var suf = !top? sym.exports.size.toString():'', nam = 'exports'+suf;
   if(!top) nam = bodyUpdateExports(body, nam)||bodyUpdateModuleExports(body, nam);
-  var win = bodyWindow(body);
-  globalsAddAll(sym.globals, win, suf);
-  // console.log('win', win);
-  var code = recast.print(ast).code;
-  sym.exports.set(pth, {name: nam, suffix: suf, code});
-  return win.has(nam)? win.get(nam)[0].name:nam;
+  var win = bodyWindow(body); globalsAddAll(sym.globals, win, suf);
+  sym.exports.set(pth, {name: nam, suffix: suf, code: recast.print(ast).code});
+  return windowName(nam);
 };
 
 
@@ -241,6 +244,6 @@ function scriptProcess(pth, sym, top=false) {
 const A = process.argv;
 var pth = path.join(process.cwd(), A[2]);
 var sym = {exports: new Map(), globals: new Set()};
-scriptProcess(pth, sym, true);
+scriptBundle(pth, sym, true);
 for(var exp of sym.exports.values())
   console.log(exp.code);
