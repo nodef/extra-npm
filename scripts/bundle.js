@@ -35,6 +35,19 @@ function keyOf(obj, val) {
   return null;
 };
 
+// Add all values to set.
+function addAll(set, vals) {
+  for(var v of vals)
+    set.add(v);
+  return set;
+};
+
+// Read json file at path.
+function jsonRead(pth) {
+  if(!fs.existsSync(pth)) return null;
+  return JSON.parse(fs.readFileSync(pth, 'utf8'));
+};
+
 // Check if node is function.
 function nodeIsFunction(ast) {
   return /Function(Declaration|Expression)/.test(ast.type);
@@ -215,6 +228,7 @@ function bodyUpdateRequire(ast, astp, fn) {
     return astp.pop();
   }
   var nam = fn(ast.arguments[0].value), ast1 = last(astp);
+  if(nam==null) return ast;
   if(nodeIsAssignment(ast1) && assignmentName(ast1)===nam) {
     assignmentRemove(astp); return ast;
   }
@@ -224,26 +238,46 @@ function bodyUpdateRequire(ast, astp, fn) {
 };
 
 // Bundle script with options
-function scriptBundle(pth, sym, opt, top=false) {
+function bundleScript(pth, sym, exc=new Set(), top=false) {
   var code = fs.readFileSync(pth, 'utf8'), paths = [path.dirname(pth)];
   var ast = recast.parse(code), body = ast.program.body;
   bodyUpdateRequire(body, [], val => {
+    if(exc.has(val)) return null;
     var pth = require.resolve(val, {paths});
     if(sym.exports.has(pth)) return sym.exports.get(pth).name;
-    return scriptBundle(pth, sym);
+    return bundleScript(pth, sym, exc);
   });
   var suf = !top? sym.exports.size.toString():'', nam = 'exports'+suf;
   if(!top) nam = bodyUpdateExports(body, nam)||bodyUpdateModuleExports(body, nam);
   var win = bodyWindow(body); globalsAddAll(sym.globals, win, suf);
   sym.exports.set(pth, {name: nam, suffix: suf, code: recast.print(ast).code});
-  return windowName(nam);
+  return windowName(win, nam);
+};
+
+// Get exclude set for bundle.
+function bundleExclude(pth, opt) {
+  var exc = new Set();
+  var pkg = jsonRead(path.join(pth, 'package.json'))||{};
+  var pkgl = jsonRead(path.join(pth, 'package-lock.json'))||{};
+  if(opt.dependencies && pkg.dependencies) addAll(exc, Object.keys(pkg.dependencies));
+  if(opt.devDependencies && pkg.devDependencies) addAll(exc, Object.keys(pkg.devDependencies));
+  if(opt.allDependencies && pkgl.dependencies) addAll(exc, Object.keys(pkgl.dependencies));
+  return exc;
 };
 
 
 // I. global variables
 const A = process.argv;
-var pth = path.join(process.cwd(), A[2]);
-var sym = {exports: new Map(), globals: new Set()};
-scriptBundle(pth, sym, true);
-for(var exp of sym.exports.values())
-  console.log(exp.code);
+const CWD = process.cwd();
+
+async function bundle() {
+  var pth = path.join(CWD, A[2]);
+  var pfx = await findNpmPrefix(CWD);
+  var sym = {exports: new Map(), globals: new Set()};
+  var exc = bundleExclude(pfx, {devDependencies: true});
+  bundleScript(pth, sym, exc, true);
+  for(var exp of sym.exports.values())
+    console.log(exp.code);
+};
+bundle();
+
