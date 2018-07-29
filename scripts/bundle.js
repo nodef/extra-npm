@@ -120,6 +120,7 @@ function bodyEmptyWindow(ast, win=new Map()) {
 function bodyWindow(ast, win=bodyEmptyWindow(ast), exc=new Set()) {
   if(ast==null || typeof ast!=='object') return win;
   if(nodeIsFunction(ast)) {
+    bodyWindow(ast.id, win, exc);
     var excn = functionParams(ast, new Set(exc));
     return bodyWindow(ast.body, win, excn);
   }
@@ -174,8 +175,8 @@ function bodyUpdateExports(ast, nam) {
 function bodyUpdateModuleExports(ast, nam) {
   for(var i=ast.length-1, idx=-1, rgt=null; i>=0; i--) {
     if(!nodeIsModuleExports(ast[i])) continue;
-    if(idx>=0) ast.splice(idx, 1);
     rgt = ast[idx=i].expression.right;
+    ast.splice(i, 1);
   }
   if(idx<0) return null;
   if(rgt.type==='Identifier') return rgt.name;
@@ -211,17 +212,28 @@ function bodyUpdateRequire(ast, astp, paths, fn) {
   return ast;
 };
 
-function scriptProcess(pth) {
+function scriptProcess(pth, sym) {
   var dir = path.dirname(pth), pths = [dir];
   var txt = fs.readFileSync(pth, 'utf8');
   var ast = recast.parse(txt);
   var body = ast.program.body;
+  var suf = (sym.suffix++).toString();
+  var nam = 'exports'+suf;
+  nam = bodyUpdateExports(body, nam)||bodyUpdateModuleExports(body, nam);
+  bodyUpdateRequire(body, [], pths, pth => scriptProcess(pth, sym));
   var win = bodyWindow(body);
   console.log('win', win);
+  globalsAddAll(sym.globals, win, suf);
+  var code = recast.print(ast).code;
+  sym.exports.set(pth, {name: nam, suffix: suf, code});
+  return nam;
 };
 
 
 // I. global variables
 const A = process.argv;
 var pth = path.join(process.cwd(), A[2]);
-scriptProcess(pth);
+var sym = {exports: new Map(), globals: new Set(), suffix: 0};
+scriptProcess(pth, sym);
+for(var exp of sym.exports.values())
+  console.log(exp.code);
