@@ -212,15 +212,17 @@ function bodyUpdateRequire(ast, astp, paths, fn) {
   return ast;
 };
 
-function scriptProcess(pth, sym) {
+function scriptProcess(pth, sym, top=false) {
   var dir = path.dirname(pth), pths = [dir];
   var txt = fs.readFileSync(pth, 'utf8');
   var ast = recast.parse(txt);
   var body = ast.program.body;
-  var suf = (sym.suffix++).toString();
-  var nam = 'exports'+suf;
-  nam = bodyUpdateExports(body, nam)||bodyUpdateModuleExports(body, nam);
-  bodyUpdateRequire(body, [], pths, pth => scriptProcess(pth, sym));
+  bodyUpdateRequire(body, [], pths, pth => {
+    if(sym.exports.has(pth)) return sym.exports.get(pth).name;
+    return scriptProcess(pth, sym);
+  });
+  var suf = !top? sym.exports.size.toString():'', nam = 'exports'+suf;
+  if(!top) nam = bodyUpdateExports(body, nam)||bodyUpdateModuleExports(body, nam);
   var win = bodyWindow(body);
   console.log('win', win);
   globalsAddAll(sym.globals, win, suf);
@@ -233,7 +235,7 @@ function scriptProcess(pth, sym) {
 // I. global variables
 const A = process.argv;
 var pth = path.join(process.cwd(), A[2]);
-var sym = {exports: new Map(), globals: new Set(), suffix: 0};
-scriptProcess(pth, sym);
+var sym = {exports: new Map(), globals: new Set()};
+scriptProcess(pth, sym, true);
 for(var exp of sym.exports.values())
   console.log(exp.code);
