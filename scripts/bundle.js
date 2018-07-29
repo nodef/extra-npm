@@ -3,6 +3,7 @@
 // 3. process .js + README.md -> README.md
 // 4. create package and publish
 const recast = require('recast');
+const path = require('path');
 const fs = require('fs');
 
 
@@ -96,7 +97,7 @@ function variableDeclarationNames(ast, set=new Set()) {
 
 // Get declaration names.
 function declarationNames(ast, set=new Set()) {
-  if(ast.type==='FunctionDeclaration') set.set(ast.id.name);
+  if(ast.type==='FunctionDeclaration') set.add(ast.id.name);
   else if(ast.type==='VariableDeclaration') variableDeclarationNames(ast, set);
   return set;
 };
@@ -185,6 +186,7 @@ function bodyUpdateModuleExports(ast, nam) {
 };
 
 // Update require() using module load function.
+// : support __dirname?
 function bodyUpdateRequire(ast, astp, paths, fn) {
   if(ast==null || typeof ast!=='object') return ast;
   if(!nodeIsRequire(ast)) {
@@ -201,33 +203,25 @@ function bodyUpdateRequire(ast, astp, paths, fn) {
     return ast;
   }
   var ast2 = last(astp, 2), ast3 = last(astp, 3);
-  if(ast1.type==='VariableDeclarator') {
+  if(ast1.type==='AssignmentExpression') remove(ast3, ast2);
+  else if(ast1.type==='VariableDeclarator') {
     if(ast2.length>1) remove(ast2, ast1);
     else remove(last(astp, 4), ast3);
   }
-  else if(ast1.type==='AssignmentExpression') remove(ast3, ast2);
   return ast;
 };
 
-function scriptProcess(sym, ast, add, del=false) {
-  var win = scriptScanWindow(ast);
+function scriptProcess(pth) {
+  var dir = path.dirname(pth), pths = [dir];
+  var txt = fs.readFileSync(pth, 'utf8');
+  var ast = recast.parse(txt);
+  var body = ast.program.body;
+  var win = bodyWindow(body);
   console.log('win', win);
-  var exp = bodyUpdateExports(ast, add);
-  exp = exp||bodyUpdateModuleExports(ast, add);
-  console.log('exp', exp);
-  globalsAddAll(sym.globals, win, add);
-  sym.exports.set(add, exp);
-  return sym;
 };
 
 
 // I. global variables
 const A = process.argv;
-
-var sym = {globals: new Set(), exports: new Map()};
-var src = fs.readFileSync(A[2]);
-var ast = recast.parse(src);
-scriptProcess(sym, ast, '_test_module');
-var mod = recast.print(ast).code;
-console.log(mod);
-console.log(require.resolve('./divisors', {paths: [process.cwd()]}));
+var pth = path.join(process.cwd(), A[2]);
+scriptProcess(pth);
