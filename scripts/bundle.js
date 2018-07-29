@@ -73,6 +73,17 @@ function assignmentName(ast) {
   return null;
 };
 
+// Remove an assignment from hierarchy.
+function assignmentRemove(asth) {
+  var ast1 = last(asth), ast2 = last(asth, 2), ast3 = last(asth, 3);
+  if(ast1.type==='AssignmentExpression') remove(ast3, ast2);
+  else if(ast1.type==='VariableDeclarator') {
+    if(ast2.length>1) remove(ast2, ast1);
+    else remove(last(asth, 4), ast3);
+  }
+  return asth;
+};
+
 // Get function parameter name.
 function paramName(ast) {
   if(ast.type==='Identifier') return ast.name;
@@ -187,38 +198,31 @@ function bodyUpdateModuleExports(ast, nam) {
 };
 
 // Update require() using module load function.
-// : support __dirname?
-function bodyUpdateRequire(ast, astp, paths, fn) {
+// : support __dirname, __filename?
+function bodyUpdateRequire(ast, astp, fn) {
   if(ast==null || typeof ast!=='object') return ast;
   if(!nodeIsRequire(ast)) {
     astp.push(ast);
     for(var astv of Object.values(ast))
-      bodyUpdateRequire(astv, astp, paths, fn);
+      bodyUpdateRequire(astv, astp, fn);
     return astp.pop();
   }
-  // console.log('require', ast.arguments[0].value);
-  var id = require.resolve(ast.arguments[0].value, {paths});
-  var nam = fn(id), ast1 = last(astp);
-  if(!nodeIsAssignment(ast1) || assignmentName(ast1)!==nam) {
-    var astr = recast.parse(`const a = ${nam};`);
-    ast1[keyOf(ast1, ast)] = astr.program.body[0].declarations[0].init;
-    return ast;
+  var nam = fn(ast.arguments[0].value), ast1 = last(astp);
+  if(nodeIsAssignment(ast1) && assignmentName(ast1)===nam) {
+    assignmentRemove(astp); return ast;
   }
-  var ast2 = last(astp, 2), ast3 = last(astp, 3);
-  if(ast1.type==='AssignmentExpression') remove(ast3, ast2);
-  else if(ast1.type==='VariableDeclarator') {
-    if(ast2.length>1) remove(ast2, ast1);
-    else remove(last(astp, 4), ast3);
-  }
+  var astr = recast.parse(`const a = ${nam};`);
+  ast1[keyOf(ast1, ast)] = astr.program.body[0].declarations[0].init;
   return ast;
 };
 
 function scriptProcess(pth, sym, top=false) {
-  var dir = path.dirname(pth), pths = [dir];
+  var dir = path.dirname(pth), paths = [dir];
   var txt = fs.readFileSync(pth, 'utf8');
   var ast = recast.parse(txt);
   var body = ast.program.body;
-  bodyUpdateRequire(body, [], pths, pth => {
+  bodyUpdateRequire(body, [], val => {
+    var pth = require.resolve(val, {paths});
     if(sym.exports.has(pth)) return sym.exports.get(pth).name;
     return scriptProcess(pth, sym);
   });
