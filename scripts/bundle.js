@@ -265,11 +265,6 @@ function bundleExclude(pth, opt) {
   return exc;
 };
 
-
-// I. global variables
-const A = process.argv;
-const CWD = process.cwd();
-
 async function bundle() {
   var pth = path.join(CWD, A[2]);
   var pfx = await findNpmPrefix(CWD);
@@ -279,5 +274,10 @@ async function bundle() {
   for(var exp of sym.exports.values())
     console.log(exp.code);
 };
-bundle();
 
+
+
+// MAIN
+const A = process.argv;
+const CWD = process.cwd();
+bundle();
