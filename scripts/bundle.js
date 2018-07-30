@@ -265,19 +265,35 @@ function bundleExclude(pth, opt) {
   return exc;
 };
 
-async function bundle() {
-  var pth = path.join(CWD, A[2]);
-  var pfx = await findNpmPrefix(CWD);
+async function bundle(fil, opt) {
+  var cwd = process.cwd();
+  var pth = path.join(cwd, fil);
+  var pfx = await findNpmPrefix(cwd);
   var sym = {exports: new Map(), globals: new Set()};
-  var exc = bundleExclude(pfx, {devDependencies: true});
+  var exc = bundleExclude(pfx, opt);
   bundleScript(pth, sym, exc, true);
   for(var exp of sym.exports.values())
     console.log(exp.code);
 };
+module.exports =  bundle;
 
 
 
 // MAIN
-const A = process.argv;
-const CWD = process.cwd();
-bundle();
+if(require.main===module) {
+  const A = process.argv;
+  var dependencies = false;
+  var devDependencies = false;
+  var allDependencies = false;
+  var files = [];
+  for(var i=2, I=A.length; i<I; i++) {
+    if(A[i]==='-?' || A[i]==='--help') { /* i am not a optimus */ }
+    else if(A[i]==='-d' || A[i]==='--dependencies') dependencies = true;
+    else if(A[i]==='-dd' || A[i]==='--dev_dependencies') devDependencies = true;
+    else if(A[i]==='-ad' || A[i]==='--all_dependencies') allDependencies = true;
+    else files.push(A[i]);
+  }
+  var opt = {dependencies, devDependencies, allDependencies};
+  for(var fil of files)
+    bundle(fil, opt);
+}
