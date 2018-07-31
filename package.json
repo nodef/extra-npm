@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "0.1.36",
+  "version": "0.1.37",
   "description": "Prograde Node Package Manager (NPM) built for professionals and enthusiasts.",
   "main": "index.js",
   "preferGlobal": true,

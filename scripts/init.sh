@@ -164,7 +164,7 @@ printf "${cm}\n"
 if [[ "$_s1" != "" ]]; then
   printf "Initializing repository $repository ... "
   github_homepage="https://www.npmjs.com/package/$name"
-  node "${dp0}scripts/init-github" -r "$repository" -d "$description" -h "$github_homepage" \
+  node "${dp0}scripts/init" -r "$repository" -d "$description" -h "$github_homepage" \
     -t "$keywords" -ai "true" -gt "Node" -lt "$license"
   printf "done.\n"
 fi
