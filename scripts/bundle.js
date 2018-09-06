@@ -1,3 +1,5 @@
+// # browserify
+// # uglify
 // 1. process .js -> single .js
 // 2. process .js + package.json -> package.json
 // 3. process .js + README.md -> README.md
