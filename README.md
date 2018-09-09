@@ -112,3 +112,5 @@ enpm clone <package@version> [flags]
 # ENPM_CLONE_MESSAGE: message for all commits 
 # ENPM_CLONE_ALL: use all versions of package instead of just one (0/1) 
 ```
+
+> TODO: list author packages, check updates, is valid name.
