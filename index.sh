@@ -12,8 +12,7 @@ psd() {
 }
 
 # read arguments
-dp0="$(psd)/"
-sp0="${dp0}node_modules/@extra-npm/"
+dp0="$(psd)/"; sp0="${dp0}node_modules/@extra-npm/"
 if [[ "$1" == "--help" ]]; then less "${dp0}README.md"; exit
 elif [[ "$1" == "init" ]]; then shift; source "${sp0}init/index.sh" "$@"
 elif [[ "$1" == "push" ]]; then shift; source "${sp0}push/index.sh" "$@"

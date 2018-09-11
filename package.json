@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "0.1.45",
+  "version": "0.1.46",
   "description": "Prograde Node Package Manager (NPM) built for professionals and enthusiasts.",
   "main": "index.js",
   "preferGlobal": true,
@@ -26,6 +26,8 @@
   "author": "wolfram77@gmail.com",
   "license": "MIT",
   "dependencies": {
+    "@extra-npm/clone": "^1.0.2",
+    "@extra-npm/init": "^1.0.1",
     "@extra-npm/push": "^1.1.6"
   }
 }
