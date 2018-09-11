@@ -17,9 +17,9 @@ enpm install package
 
 ### Commands
 
-- [init]: Initialize Node.js repository.
-- [push]: Push changes to both Git and NPM.
-- [clone]: Clone NPM package to local or remote.
+- [init] : Initialize Node.js repository.
+- [push] : Push changes to both Git and NPM.
+- [clone] : Clone NPM package to local or remote.
 
 
 [![Merferry](https://i.imgur.com/8rbhhqI.jpg)](https://merferry.github.io)
