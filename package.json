@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "0.1.48",
+  "version": "0.1.49",
   "description": "Prograde NPM for Node.js package maintainers.",
   "main": "index.js",
   "preferGlobal": true,
@@ -13,15 +13,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nodef/extra-npm.git"
+    "url": "git+https://github.com/extra-npm/extra-npm.git"
   },
   "bugs": {
-    "url": "https://github.com/nodef/extra-npm/issues"
+    "url": "https://github.com/extra-npm/extra-npm/issues"
   },
-  "homepage": "https://github.com/nodef/extra-npm#readme",
+  "homepage": "https://github.com/extra-npm/extra-npm#readme",
   "keywords": [
     "extra",
-    "npm"
+    "npm",
+    "nodejs",
+    "package",
+    "maintainer",
+    "merferry"
   ],
   "author": "wolfram77@gmail.com",
   "license": "MIT",
