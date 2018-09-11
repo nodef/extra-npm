@@ -1,10 +1,8 @@
 #!/bin/bash
 # global variables
 cr="\033[0m"
-cfb="\033[1m"
-cfd="\033[2m"
-ci="\033[1m"
-cm="\033[2m"
+#ci="\033[1m"
+#cm="\033[2m"
 
 psd() {
   # present script directory
