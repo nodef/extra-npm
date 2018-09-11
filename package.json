@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "0.1.42",
+  "version": "0.1.43",
   "description": "Prograde Node Package Manager (NPM) built for professionals and enthusiasts.",
   "main": "index.js",
   "preferGlobal": true,
@@ -15,21 +15,17 @@
     "type": "git",
     "url": "git+https://github.com/nodef/extra-npm.git"
   },
+  "bugs": {
+    "url": "https://github.com/nodef/extra-npm/issues"
+  },
+  "homepage": "https://github.com/nodef/extra-npm#readme",
   "keywords": [
     "extra",
     "npm"
   ],
   "author": "wolfram77@gmail.com",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/nodef/extra-npm/issues"
-  },
-  "homepage": "https://github.com/nodef/extra-npm#readme",
   "dependencies": {
-    "@octokit/rest": "^15.11.1",
-    "find-npm-prefix": "^1.0.2",
-    "promptly": "^3.0.3",
-    "recast": "^0.15.3",
-    "validate-npm-package-name": "^3.0.0"
+    "@extra-npm/push": "^1.1.6"
   }
 }

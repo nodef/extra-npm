@@ -1,5 +1,8 @@
 #!/bin/sh
 # global variables
+cr="\033[0m"
+cfby="\033[1;33m"
+cm="${cm:-$cfby}"
 typ="version"
 usr="${GITHUB_USERNAME}"
 pwd="${GITHUB_PASSWORD}"
@@ -16,6 +19,7 @@ msg="${ENPM_CLONE_MESSAGE}"
 pkg="${ENPM_CLONE_PACKAGE}"
 if [[ "$all" == "1" ]]; then typ="versions"; fi
 if [[ "$tgp" == "" ]]; then tgp="$usr"; fi
+
 
 fullTgt() {
   # get full target url from partial
