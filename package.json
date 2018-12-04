@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Prograde NPM for Node.js package maintainers.",
   "main": "index.js",
   "preferGlobal": true,
@@ -30,8 +30,8 @@
   "author": "wolfram77@gmail.com",
   "license": "MIT",
   "dependencies": {
-    "@extra-npm/clone": "^1.0.2",
-    "@extra-npm/init": "^1.0.1",
-    "@extra-npm/push": "^1.1.7"
+    "@extra-npm/clone": "^1.0.5",
+    "@extra-npm/init": "^1.0.2",
+    "@extra-npm/push": "^1.1.8"
   }
 }
