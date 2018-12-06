@@ -1,2 +1,2 @@
-// npm install -g browserify
-
+// browserify
+// apollo-client (graphQL)

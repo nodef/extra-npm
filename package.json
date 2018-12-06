@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Prograde NPM for Node.js package maintainers.",
   "main": "index.js",
   "preferGlobal": true,
@@ -34,6 +34,8 @@
     "@extra-npm/init": "^1.0.2",
     "@extra-npm/push": "^1.1.8",
     "npm-user-validate": "^1.0.0",
+    "pkg-dir": "^3.0.0",
+    "pkg-up": "^2.0.0",
     "semver": "^5.6.0",
     "validate-npm-package-license": "^3.0.4",
     "validate-npm-package-name": "^3.0.0"
