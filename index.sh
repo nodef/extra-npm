@@ -18,5 +18,6 @@ elif [[ "$1" == "init" ]]; then shift; source "${sp0}init/index.sh" "$@"
 elif [[ "$1" == "push" ]]; then shift; source "${sp0}push/index.sh" "$@"
 elif [[ "$1" == "clone" ]]; then shift; source "${sp0}clone/index.sh" "$@"
 elif [[ "$1" == "bundle" ]]; then shift; node "${sp0}bundle" "$@"
+elif [[ "$1" == "update" ]]; then shift; ncu "$@"
 else npm "$@"
 fi

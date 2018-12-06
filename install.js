@@ -6,3 +6,4 @@ if(os.EOL==='\n') cp.execSync(
   'chmod +x index.cmd && '+
   'rm index.sh'
 );
+cp.execSync('npm install -g npm-check-updates');
