@@ -20,5 +20,6 @@ elif [[ "$1" == "clone" ]]; then shift; source "${sp0}clone/index.sh" "$@"
 elif [[ "$1" == "bundle" ]]; then shift; node "${sp0}bundle" "$@"
 elif [[ "$1" == "update" ]]; then shift; ncu "$@"
 elif [[ "$1" == "show" ]]; then shift; npm show "$@"; node "${sp0}show" "$@"
+# view, info, show, v (downloads?)
 else npm "$@"
 fi
