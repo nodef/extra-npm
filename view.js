@@ -1,4 +1,5 @@
 const npmPackageVersions = require('npm-package-versions');
+const npmPackageStars = require('npm-package-stars');
 const listNpmContents = require('list-npm-contents');
 const moduleDependents = require('module-dependents');
 const npmAvailable = require('npm-available');
@@ -9,6 +10,7 @@ const cp = require('child_process');
 // Global variables.
 const E = process.env;
 const FUNCTION = new Map([
+  ['stars', stars],
   ['versions', versions],
   ['contents', contents],
   ['dependents', dependents],
@@ -20,6 +22,12 @@ const OPTIONS = {
 };
 const STDIO = [0, 1, 2];
 
+
+// Get stars of package.
+function stars(pkg, fn) {
+  var nam = pkg.replace(/@.*/, '');
+  npmPackageStars(nam).then(num => fn(null, num), fn);
+};
 
 // Get versions of package.
 function versions(pkg, fn) {
@@ -46,12 +54,17 @@ function dependents(pkg, fn) {
 // Show details of package.
 function show(typ, pkg, o) {
   var fn = FUNCTION.get(typ);
-  if(fn==null) return console.error(`error: unknown field "${typ}"`);
+  if(fn==null) {
+    if(o.meta) console.log(`\n${typ} = `);
+    return console.error(`error: unknown field "${typ}"`);
+  }
   fn(pkg, (err, ans) => {
+    if(o.meta) console.log(`\n${typ} = `);
     if(err) return console.error('error:', err.message||`package "${pkg}" not found`);
     if(!Array.isArray(ans)) {
       if(!o.log) return console.log(ans);
-      else return console.log(`${pkg} is${ans? '':' not'} available`);
+      if(typeof ans==='boolean') return console.log(`${pkg} is${ans? '':' not'} available`);
+      return console.log(`${pkg} has ${ans} ${typ}`);
     }
     if(o.log) console.log(`${pkg} has ${ans.length} ${typ}`);
     if(o.count) { if(!o.log) console.log(ans.length); return; }
@@ -72,14 +85,12 @@ function shell(a) {
     else spc.push(a[i].substring(1));
   }
   if(!pkg) return;
-  var len = def.length+spc.length;
+  o.meta = def.length+spc.length>1;
   if(def.length>0 || spc.length===0) {
     try { cp.execSync(`npm view ${pkg} ${def.join(' ')}`, {stdio: STDIO}); }
     catch(e) {}
   }
-  for(var t of spc) {
-    if(len>1) console.log(`\n${t} = `);
+  for(var t of spc)
     show(t, pkg, o);
-  }
 };
 if(require.main===module) shell(process.argv);
