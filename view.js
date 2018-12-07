@@ -4,6 +4,7 @@ const listNpmContents = require('list-npm-contents');
 const moduleDependents = require('module-dependents');
 const pkgDownloads = require('pkg-downloads');
 const npmAvailable = require('npm-available');
+const libnpmsearch = require('libnpmsearch');
 const boolean = require('boolean');
 const got = require('got');
 const cp = require('child_process');
@@ -45,6 +46,12 @@ function logResult(pkg, err, ans, o) {
   if(typeof ans==='boolean') return console.log(`${pkg} is${ans? '':' not'} available`);
   if(typeof ans==='number') return console.log(`${pkg} has ${ans} ${typ}`);
   return console.log(ans);
+};
+
+// Get last publish date of package.
+function date(pkg, fn) {
+  var nam = pkg.replace(/@.*/, '');
+  
 };
 
 // Get stars of package.

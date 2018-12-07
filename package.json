@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "Prograde NPM for Node.js package maintainers.",
   "main": "index.js",
   "preferGlobal": true,
@@ -35,6 +35,7 @@
     "@extra-npm/push": "^1.1.8",
     "boolean": "^0.2.0",
     "got": "^9.3.2",
+    "libnpmsearch": "^2.0.0",
     "list-npm-contents": "^1.0.1",
     "module-dependents": "^1.0.0",
     "npm-available": "^1.2.1",
