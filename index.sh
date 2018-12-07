@@ -19,7 +19,7 @@ elif [[ "$1" == "push" ]]; then shift; source "${sp0}push/index.sh" "$@"
 elif [[ "$1" == "clone" ]]; then shift; source "${sp0}clone/index.sh" "$@"
 elif [[ "$1" == "bundle" ]]; then shift; node "${sp0}bundle" "$@"
 elif [[ "$1" == "update" ]]; then shift; ncu "$@"
+elif [[ "$1" == "which" ]]; then shift; node "${dp0}which" "$@"
 elif [[ "$1" == "v" ]] || [[ "$1" == "view" ]] || [[ "$1" == "info" ]] || [[ "$1" == "show" ]]; then shift; node "${dp0}view" "$@"
-# (available, downloads?)
 else npm "$@"
 fi
