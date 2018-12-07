@@ -2,6 +2,7 @@ const npmPackageVersions = require('npm-package-versions');
 const listNpmContents = require('list-npm-contents');
 const moduleDependents = require('module-dependents');
 const boolean = require('boolean');
+const cp = require('child_process');
 
 
 // Global variables.
@@ -15,6 +16,7 @@ const OPTIONS = {
   log: boolean(E['ENPM_LOG']||'0'),
   count: boolean(E['ENPM_COUNT']||'0')
 };
+const STDIO = [0, 1, 2];
 
 
 // Get versions of package.
@@ -60,15 +62,17 @@ module.exports = show;
 
 // Command line.
 function shell(a) {
-  var typs = [], pkg = null, o = OPTIONS;
+  var def = [], spc = [], pkg = null, o = OPTIONS;
   for(var i=2, I=a.length; i<I; i++) {
     if(a[i]==='-l' || a[i]==='--log') o.log = true;
     else if(a[i]==='-c' || a[i]==='--count') o.count = true;
     else if(pkg==null) pkg = a[i];
-    else if(a[i].startsWith(':')) typs.push(a[i].substring(1));
+    else if(!a[i].startsWith(':')) def.push(a[i]);
+    else spc.push(a[i].substring(1));
   }
   if(!pkg) return;
-  for(var t of typs)
+  if(def.length>0) cp.execSync('npm view '+def.join(' '), {stdio: STDIO});
+  for(var t of spc)
     show(t, pkg, o);
 };
 if(require.main===module) shell(process.argv);
