@@ -2,6 +2,7 @@ const npmPackageVersions = require('npm-package-versions');
 const npmPackageStars = require('npm-package-stars');
 const listNpmContents = require('list-npm-contents');
 const moduleDependents = require('module-dependents');
+const pkgDownloads = require('pkg-downloads');
 const npmAvailable = require('npm-available');
 const boolean = require('boolean');
 const cp = require('child_process');
@@ -14,6 +15,7 @@ const FUNCTION = new Map([
   ['versions', versions],
   ['contents', contents],
   ['dependents', dependents],
+  ['downloads', downloads],
   ['available', npmAvailable]
 ]);
 const OPTIONS = {
@@ -51,9 +53,15 @@ function dependents(pkg, fn) {
   r.on('end', () => fn(null, a));
 };
 
+// Get downloads of package.
+function downloads(pkg, fn, o) {
+  var period = (o||{}).type.split('.')[1]||'month';
+  pkgDownloads(pkg, {period}).then(ans => fn(null, ans), fn);
+};
+
 // Show details of package.
 function show(typ, pkg, o) {
-  var fn = FUNCTION.get(typ);
+  var fn = FUNCTION.get(typ.replace(/\..*/, ''));
   if(fn==null) {
     if(o.meta) console.log(`\n${typ} = `);
     return console.error(`error: unknown field "${typ}"`);
@@ -71,7 +79,7 @@ function show(typ, pkg, o) {
     if(o.log) return console.log(ans);
     for(var v of ans)
       console.log(v);
-  });
+  }, {type: typ});
 };
 
 // Command line.
