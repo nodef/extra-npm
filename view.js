@@ -71,8 +71,12 @@ function shell(a) {
     else spc.push(a[i].substring(1));
   }
   if(!pkg) return;
-  if(def.length>0) cp.execSync('npm view '+def.join(' '), {stdio: STDIO});
-  for(var t of spc)
+  var len = def.length+spc.length;
+  if(def.length>0 || spc.length===0)
+    cp.execSync(`npm view ${pkg} ${def.join(' ')}`, {stdio: STDIO});
+  for(var t of spc) {
+    if(len>1) console.log(`\n${t} = `);
     show(t, pkg, o);
+  }
 };
 if(require.main===module) shell(process.argv);
