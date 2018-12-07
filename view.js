@@ -5,6 +5,7 @@ const moduleDependents = require('module-dependents');
 const pkgDownloads = require('pkg-downloads');
 const npmAvailable = require('npm-available');
 const boolean = require('boolean');
+const got = require('got');
 const cp = require('child_process');
 
 
@@ -14,6 +15,7 @@ const FUNCTION = new Map([
   ['stars', stars],
   ['versions', versions],
   ['contents', contents],
+  ['readme', readme],
   ['dependents', dependents],
   ['downloads', downloads],
   ['available', npmAvailable]
@@ -24,6 +26,26 @@ const OPTIONS = {
 };
 const STDIO = [0, 1, 2];
 
+
+// Log array result.
+function logArray(pkg, ans, o) {
+  if(o.log) console.log(`${pkg} has ${ans.length} ${typ}`);
+  if(o.count) { if(!o.log) console.log(ans.length); return; }
+  if(o.log) return console.log(ans);
+  for(var v of ans)
+    console.log(v);
+};
+
+// Log result.
+function logResult(pkg, err, ans, o) {
+  if(o.meta) console.log(`\n${o.type} = `);
+  if(err) return console.error('error:', err.message||`package "${pkg}" not found`);
+  if(Array.isArray(ans)) return logArray(pkg, ans, o);
+  if(!o.log) return console.log(ans);
+  if(typeof ans==='boolean') return console.log(`${pkg} is${ans? '':' not'} available`);
+  if(typeof ans==='number') return console.log(`${pkg} has ${ans} ${typ}`);
+  return console.log(ans);
+};
 
 // Get stars of package.
 function stars(pkg, fn) {
@@ -41,7 +63,19 @@ function versions(pkg, fn) {
 function contents(pkg, fn) {
   var nam = pkg.replace(/@.*/, '');
   var ver = pkg.includes('@')? pkg.replace(/.*?@/, ''):null;
-  listNpmContents(nam, ver).then((fils) => fn(null, fils), fn);
+  listNpmContents(nam, ver).then(fils => fn(null, fils), fn);
+};
+
+// Get readme of package.
+function readme(pkg, fn) {
+  contents(pkg, (err, fils) => {
+    if(err) fn(err);
+    var fil = null;
+    for(var f of fils)
+      if(/^readme(\..+)?/i.test(f)) { fil = f; break; }
+    if(fil==null) return fn(new Error(`${pkg} has no readme`));
+    got(`https://unpkg.com/${pkg}/${fil}`).then(res => fn(null, res.body), fn);
+  });
 };
 
 // Get dependents of package.
@@ -72,7 +106,8 @@ function show(typ, pkg, o) {
     if(!Array.isArray(ans)) {
       if(!o.log) return console.log(ans);
       if(typeof ans==='boolean') return console.log(`${pkg} is${ans? '':' not'} available`);
-      return console.log(`${pkg} has ${ans} ${typ}`);
+      if(typeof ans==='number') return console.log(`${pkg} has ${ans} ${typ}`);
+      return console.log(ans);
     }
     if(o.log) console.log(`${pkg} has ${ans.length} ${typ}`);
     if(o.count) { if(!o.log) console.log(ans.length); return; }
