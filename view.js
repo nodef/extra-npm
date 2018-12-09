@@ -37,23 +37,6 @@ const OPTIONS = {
 const STDIO = [0, 1, 2];
 
 
-// Log array result.
-function logArray(arr) {
-  for(var v of arr)
-    console.log(v);
-};
-
-// Log result.
-function logResult(pkg, err, ans, o) {
-  if(o.meta) console.log(`\n${o.type} = `);
-  if(err) return console.error('error:', err.message||`package "${pkg}" not found`);
-  if(Array.isArray(ans)) return logArray(pkg, ans, o);
-  if(!o.log) return console.log(ans);
-  if(typeof ans==='boolean') return console.log(`${pkg} is${ans? '':' not'} available`);
-  if(typeof ans==='number') return console.log(`${pkg} has ${ans} ${typ}`);
-  return console.log(ans);
-};
-
 // Error package not found.
 function error(e, o) {
   if(o.silent) console.log(-1);
@@ -252,7 +235,7 @@ function shell(a) {
   for(var i=2, I=a.length; i<I;)
     i = options(o, a[i], a, i);
   if(o.help) return cp.execSync('less README.md', {cwd: __dirname, stdio: STDIO});
-  view(o.package, o.fields, o);
+  view(o.package, o.fields, Object.assign(o, {field: o.fields[0]}));
 };
 
 
