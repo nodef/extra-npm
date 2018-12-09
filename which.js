@@ -36,7 +36,7 @@ function options(o, k, a, i) {
 which.options = options;
 module.exports = which;
 
-// Command line interface.
+// Run on shell.
 function shell(a) {
   var o = {};
   for(var i=2, I=a.length; i<I;)
