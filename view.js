@@ -14,14 +14,20 @@ const cp = require('child_process');
 
 // Global variables.
 const E = process.env;
+
 const FUNCTION = new Map([
+  ['scope', scope],
+  ['date', date],
+  ['publisher', publisher],
+  ['maintainers', maintainers],
+  ['score', score],
   ['stars', stars],
   ['versions', versions],
   ['contents', contents],
   ['readme', readme],
   ['dependents', dependents],
   ['downloads', downloads],
-  ['available', npmAvailable]
+  ['available', available]
 ]);
 const URL = 'https://www.npmjs.com/search?q=';
 const HEADERS = {
@@ -31,6 +37,8 @@ const OPTIONS = {
   help: false,
   package: null,
   fields: null,
+  name: null,
+  field: null,
   silent: boolean(E['ENPM_VIEW_SILENT']||E['ENPM_SILENT']||'0'),
   count: boolean(E['ENPM_COUNT']||'0')
 };
@@ -46,11 +54,11 @@ function error(err, o) {
 // Log output value.
 function log(val, o) {
   if(Array.isArray(val)) {
-    if(o.name) console.log(o.field+' =');
+    if(o.name) console.log(kleur.green(o.field+' ='));
     for(var v of val) console.log(v);
   }
   else {
-    if(o.name) console.log(o.field+' =', val);
+    if(o.name) console.log(kleur.green(o.field+' ='), val);
     else console.log(val);
   }
 };
@@ -214,18 +222,17 @@ function show(typ, pkg, o) {
 // Get infomation on a package.
 function view(pkg, flds, o) {
   var o = Object.assign({}, OPTIONS, o);
-  if(flds[0]===':scope') scope(pkg, o);
-  else if(flds[0]===':date') date(pkg, o);
-  else if(flds[0]===':publisher') publisher(pkg, o);
-  else if(flds[0]===':maintainers') maintainers(pkg, o);
-  else if(flds[0]===':score') score(pkg, o);
-  else if(flds[0]===':stars') stars(pkg, o);
-  else if(flds[0]===':versions') versions(pkg, o);
-  else if(flds[0]===':contents') contents(pkg, o);
-  else if(flds[0]===':readme') readme(pkg, o);
-  else if(flds[0]===':dependents') dependents(pkg, o);
-  else if(flds[0]===':downloads') downloads(pkg, o);
-  else if(flds[0]===':available') available(pkg, o);
+  var fbas = [], fspc = [];
+  o.name = flds.length>1;
+  for(var f of flds) {
+    if(pkg==='.' || !f.startsWith(':')) fbas.push(f);
+    else fspc.push(f);
+  }
+  if(flds.length===0 || fbas.length>0) cp.execSync('npm view '+pkg+' '+fbas.join(' '), {stdio: STDIO});
+  for(var f of fspc) {
+    var fn = FUNCTION.get(f.substring(1).replace(/\..*/, ''));
+    if(fn!=null) fn(pkg, Object.assign({}, o, {field: f.substring(1)}));
+  }
 };
 
 // Get options from arguments.
@@ -247,26 +254,6 @@ function shell(a) {
   for(var i=2, I=a.length; i<I;)
     i = options(o, a[i], a, i);
   if(o.help) return cp.execSync('less README.md', {cwd: __dirname, stdio: STDIO});
-  view(o.package, o.fields, Object.assign(o, {field: o.fields[0]}));
-};
-
-
-function shellX(a) {
-  var def = [], spc = [], pkg = null, o = OPTIONS;
-  for(var i=2, I=a.length; i<I; i++) {
-    if(a[i]==='-l' || a[i]==='--log') o.log = true;
-    else if(a[i]==='-c' || a[i]==='--count') o.count = true;
-    else if(pkg==null) pkg = a[i];
-    else if(!a[i].startsWith(':')) def.push(a[i]);
-    else spc.push(a[i].substring(1));
-  }
-  if(!pkg) return;
-  o.meta = def.length+spc.length>1;
-  if(def.length>0 || spc.length===0) {
-    try { cp.execSync(`npm view ${pkg} ${def.join(' ')}`, {stdio: STDIO}); }
-    catch(e) {}
-  }
-  for(var t of spc)
-    show(t, pkg, o);
+  view(o.package, o.fields, o);
 };
 if(require.main===module) shell(process.argv);
