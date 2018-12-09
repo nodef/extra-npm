@@ -54,6 +54,12 @@ function logResult(pkg, err, ans, o) {
   return console.log(ans);
 };
 
+// Error package not found.
+function error(e, o) {
+  if(o.silent) console.log(-1);
+  else console.error(kleur.red('error:'), e.message);
+};
+
 // Get package name, with validation.
 function package(nam, o) {
   nam = nam.replace(/(.)@.*/, '$1');
@@ -75,10 +81,7 @@ async function details(nam, o) {
       if(d.package.name===nam) return d;
     throw new Error('cannot find package '+nam);
   }
-  catch(e) {
-    if(o.silent) return console.log(-1);
-    return console.error(kleur.red('error:'), e.message);
-  }
+  catch(e) { error(e, o); }
 };
 
 // Get scope of package.
@@ -127,22 +130,27 @@ async function score(pkg, o) {
 };
 
 // Get stars of package.
-function stars(pkg, fn) {
-  var nam = pkg.replace(/@.*/, '');
-  npmPackageStars(nam).then(num => fn(null, num), fn);
+async function stars(pkg, o) {
+  if((pkg=package(pkg, o))==null) return;
+  try { console.log(await npmPackageStars(pkg)); }
+  catch(e) { error(e, o); }
 };
 
 // Get versions of package.
-function versions(pkg, fn) {
-  if(pkg.includes('@')) fn(null, [pkg.replace(/.*?@/, '')]);
-  npmPackageVersions(pkg, fn);
+function versions(pkg, o) {
+  if((pkg=package(pkg, o))==null) return;
+  npmPackageVersions(pkg, (err, vers) => {
+    if(err) return error(err, o);
+    for(var v of vers) console.log(v);
+  });
 };
 
 // Get contents of package.
-function contents(pkg, fn) {
-  var nam = pkg.replace(/@.*/, '');
-  var ver = pkg.includes('@')? pkg.replace(/.*?@/, ''):null;
-  listNpmContents(nam, ver).then(fils => fn(null, fils), fn);
+async function contents(pkg, o) {
+  var nam = pkg.replace(/(.)@.*/, '$1');
+  var ver = pkg.indexOf('@')>0? pkg.replace(/(.).*?@/, ''):null;
+  try { for(var f of (await listNpmContents(nam, ver))) console.log(f); }
+  catch(e) { error(e, o); }
 };
 
 // Get readme of package.
@@ -204,6 +212,9 @@ function view(pkg, flds, o) {
   else if(flds[0]===':publisher') publisher(pkg, o);
   else if(flds[0]===':maintainers') maintainers(pkg, o);
   else if(flds[0]===':score') score(pkg, o);
+  else if(flds[0]===':stars') stars(pkg, o);
+  else if(flds[0]===':versions') versions(pkg, o);
+  else if(flds[0]===':contents') contents(pkg, o);
 };
 
 // Get options from arguments.
