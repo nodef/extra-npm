@@ -21,5 +21,6 @@ elif [[ "$1" == "bundle" ]]; then shift; node "${dp0}bundle" "$@"
 elif [[ "$1" == "update" ]]; then shift; ncu "$@"
 elif [[ "$1" == "which" ]]; then shift; node "${dp0}which" "$@"
 elif [[ "$1" == "v" ]] || [[ "$1" == "view" ]] || [[ "$1" == "info" ]] || [[ "$1" == "show" ]]; then shift; node "${dp0}view" "$@"
+elif [[ "$1" == "validate" ]]; then shift; node "${dp0}validate" "$@"
 else npm "$@"
 fi
