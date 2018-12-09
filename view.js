@@ -139,8 +139,8 @@ async function stars(pkg, o) {
 // Get versions of package.
 function versions(pkg, o) {
   if((pkg=package(pkg, o))==null) return;
-  npmPackageVersions(pkg, (err, vers) => {
-    if(err) return error(err, o);
+  npmPackageVersions(pkg, (e, vers) => {
+    if(e) return error(e, o);
     for(var v of vers) console.log(v);
   });
 };
@@ -154,30 +154,42 @@ async function contents(pkg, o) {
 };
 
 // Get readme of package.
-function readme(pkg, fn) {
-  contents(pkg, (err, fils) => {
-    if(err) fn(err);
-    var fil = null;
-    for(var f of fils)
+async function readme(pkg, o) {
+  var nam = pkg.replace(/(.)@.*/, '$1'), fil = null;
+  var ver = pkg.indexOf('@')>0? pkg.replace(/(.).*?@/, ''):null;
+  try {
+    for(var f of (await listNpmContents(nam, ver)))
       if(/^readme(\..+)?/i.test(f)) { fil = f; break; }
-    if(fil==null) return fn(new Error(`${pkg} has no readme`));
-    got(`https://unpkg.com/${pkg}/${fil}`).then(res => fn(null, res.body), fn);
-  });
+    if(fil==null) throw new Error(pkg+' has no readme');
+    console.log((got(`https://unpkg.com/${pkg}/${fil}`)).body);
+  }
+  catch(e) { error(e, o); }
 };
 
 // Get dependents of package.
-function dependents(pkg, fn) {
-  var a = [];
-  var r = moduleDependents(pkg)
-  r.on('error', fn)
-  r.on('data', p => a.push(p.name));
-  r.on('end', () => fn(null, a));
+function dependents(pkg, o) {
+  if((pkg=package(pkg, o))==null) return;
+  var deps = [], req = moduleDependents(pkg)
+  req.on('error', e => error(e, o))
+  req.on('data', p => deps.push(p.name));
+  req.on('end', () => { for(var d of deps) console.log(d); });
 };
 
 // Get downloads of package.
-function downloads(pkg, fn, o) {
-  var period = (o||{}).type.split('.')[1]||'month';
-  pkgDownloads(pkg, {period}).then(ans => fn(null, ans), fn);
+async function downloads(pkg, o) {
+  if((pkg=package(pkg, o))==null) return;
+  var period = o.field.split('.')[1]||'month';
+  try { console.log(await pkgDownloads(pkg, {period})); }
+  catch(e) { error(e, o); }
+};
+
+// Check if package name is available.
+function available(pkg, o) {
+  if((pkg=package(pkg, o))==null) return;
+  npmAvailable(pkg, (e, ok) => {
+    if(e) return error(e, o);
+    console.log(ok);
+  });
 };
 
 // Show details of package.
@@ -215,6 +227,10 @@ function view(pkg, flds, o) {
   else if(flds[0]===':stars') stars(pkg, o);
   else if(flds[0]===':versions') versions(pkg, o);
   else if(flds[0]===':contents') contents(pkg, o);
+  else if(flds[0]===':readme') readme(pkg, o);
+  else if(flds[0]===':dependents') dependents(pkg, o);
+  else if(flds[0]===':downloads') downloads(pkg, o);
+  else if(flds[0]===':available') available(pkg, o);
 };
 
 // Get options from arguments.
