@@ -11,6 +11,7 @@ const cp = require('child_process');
 // Global variables.
 const E = process.env;
 const OPTIONS = {
+  help: false,
   type: null,
   value: null,
   silent: boolean(E['ENPM_VALIDATE_SILENT']||E['ENPM_SILENT']||'0')
