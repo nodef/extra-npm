@@ -38,9 +38,21 @@ const STDIO = [0, 1, 2];
 
 
 // Error package not found.
-function error(e, o) {
+function error(err, o) {
   if(o.silent) console.log(-1);
-  else console.error(kleur.red('error:'), e.message);
+  else console.error(kleur.red('error:'), err.message);
+};
+
+// Log output value.
+function log(val, o) {
+  if(Array.isArray(val)) {
+    if(o.name) console.log(o.field+' =');
+    for(var v of val) console.log(v);
+  }
+  else {
+    if(o.name) console.log(o.field+' =', val);
+    else console.log(val);
+  }
 };
 
 // Get package name, with validation.
@@ -70,8 +82,8 @@ async function details(nam, o) {
 // Get scope of package.
 function scope(pkg, o) {
   if((pkg=package(pkg, o))==null) return;
-  if(!pkg.startsWith('@')) console.log('unscoped');
-  else console.log(pkg.substring(1).replace(/\/.*/, ''));
+  if(!pkg.startsWith('@')) log('unscoped', o);
+  else log(pkg.substring(1).replace(/\/.*/, ''), o);
 };
 
 // Get last publish date of package.
@@ -79,7 +91,7 @@ async function date(pkg, o) {
   var d = null;
   if((pkg=package(pkg, o))==null) return;
   if((d=await details(pkg, o))==null) return;
-  console.log(o.field==='date.rel'? d.package.date.rel:d.package.date.ts);
+  log(o.field==='date.rel'? d.package.date.rel:d.package.date.ts, o);
 };
 
 // Get publisher of package.
@@ -87,7 +99,7 @@ async function publisher(pkg, o) {
   var d = null;
   if((pkg=package(pkg, o))==null) return;
   if((d=await details(pkg, o))==null) return;
-  console.log(d.package.publisher.name);
+  log(d.package.publisher.name, o);
 };
 
 // Get maintainers of package.
@@ -95,10 +107,10 @@ async function maintainers(pkg, o) {
   var d = null;
   if((pkg=package(pkg, o))==null) return;
   if((d=await details(pkg, o))==null) return;
-  if(o.count) return console.log(d.package.maintainers.length);
-  if(o.field==='maintainers.username') for(var m of d.package.maintainers) console.log(m.username);
-  else if(o.field==='maintainers.email') for(var m of d.package.maintainers) console.log(m.email);
-  else for(var m of d.package.maintainers) console.log(`${m.username} (${m.email})`);
+  if(o.count) return log(d.package.maintainers.length, o);
+  if(o.field==='maintainers.username') log(d.package.maintainers.map(m => m.username), o);
+  else if(o.field==='maintainers.email') log(d.package.maintainers.map(m => m.email), o);
+  else log(d.package.maintainers.map(m => `${m.username} (${m.email})`), o);
 };
 
 // Get score of package.
@@ -106,16 +118,16 @@ async function score(pkg, o) {
   var d = null;
   if((pkg=package(pkg, o))==null) return;
   if((d=await details(pkg, o))==null) return;
-  if(o.field==='score.quality') console.log(d.score.detail.quality);
-  else if(o.field==='score.popularity') console.log(d.score.detail.popularity);
-  else if(o.field==='score.maintenance') console.log(d.score.detail.maintenance);
-  else console.log(d.score.final);
+  if(o.field==='score.quality') log(d.score.detail.quality, o);
+  else if(o.field==='score.popularity') log(d.score.detail.popularity, o);
+  else if(o.field==='score.maintenance') log(d.score.detail.maintenance, o);
+  else log(d.score.final, o);
 };
 
 // Get stars of package.
 async function stars(pkg, o) {
   if((pkg=package(pkg, o))==null) return;
-  try { console.log(await npmPackageStars(pkg)); }
+  try { log(await npmPackageStars(pkg), o); }
   catch(e) { error(e, o); }
 };
 
@@ -124,7 +136,7 @@ function versions(pkg, o) {
   if((pkg=package(pkg, o))==null) return;
   npmPackageVersions(pkg, (e, vers) => {
     if(e) return error(e, o);
-    for(var v of vers) console.log(v);
+    log(vers, o);
   });
 };
 
@@ -132,7 +144,7 @@ function versions(pkg, o) {
 async function contents(pkg, o) {
   var nam = pkg.replace(/(.)@.*/, '$1');
   var ver = pkg.indexOf('@')>0? pkg.replace(/(.).*?@/, ''):null;
-  try { for(var f of (await listNpmContents(nam, ver))) console.log(f); }
+  try { log(await listNpmContents(nam, ver), o); }
   catch(e) { error(e, o); }
 };
 
@@ -144,7 +156,7 @@ async function readme(pkg, o) {
     for(var f of (await listNpmContents(nam, ver)))
       if(/^readme(\..+)?/i.test(f)) { fil = f; break; }
     if(fil==null) throw new Error(pkg+' has no readme');
-    console.log((got(`https://unpkg.com/${pkg}/${fil}`)).body);
+    log([(await got(`https://unpkg.com/${pkg}/${fil}`)).body], o);
   }
   catch(e) { error(e, o); }
 };
@@ -155,14 +167,14 @@ function dependents(pkg, o) {
   var deps = [], req = moduleDependents(pkg)
   req.on('error', e => error(e, o))
   req.on('data', p => deps.push(p.name));
-  req.on('end', () => { for(var d of deps) console.log(d); });
+  req.on('end', () => log(deps, o));
 };
 
 // Get downloads of package.
 async function downloads(pkg, o) {
   if((pkg=package(pkg, o))==null) return;
   var period = o.field.split('.')[1]||'month';
-  try { console.log(await pkgDownloads(pkg, {period})); }
+  try { log(await pkgDownloads(pkg, {period}), o); }
   catch(e) { error(e, o); }
 };
 
@@ -171,7 +183,7 @@ function available(pkg, o) {
   if((pkg=package(pkg, o))==null) return;
   npmAvailable(pkg, (e, ok) => {
     if(e) return error(e, o);
-    console.log(ok);
+    log(ok, o);
   });
 };
 
