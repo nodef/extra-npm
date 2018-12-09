@@ -23,6 +23,10 @@ const FUNCTION = new Map([
   ['downloads', downloads],
   ['available', npmAvailable]
 ]);
+const URL = 'https://www.npmjs.com/search?q=';
+const HEADERS = {
+  'x-spiferack': 1
+};
 const OPTIONS = {
   help: false,
   package: null,
@@ -65,6 +69,21 @@ function package(nam, o) {
     console.warn(kleur.yellow('warning:'), m);
 };
 
+// Get package details.
+async function details(nam, o) {
+  try {
+    var a = JSON.parse((await got(URL+nam, {headers: HEADERS})).body);
+    if(a.ghapi) a = JSON.parse((await got(URL+nam+'*', {headers: HEADERS})).body);
+    for(var d of a.objects)
+      if(d.package.name===nam) return d;
+    throw new Error('cannot find package '+nam);
+  }
+  catch(e) {
+    if(o.silent) return console.log(-1);
+    return console.error(kleur.red('error:'), e.message);
+  }
+};
+
 // Get scope of package.
 function scope(pkg, o) {
   if((pkg=package(pkg, o))==null) return;
@@ -73,9 +92,12 @@ function scope(pkg, o) {
 };
 
 // Get last publish date of package.
-function date(pkg, fn) {
-  var nam = pkg.replace(/@.*/, '');
-  
+async function date(pkg, o) {
+  var d = null;
+  if((pkg=package(pkg, o))==null) return;
+  if((d=await details(pkg, o))==null) return;
+  if(o.silent) return console.log(new Date(d.package.date.ts));
+  console.log(pkg+' was published '+d.package.date.rel);
 };
 
 // Get stars of package.
@@ -151,7 +173,8 @@ function show(typ, pkg, o) {
 // Get infomation on a package.
 function view(pkg, flds, o) {
   var o = Object.assign({}, OPTIONS, o);
-  scope(pkg, o);
+  if(flds[0]===':scope') scope(pkg, o);
+  else if(flds[0]===':date') date(pkg, o);
 };
 
 // Get options from arguments.
