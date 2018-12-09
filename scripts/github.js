@@ -44,7 +44,7 @@ async function repoCreate() {
   console.log(yamlStringify({description, homepage, auto_init, gitignore_template, license_template, topics}, '+ ').trimEnd());
 };
 
-// Edti GitHub repository.
+// Edit GitHub repository.
 function repoEdit() {
   var rdy = [octokit.repos.edit({owner, repo, name: repo, description, homepage})];
   if(topics!=null) rdy.push(octokit.repos.replaceTopics({owner, repo, names: topics.split(/[,\s]+/g), headers}));

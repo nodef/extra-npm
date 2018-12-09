@@ -14,10 +14,10 @@ psd() {
 # read arguments
 dp0="$(psd)/"; sp0="${dp0}node_modules/@extra-npm/"
 if [[ "$1" == "--help" ]]; then less "${dp0}README.md"; exit
-elif [[ "$1" == "init" ]]; then shift; source "${sp0}init/index.sh" "$@"
+elif [[ "$1" == "init" ]]; then shift; source "${dp0}init.sh" "$@"
 elif [[ "$1" == "push" ]]; then shift; source "${dp0}push.sh" "$@"
-elif [[ "$1" == "clone" ]]; then shift; source "${sp0}clone/index.sh" "$@"
-elif [[ "$1" == "bundle" ]]; then shift; node "${sp0}bundle" "$@"
+elif [[ "$1" == "clone" ]]; then shift; source "${dp0}clone.sh" "$@"
+elif [[ "$1" == "bundle" ]]; then shift; node "${dp0}bundle" "$@"
 elif [[ "$1" == "update" ]]; then shift; ncu "$@"
 elif [[ "$1" == "which" ]]; then shift; node "${dp0}which" "$@"
 elif [[ "$1" == "v" ]] || [[ "$1" == "view" ]] || [[ "$1" == "info" ]] || [[ "$1" == "show" ]]; then shift; node "${dp0}view" "$@"
