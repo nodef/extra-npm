@@ -38,11 +38,8 @@ const STDIO = [0, 1, 2];
 
 
 // Log array result.
-function logArray(pkg, ans, o) {
-  if(o.log) console.log(`${pkg} has ${ans.length} ${typ}`);
-  if(o.count) { if(!o.log) console.log(ans.length); return; }
-  if(o.log) return console.log(ans);
-  for(var v of ans)
+function logArray(arr) {
+  for(var v of arr)
     console.log(v);
 };
 
@@ -96,8 +93,37 @@ async function date(pkg, o) {
   var d = null;
   if((pkg=package(pkg, o))==null) return;
   if((d=await details(pkg, o))==null) return;
-  if(o.silent) return console.log(new Date(d.package.date.ts));
-  console.log(pkg+' was published '+d.package.date.rel);
+  console.log(o.field==='date.rel'? d.package.date.rel:d.package.date.ts);
+};
+
+// Get publisher of package.
+async function publisher(pkg, o) {
+  var d = null;
+  if((pkg=package(pkg, o))==null) return;
+  if((d=await details(pkg, o))==null) return;
+  console.log(d.package.publisher.name);
+};
+
+// Get maintainers of package.
+async function maintainers(pkg, o) {
+  var d = null;
+  if((pkg=package(pkg, o))==null) return;
+  if((d=await details(pkg, o))==null) return;
+  if(o.count) return console.log(d.package.maintainers.length);
+  if(o.field==='maintainers.username') for(var m of d.package.maintainers) console.log(m.username);
+  else if(o.field==='maintainers.email') for(var m of d.package.maintainers) console.log(m.email);
+  else for(var m of d.package.maintainers) console.log(`${m.username} (${m.email})`);
+};
+
+// Get score of package.
+async function score(pkg, o) {
+  var d = null;
+  if((pkg=package(pkg, o))==null) return;
+  if((d=await details(pkg, o))==null) return;
+  if(o.field==='score.quality') console.log(d.score.detail.quality);
+  else if(o.field==='score.popularity') console.log(d.score.detail.popularity);
+  else if(o.field==='score.maintenance') console.log(d.score.detail.maintenance);
+  else console.log(d.score.final);
 };
 
 // Get stars of package.
@@ -175,6 +201,9 @@ function view(pkg, flds, o) {
   var o = Object.assign({}, OPTIONS, o);
   if(flds[0]===':scope') scope(pkg, o);
   else if(flds[0]===':date') date(pkg, o);
+  else if(flds[0]===':publisher') publisher(pkg, o);
+  else if(flds[0]===':maintainers') maintainers(pkg, o);
+  else if(flds[0]===':score') score(pkg, o);
 };
 
 // Get options from arguments.
