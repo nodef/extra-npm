@@ -1,5 +1,7 @@
+const npmListAuthorPackages = require('npm-list-author-packages');
 const libnpmsearch = require('libnpmsearch');
 const boolean = require('boolean');
+const semver = require('semver');
 const cp = require('child_process');
 
 
@@ -19,14 +21,101 @@ const OPTIONS = {
   registry: E['ENPM_REGISTRY']||'https://registry.npmjs.org/',
   limit: parseInt(E['ENPM_SEARCH_LIMIT']||'20', 10),
   offset: parseInt(E['ENPM_SEARCH_OFFSET']||'0', 10),
-  detailed: boolean(E['ENPM_SEARCH_DETAILED']||'0'),
+  detailed: boolean(E['ENPM_SEARCH_DETAILED']||'1'),
   sortBy: E['ENPM_SEARCH_SORTBY']||'optimal',
   maintenance: parseFloat(E['ENPM_SEARCH_MAINTENAMCE']||'0.65'),
   popularity: parseFloat(E['ENPM_SEARCH_POPULARITY']||'0.98'),
   quality: parseFloat(E['ENPM_SEARCH_QUALITY']||'0.5')
 };
+const GETFN = new Map([
+  ['keywords', p => p.package.keywordsJoin],
+  ['dependencies.length', p => p.package.dependenciesLength],
+  ['devDependencies.length']
+]);
+
+const SORTFN = new Map([
+  ['name', (a, b) => a.package.name.localeCompare(b.package.name)],
+  ['name.length', (a, b) => a.package.name.length-b.package.name.length],
+  ['version', (a, b) => semver.compare(a.package.version, b.package.version)],
+  ['version.length', (a, b) => a.package.version.length-b.package.version.length],
+  ['description', (a, b) => a.package.description.localeCompare(b.package.description)],
+  ['description.length', (a, b) => a.package.description.length-b.package.description.length],
+  ['author', (a, b) => a.package.author.name.localeCompare(b.package.author.name)],
+  ['author.length', (a, b) => a.package.author.name.length-b.package.author.name.length],
+  ['keywords', (a, b) => a.package.keywords.join().localeCompare(b.package.keywords.join())],
+  ['keywords.length', (a, b) => a.package.keywords.length-b.package.keywords.length],
+  [':scope', (a, b) => a.package.scope.localeCompare(b.package.scope)],
+  [':date', (a, b) => a.package.date.ts-b.package.date.ts],
+  [':publisher', (a, b) => a.package.publisher.name.localeCompare(b.package.publisher.name)],
+  [':publisher.length', (a, b) => a.package.publisher.name.length-b.package.publisher.name.length],
+  [':maintainers', (a, b) => a.package.maintainers.map(m => m.username).join().localeCompare(b.package.maintainers.map(m => m.username).join())],
+  [':maintainers.length', (a, b) => a.package.maintainers.length-b.package.maintainers.length],
+  [':score', (a, b) => a.score.final-b.score.final],
+  [':score.quality', (a, b) => a.score.detail.quality-b.score.detail.quality],
+  [':score.popularity', (a, b) => a.score.detail.popularity-b.score.detail.popularity],
+  [':score.maintenance', (a, b) => a.score.detail.maintenance-b.score.detail.maintenance],
+  [':stars', (a, b) => a.stars-b.stars],
+  [':versions', (a, b) => a.versions.length-b.versions.length],
+  [':readme', (a, b) => a.readme.localeCompare(b.readme)],
+  [':readme.length', (a, b) => a.readme.length-b.readme.length],
+]);
 const STDIO = [0, 1, 2];
 
+
+// Add all values to set.
+function setAddAll(set, vals) {
+  for(var v of vals)
+    set.add(v);
+  return set;
+};
+
+// Get RegExp from expression.
+function getRegexp(pos) {
+  return new RegExp(pos.replace(/\*/g, '.*?').replace(/\?/g, '.'), 'i');
+};
+
+// Process packages before sorting.
+function sortProcess(pkgs) {
+  for(var p of pkgs) {
+    p.package.description = p.package.description||'';
+    p.package.keywords = p.package.keywords||[];
+    p.package.keywordsJoin = p.package.keywords.join();
+    p.package.dependencies = p.package.dependencies||{};
+    p.package.dependenciesKeys = Object.keys(p.package.dependencies).join();
+    p.package.dependenciesLength = Object.keys(p.package.dependencies).length;
+    p.package.devDependencies = p.package.devDependencies||{};
+    p.package.devDependenciesKeys = Object.keys(p.package.devDependencies).join();
+    p.package.devDependenciesLength = Object.keys(p.package.devDependencies).length;
+    p.package.bundledDependencies = p.package.bundledDependencies||{};
+  }
+};
+
+// Show parseable output.
+function outputSilent(pkgs, o) {
+  for(var p of pkgs) {
+    console.log(p.package.name);
+  }
+};
+
+function outputNormal(pkgs, o) {
+  
+};
+
+// Sort package details.
+function sort(pkgs, by) {
+};
+
+async function searchAuthors(qry, o) {
+  var flts = [], aths = [], pkgs = new Set();
+  for(var q of qry.split(/\s+/)) {
+    if(!q.startsWith('=')) flts.add(getRegexp(q));
+    else aths.add(npmListAuthorPackages({username: q.substring(1), registry: o.registry}));
+  }
+  for(var a of (await Promise.all(aths)))
+    setAddAll(pkgs, a);
+  if(o.silent) { for(var p of pkgs) { console.log(p); } return; }
+  pkgs = Array.from(pkgs);
+};
 
 // Get search results.
 async function search(qrys, o) {

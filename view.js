@@ -195,30 +195,6 @@ function available(pkg, o) {
   });
 };
 
-// Show details of package.
-function show(typ, pkg, o) {
-  var fn = FUNCTION.get(typ.replace(/\..*/, ''));
-  if(fn==null) {
-    if(o.meta) console.log(`\n${typ} = `);
-    return console.error(`error: unknown field "${typ}"`);
-  }
-  fn(pkg, (err, ans) => {
-    if(o.meta) console.log(`\n${typ} = `);
-    if(err) return console.error('error:', err.message||`package "${pkg}" not found`);
-    if(!Array.isArray(ans)) {
-      if(!o.log) return console.log(ans);
-      if(typeof ans==='boolean') return console.log(`${pkg} is${ans? '':' not'} available`);
-      if(typeof ans==='number') return console.log(`${pkg} has ${ans} ${typ}`);
-      return console.log(ans);
-    }
-    if(o.log) console.log(`${pkg} has ${ans.length} ${typ}`);
-    if(o.count) { if(!o.log) console.log(ans.length); return; }
-    if(o.log) return console.log(ans);
-    for(var v of ans)
-      console.log(v);
-  }, {type: typ});
-};
-
 // Get infomation on a package.
 function view(pkg, flds, o) {
   var o = Object.assign({}, OPTIONS, o);
