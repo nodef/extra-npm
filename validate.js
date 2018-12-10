@@ -14,7 +14,7 @@ const OPTIONS = {
   help: false,
   type: null,
   value: null,
-  silent: boolean(E['ENPM_VALIDATE_SILENT']||E['ENPM_SILENT']||'0')
+  silent: boolean(E['ENPM_SILENT']||'0')
 };
 const FUNCTION = new Map([
   ['name', name],
