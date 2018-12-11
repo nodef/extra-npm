@@ -9,6 +9,7 @@ const npmAvailable = require('npm-available');
 const boolean = require('boolean');
 const kleur = require('kleur');
 const got = require('got');
+const packageJson = require('package-json');
 const cp = require('child_process');
 
 
@@ -196,7 +197,8 @@ function available(pkg, o) {
 };
 
 // Get infomation on a package.
-function view(pkg, flds, o) {
+async function view(pkg, flds, o) {
+  return console.log(await packageJson(pkg, {fullMetadata: true, version: '0.0.1'}));
   var o = Object.assign({}, OPTIONS, o);
   var fbas = [], fspc = [];
   o.name = flds.length>1;

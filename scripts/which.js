@@ -43,6 +43,7 @@ function shell(a) {
     i = options(o, a[i], a, i);
   if(o.help) return cp.execSync('less README.md', {cwd: __dirname, stdio: STDIO});
   which(o.command, o).then(console.log, err => {
+    if(o.silent) return console.log(-1);
     console.error(kleur.red('error:'), err.message);
   });
 };
