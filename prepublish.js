@@ -21,7 +21,7 @@ function shell() {
   var pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
   var lic = fs.readFileSync('LICENSE', 'utf8');
   var rdm = fs.readFileSync('scripts/which.md', 'utf8');
-  var idx = fs.readFileSync('scripts/index.js', 'utf8');
+  var idx = fs.readFileSync('scripts/which.js', 'utf8');
   pkg.name = '@extra-npm/which';
   pkg.description = rdm.replace(/\r?\n[\s\S]*/, '');
   pkg.bin = {'enpm-which': 'index.js'};
