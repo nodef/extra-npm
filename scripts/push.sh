@@ -51,17 +51,17 @@ if [[ "$pre" != "" ]]; then msg="$pre $msg"; fi
 # pver=$(node "${dp0}_version" ${ver} ${repurl})
 if [[ "$igit" == "true" ]]; then git add . >/dev/null 2>&1; fi
 
-# publish to npm
-if [[ "$inpm" == "true" ]] && [[ "$no" != "1" ]]; then
-  printf "${cm}npm publish${cr}\n"
-  npm publish
-fi
-
 # push to github
 if [[ "$igit" == "true" ]]; then
   printf "${cm}git push${cr}\n"
   git commit -m "$msg"
   git push
+fi
+
+# publish to npm
+if [[ "$inpm" == "true" ]] && [[ "$no" != "1" ]]; then
+  printf "${cm}npm publish${cr}\n"
+  npm publish
 fi
 
 # replace remote details
