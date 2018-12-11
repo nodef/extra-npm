@@ -18,7 +18,7 @@ function pkgRequires(pth, z=[]) {
   if(pkgs.length===0) return z;
   var dir = path.dirname(pth);
   for(var p of pkgs)
-    if(!/^[\.\/]/.test(p)) pkgRequires(path.join(dir, p), z);
+    if(/^\./.test(p)) pkgRequires(path.join(dir, p), z);
   return z;
 };
 
