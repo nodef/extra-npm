@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "1.1.18",
+  "version": "1.1.19",
   "description": "Prograde NPM for Node.js package maintainers.",
   "main": "index.js",
   "preferGlobal": true,
@@ -54,5 +54,7 @@
     "validate-npm-package-license": "^3.0.4",
     "validate-npm-package-name": "^3.0.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "tempy": "^0.2.1"
+  }
 }

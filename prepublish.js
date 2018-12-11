@@ -1,3 +1,4 @@
+const tempy = require('tempy');
 const cp = require('child_process');
 const path = require('path');
 const fs = require('fs');
@@ -17,7 +18,6 @@ function requires(txt) {
 
 // Run on shell.
 function shell() {
-  var dir = fs.mkdtempSync('enpm-');
   var pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
   var lic = fs.readFileSync('LICENSE', 'utf8');
   var rdm = fs.readFileSync('scripts/which.md', 'utf8');
@@ -30,10 +30,14 @@ function shell() {
   var req = requires(idx);
   for(var d of Object.keys(pkg.dependencies))
     if(!req.includes(d)) pkg.dependencies = undefined;
+  pkg.devDependencies = undefined;
+  var dir = tempy.directory();
+  fs.mkdirSync(dir);
   fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify(pkg, null, 2));
   fs.writeFileSync(path.join(dir, 'LICENSE'), lic);
   fs.writeFileSync(path.join(dir, 'README.md'), rdm);
   fs.writeFileSync(path.join(dir, 'index.js'), idx);
   cp.execSync('npm publish', {cwd: dir, stdio: STDIO});
+  cp.execSync(`rm -rf ${dir}`, {stdio: STDIO});
 };
 shell();
