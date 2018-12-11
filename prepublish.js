@@ -20,7 +20,7 @@ function pkgRequires(txt) {
 // Update package information.
 function pkgUpdate(pkg, o) {
   var p = pkg;
-  p.name = `${o.org}/${o.name}`;
+  p.name = `@${o.org}/${o.name}`;
   p.description = o.readme.replace(/\r?\n[\s\S]*/, '');
   p.main = o.main||'index.js';
   var bin = Object.keys(p.bin)[0]; p.bin = {};
