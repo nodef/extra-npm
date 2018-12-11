@@ -10,8 +10,8 @@ const E = process.env;
 const OPTIONS = {
   help: false,
   cwd: null,
-  command: null,
-  silent: boolean(E['ENPM_SILENT']||'0')
+  command: E['ENPM_WHICH_COMMAND']||null,
+  silent: boolean(E['ENPM_WHICH_SILENT']||E['ENPM_SILENT']||'0')
 };
 const STDIO = [0, 1, 2];
 
@@ -41,7 +41,7 @@ function shell(a) {
   var o = {};
   for(var i=2, I=a.length; i<I;)
     i = options(o, a[i], a, i);
-  if(o.help) return cp.execSync('less README.md', {cwd: __dirname, stdio: STDIO});
+  if(o.help) return cp.execSync('less which.md', {cwd: __dirname, stdio: STDIO});
   which(o.command, o).then(console.log, err => {
     if(o.silent) return console.log(-1);
     console.error(kleur.red('error:'), err.message);

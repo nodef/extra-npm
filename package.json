@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "1.1.16",
+  "version": "1.1.17",
   "description": "Prograde NPM for Node.js package maintainers.",
   "main": "index.js",
   "preferGlobal": true,
@@ -9,6 +9,7 @@
   },
   "scripts": {
     "install": "",
+    "prepublishOnly": "node ./prepublish",
     "test": "exit"
   },
   "repository": {
@@ -52,5 +53,6 @@
     "semver": "^5.6.0",
     "validate-npm-package-license": "^3.0.4",
     "validate-npm-package-name": "^3.0.0"
-  }
+  },
+  "devDependencies": {}
 }
