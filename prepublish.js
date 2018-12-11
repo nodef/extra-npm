@@ -27,9 +27,8 @@ function pkgUpdate(pkg, o) {
   p.bin[`${bin}-${o.name}`] = p.main;
   p.scripts = {test: 'exit'};
   p.keywords.push(o.name);
-  var req = pkgRequires(o.index);
   for(var d of Object.keys(p.dependencies))
-    if(!req.includes(d)) p.dependencies[d] = undefined;
+    if(!o.requires.includes(d)) p.dependencies[d] = undefined;
   p.devDependencies = undefined;
   return p;
 };
@@ -44,9 +43,16 @@ function pkgScatter(pth, o) {
   var index = fs.readFileSync(pth, 'utf8');
   index = index.replace(`'less ${name}.md'`, `'less README.md'`);
   var main = 'index'+path.extname(pth);
+  var requires = pkgRequires(index);
   var pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-  pkgUpdate(pkg, Object.assign({name, license, readme, index, main}, o));
+  pkgUpdate(pkg, Object.assign({name, license, readme, index, main, requires}, o));
   var dir = tempy.directory();
+  for(var r of requires) {
+    if(!/^[\.\/]/.test(r)) continue;
+    var src = path.join(path.dirname(pth), r);
+    var dst = path.join(dir, r);
+    fs.copyFileSync(src, dst);
+  }
   fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify(pkg, null, 2));
   fs.writeFileSync(path.join(dir, 'LICENSE'), license);
   fs.writeFileSync(path.join(dir, 'README.md'), readme);
