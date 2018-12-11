@@ -1,4 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# require('./_github.js')
+# require('./_name.js')
+# require('./_json.sh')
+
 # global variables
 cr="\033[0m"
 cfb="\033[1m"
@@ -72,7 +76,7 @@ _name=""; _version=""; _description=""
 _main=""; _scripts_test=""; _repository=""
 _keywords=""; _author=""; _license=""
 while [[ "$#" != "0" ]]; do
-  if [[ "$1" == "--help" ]]; then less "${dp0}README.md"; exit
+  if [[ "$1" == "--help" ]]; then less "${dp0}init.md"; exit
   elif [[ "$1" == "-y" ]] || [[ "$1" == "--yes" ]]; then yes="1"; shift
   elif [[ "$1" == "-n" ]] || [[ "$1" == "--name" ]]; then _name="$2"; shift
   elif [[ "$1" == "-v" ]] || [[ "$1" == "--version" ]]; then _version="$2"; shift
@@ -97,7 +101,7 @@ if [[ "$yes" != "1" ]]; then
   while : ; do
     if [[ "$_name" == "" ]]; then read -p "package name: ($name) " _name; fi
     _name=$(echo "$_name" | tr '[:upper:]' '[:lower:]')
-    name_valid=$(node "${dp0}scripts/name" "$_name")
+    name_valid=$(node "${dp0}_name" "$_name")
     if [[ "$name_valid" == "true" ]]; then break; fi
     _name=""; printf "${cr}${cm}Bad package name. "
     printf "Please check https://www.npmjs.com/package/validate-npm-package-name.${cr}${ci}\n"
@@ -161,7 +165,7 @@ fi
 
 # request permission
 _s1=""; _s2=""; splitAuthor
-json=$(source "${dp0}scripts/json.sh")
+json=$(source "${dp0}_json.sh")
 if [[ "$repository" == *"github.com"* ]]; then _s1="1"; fi
 if [[ "$repository" == *"/"* ]]; then _s2="1"; fi
 if [[ "$yes" != "1" ]]; then
@@ -181,7 +185,7 @@ printf "${cm}\n"
 if [[ "$_s1" != "" ]]; then
   printf "Initializing repository $repository ... "
   github_homepage="https://www.npmjs.com/package/$name"
-  node "${dp0}scripts/github" -r "$repository" -d "$description" -h "$github_homepage" \
+  node "${dp0}_github" -r "$repository" -d "$description" -h "$github_homepage" \
     -t "$keywords" -ai "true" -gt "Node" -lt "$license" -u "$usr" -p "$pwd"
   printf "done.\n"
 fi

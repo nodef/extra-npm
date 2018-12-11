@@ -70,6 +70,7 @@ function pkgScatter(pth, o) {
 function shell(a) {
   var o = {org: ORG};
   pkgScatter('scripts/clone.sh', o);
+  pkgScatter('scripts/init.sh', o);
   pkgScatter('scripts/push.sh', o);
   pkgScatter('scripts/rev-parse.js', o);
   pkgScatter('scripts/validate.js', o);
