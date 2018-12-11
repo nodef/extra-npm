@@ -1,20 +1,8 @@
 **Clone** *NPM* package to *local* or *remote*.
-> Do you want to:<br>
-> - Clone specific version of NPM package?<br>
-> - Clone all versions of NPM package?<br>
+> Do you want to:
+> - Clone specific version of NPM package?
+> - Clone all versions of NPM package?
 > - Or, Clone entire NPM package to GitHub repository?
-<br>
-
-
-## setup
-
-```bash
-# install enpm 
-npm install -g extra-npm
- 
-# install only enpm-clone 
-npm install -g @extra-npm/clone
-```
 <br>
 
 
@@ -53,6 +41,7 @@ enpm-clone mynpmpackage -a -r myusername/npmpackage3 -u myusername -p **** -d "t
 # change ":+1: v1.0.1" is pushed back to remote repository
 # ... (all versions of long)
 ```
+> With [extra-npm] try `enpm clone` instead.
 
 ### reference
 
@@ -92,4 +81,8 @@ enpm-clone [options] <package@version>
 <br>
 
 
-[![extra-npm](https://i.imgur.com/8rbhhqI.jpg)](https://www.npmjs.com/package/extra-npm)
+[![nodef](https://i.imgur.com/8rbhhqI.jpg)](https://nodef.github.io)
+> References: [npm pack].
+
+[extra-npm]: https://www.npmjs.com/package/extra-npm
+[npm pack]: https://docs.npmjs.com/cli/pack.html
