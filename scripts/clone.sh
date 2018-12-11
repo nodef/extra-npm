@@ -1,4 +1,6 @@
 #!/bin/sh
+# require('./_github.js')
+
 # global variables
 cr="\033[0m"
 cfby="\033[1;33m"
@@ -116,7 +118,7 @@ if [[ "$rep" != "" ]]; then
   if [[ "$dsc" == "" ]]; then dsc="$(pkgDescription $pkg)"; fi
   if [[ "$hom" == "" ]]; then hom="$(pkgHomepage $pkg)"; fi
   if [[ "$key" == "" ]]; then key="$(pkgKeywords $pkg)"; fi
-  node "${dp0}scripts/github" ${rep:+-r} "$rep" ${usr:+-u} "$usr" ${pwd:+-p} "$pwd" \
+  node "${dp0}_github" ${rep:+-r} "$rep" ${usr:+-u} "$usr" ${pwd:+-p} "$pwd" \
     ${dsc:+-d} "$dsc" ${hom:+-h} "$hom" ${key:+-t} "$key" ${aio:+-ai} "$aio" \
     ${gto:+-gt} "$gto" ${lto:+-lt} "$lto" repocreate
   git clone "$rep"
