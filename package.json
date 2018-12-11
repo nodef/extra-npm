@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "1.1.53",
+  "version": "1.1.54",
   "description": "Prograde NPM for Node.js package maintainers.",
   "main": "index.js",
   "preferGlobal": true,
@@ -31,7 +31,6 @@
   "author": "wolfram77@gmail.com",
   "license": "MIT",
   "dependencies": {
-    "@extra-npm/init": "^1.0.2",
     "@octokit/rest": "^16.2.0",
     "boolean": "^0.2.0",
     "got": "^9.4.0",
