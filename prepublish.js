@@ -58,5 +58,6 @@ function pkgScatter(pth, o) {
 function shell(a) {
   var o = {org: ORG};
   pkgScatter('scripts/which.js', o);
+  pkgScatter('scripts/validate.js', o);
 };
 if(require.main===module) shell(process.argv);
