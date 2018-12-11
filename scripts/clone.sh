@@ -91,7 +91,7 @@ gitPush() {
 # read arguments
 dp0="$(psd)/"
 while [[ "$#" != "0" ]]; do
-  if [[ "$1" == "--help" ]]; then less "${dp0}README.md"; exit
+  if [[ "$1" == "--help" ]]; then less "${dp0}clone.md"; exit
   elif [[ "$1" == "-a" ]] || [[ "$1" == "--all" ]]; then typ="versions"
   elif [[ "$1" == "-m" ]] || [[ "$1" == "--message" ]]; then msg="$2"; shift
   elif [[ "$1" == "-r" ]] || [[ "$1" == "--repository" ]]; then rep="$2"; shift
