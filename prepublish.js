@@ -37,8 +37,8 @@ function pkgUpdate(pkg, o) {
 // Scatter a file to package.
 function pkgScatter(pth, o) {
   var name = path.basename(pth);
-  name = name.substring(0, name.length-path.extname(name));
-  var pre = pth.substring(0, pth.length-path.extname(pth));
+  name = name.substring(0, name.length-path.extname(name).length);
+  var pre = pth.substring(0, pth.length-path.extname(pth).length);
   var license = fs.readFileSync('LICENSE', 'utf8');
   var readme = fs.readFileSync(pre+'.md', 'utf8');
   var index = fs.readFileSync(pth, 'utf8');
