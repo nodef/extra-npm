@@ -26,7 +26,7 @@ function pkgRequires(pth, z=[]) {
 function pkgUpdate(pkg, o) {
   var p = pkg;
   p.name = `@${o.org}/${o.name}`;
-  p.description = o.readme.replace(/\r?\n[\s\S]*/, '');
+  p.description = o.readme.replace(/\r?\n[\s\S]*/, '').replace(/[\_\*\[\]]/g, '');
   p.main = o.main||'index.js';
   var bin = Object.keys(p.bin)[0]; p.bin = {};
   p.bin[`${bin}-${o.name}`] = p.main;
