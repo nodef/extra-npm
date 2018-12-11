@@ -46,7 +46,7 @@ const OPTIONS = {
 const STDIO = [0, 1, 2];
 
 
-// Error package not found.
+// Log error message.
 function error(err, o) {
   if(o.silent) console.log(-1);
   else console.error(kleur.red('error:'), err.message);

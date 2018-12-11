@@ -16,13 +16,20 @@ const OPTIONS = {
 const STDIO = [0, 1, 2];
 
 
+// Log error message.
+function error(err, o) {
+  if(o.silent) console.log(-1);
+  else console.error(kleur.red('error:'), err.message);
+};
+
 // Get path of local bin.
 function which(cmd, o) {
   var o = Object.assign({}, OPTIONS, o);
   var cwd = o.cwd||process.cwd();
-  return new Promise((fres, frej) => npmWhich(cwd)(cmd, (err, pth) => {
-    return err? frej(err):fres(pth);
-  }));
+  npmWhich(cwd)(cmd, (err, pth) => {
+    if(err) return error(err, o);
+    console.log(pth);
+  });
 };
 
 // Get options from arguments.
@@ -42,9 +49,6 @@ function shell(a) {
   for(var i=2, I=a.length; i<I;)
     i = options(o, a[i], a, i);
   if(o.help) return cp.execSync('less which.md', {cwd: __dirname, stdio: STDIO});
-  which(o.command, o).then(console.log, err => {
-    if(o.silent) return console.log(-1);
-    console.error(kleur.red('error:'), err.message);
-  });
+  which(o.command, o);
 };
 if(require.main===module) shell(process.argv);

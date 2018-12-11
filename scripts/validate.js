@@ -26,6 +26,12 @@ const FUNCTION = new Map([
 const STDIO = [0, 1, 2];
 
 
+// Log error message.
+function error(err, o) {
+  if(o.silent) console.log(-1);
+  else console.error(kleur.red('error:'), err.message);
+};
+
 // Validate package name.
 function name(txt, o) {
   var a = validateNpmPackageName(txt);
@@ -41,9 +47,8 @@ function name(txt, o) {
 // Validate package version.
 function version(txt, o) {
   var a = semver.valid(txt);
-  if(a) return console.log(1);
-  if(o.silent) return console.log(-1);
-  console.error(kleur.red('error:'), 'invalid semver format');
+  if(!a) return error(new Error('invalid semver format'), o);
+  return console.log(1);
 };
 
 // Validate package license.
@@ -59,26 +64,23 @@ function license(txt, o) {
 // Validate email.
 function email(txt, o) {
   var e = npmUserValidate.email(txt);
-  if(e==null) return console.log(1);
-  if(o.silent) return console.log(-1);
-  console.error(kleur.red('error:'), e.message);
+  if(e) return error(e, o);
+  console.log(1);
 };
 
 // Validate username.
 function username(txt, o) {
   var e = npmUserValidate.username(txt);
-  if(e==null) return console.log(1);
-  if(o.silent) return console.log(-1);
-  console.error(kleur.red('error:'), e.message);
+  if(e) return error(e, o);
+  console.log(1);
 };
 
 // Validate something, dont leave to chance!
-function validate(typ, txt, o) {
+function validate(fld, val, o) {
   var o = Object.assign({}, OPTIONS, o);
-  var fn = FUNCTION.get(typ);
-  if(fn!=null) return fn(txt, o);
-  if(o.silent) return console.log(-1);
-  console.error(kleur.red('error:'), 'cannot validate '+typ);
+  var fn = FUNCTION.get(fld);
+  if(!fn) return error(new Error('cannot validate '+fld), o);
+  fn(val, o);
 };
 
 // Get options from arguments.
