@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const boolean = require('boolean');
 const pkgDir = require('pkg-dir');
 const kleur = require('kleur');
@@ -13,8 +14,8 @@ const OPTIONS = {
   silent: boolean(E['ENPM_SILENT']||'0')
 };
 const FUNCTION = new Map([
-  ['package', package],
-  ['top-package', topPackage]
+  ['--package', package],
+  ['--root-package', rootPackage]
 ]);
 const STDIO = [0, 1, 2];
 
@@ -33,7 +34,7 @@ function package(args, o) {
 };
 
 // Get root directory of package.
-function topPackage(args, o) {
+function rootPackage(args, o) {
   for(var a=pkgDir.sync(), b=null; a!=null;)
     a = pkgDir.sync(path.dirname(b=a));
   if(!b) return error(new Error('no package.json found'), o);
@@ -53,7 +54,7 @@ function options(o, k, a, i) {
   o.args = o.args||[];
   if(k==='--help') o.help = true;
   else if(k==='--silent') o.silent = true;
-  else if(k.startsWith('--') && !o.parameter) o.parameter = k.substring(2);
+  else if(k.startsWith('--') && !o.parameter) o.parameter = k;
   else o.args.push(a[i]);
   return i+1;
 };

@@ -34,7 +34,7 @@ enpm-which <command> [options]
 # --silent: enable showing only -1 on error (0)
 
 # Environment variables:
-$ENPM_SILENT        # enable showing only -1 on error (0)
+$ENPM_SILENT # enable showing only -1 on error (0)
 ```
 <br>
 
