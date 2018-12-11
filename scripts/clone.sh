@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # require('./_github.js')
 
 # global variables
