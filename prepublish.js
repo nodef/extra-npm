@@ -42,6 +42,7 @@ function pkgScatter(pth, o) {
   var license = fs.readFileSync('LICENSE', 'utf8');
   var readme = fs.readFileSync(pre+'.md', 'utf8');
   var index = fs.readFileSync(pth, 'utf8');
+  index = index.replace(`'less ${name}.md'`, `'less README.md'`);
   var main = path.basename(pth);
   var pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
   pkgUpdate(pkg, Object.assign({name, license, readme, index, main}, o));
