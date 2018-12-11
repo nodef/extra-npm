@@ -44,6 +44,11 @@ function pkgScatter(pth, o) {
   index = index.replace(new RegExp(`less (.*?)${name}.md`, 'g'), `less $1README.md`);
   var main = 'index'+path.extname(pth);
   var requires = pkgRequires(index);
+  for(var r of Array.from(requires)) {
+    if(!/^[\.\/]/.test(r)) continue;
+    var src = path.join(path.dirname(pth), r);
+    Array.prototype.push.apply(requires, pkgRequires(fs.readFileSync(src, 'utf8')));
+  }
   var pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
   pkgUpdate(pkg, Object.assign({name, license, readme, index, main, requires}, o));
   var dir = tempy.directory();
