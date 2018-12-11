@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# require('./_github.js')
+
 # global variables
 cr="\033[0m"
 cfby="\033[1;33m"
@@ -22,7 +24,7 @@ psd() {
 # read arguments
 dp0="$(psd)/"
 while [[ "$#" != "0" ]]; do
-  if [[ "$1" == "--help" ]]; then less "${dp0}README.md" && exit
+  if [[ "$1" == "--help" ]]; then less "${dp0}push.md" && exit
   elif [[ "$1" == "-n" ]] || [[ "$1" == "--no" ]]; then no="1"
   elif [[ "$1" == "-1" ]] || [[ "$1" == "--patch" ]]; then ver="patch"
   elif [[ "$1" == "-2" ]] || [[ "$1" == "--minor" ]]; then ver="minor"
@@ -46,7 +48,7 @@ if [[ "$inpm" == "true" ]]; then nver=$(npm --no-git-tag-version version ${ver})
 if [[ "$msg" == "" ]]; then msg="$nver"; fi
 if [[ "$pre" != "" ]]; then msg="$pre $msg"; fi
 # if [[ "$gth" == "1" ]]; then repurl="$(git config --get remote.origin.url)"; fi
-# pver=$(node "${dp0}scripts/amend" ${ver} ${repurl})
+# pver=$(node "${dp0}_version" ${ver} ${repurl})
 if [[ "$igit" == "true" ]]; then git add . >/dev/null 2>&1; fi
 
 # publish to npm
@@ -66,5 +68,5 @@ fi
 if [[ "$inpm" == "true" ]] && [[ "$igit" == "true" ]] && [[ "$gth" == "1" ]]; then
   printf "${cm}github edit${cr}\n"
   rep=$(git config --get remote.origin.url)
-  node "${dp0}scripts/github" -r "$rep" -u "$usr" -p "$pwd" -i "package.json" repoedit
+  node "${dp0}_github" -r "$rep" -u "$usr" -p "$pwd" -i "package.json" repoedit
 fi
