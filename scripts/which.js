@@ -10,7 +10,7 @@ const E = process.env;
 const OPTIONS = {
   help: false,
   cwd: null,
-  command: E['ENPM_WHICH_COMMAND']||null,
+  command: null,
   silent: boolean(E['ENPM_SILENT']||'0')
 };
 const STDIO = [0, 1, 2];

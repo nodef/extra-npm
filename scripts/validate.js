@@ -12,7 +12,7 @@ const cp = require('child_process');
 const E = process.env;
 const OPTIONS = {
   help: false,
-  type: null,
+  field: null,
   value: null,
   silent: boolean(E['ENPM_SILENT']||'0')
 };
@@ -85,7 +85,7 @@ function validate(typ, txt, o) {
 function options(o, k, a, i) {
   if(k==='-help') o.help = true;
   else if(k==='--silent') o.silent = true;
-  else if(!o.type) o.type = a[i];
+  else if(!o.field) o.field = a[i];
   else o.value = a[i];
   return i+1;
 };
@@ -99,6 +99,6 @@ function shell(a) {
   for(var i=2, I=a.length; i<I;)
     i = options(o, a[i], a, i);
   if(o.help) return cp.execSync('less validate.md', {cwd: __dirname, stdio: STDIO});
-  validate(o.type, o.value, o);
+  validate(o.field, o.value, o);
 };
 if(require.main===module) shell(process.argv);

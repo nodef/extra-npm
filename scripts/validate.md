@@ -22,9 +22,10 @@ enpm-validate license hyd-license --silent
 ### reference
 
 ```bash
-enpm-validate <field> [options]
-# command: package field to validate
+enpm-validate <field> <value> [options]
+# field: package field to validate
 ## name, version, license, email, username
+# value: value of field
 # -> 1 if valid for new packages
 # -> 0 if valid for old packages
 # -> -1 otherwise (error)
@@ -34,8 +35,7 @@ enpm-validate <field> [options]
 # --silent: enable showing only -1 on error (0)
 
 # Environment variables:
-$ENPM_WHICH_COMMAND # set name of program / node module
-$ENPM_SILENT        # enable showing only -1 on error (0)
+$ENPM_SILENT         # enable showing only -1 on error (0)
 ```
 <br>
 
@@ -43,20 +43,22 @@ $ENPM_SILENT        # enable showing only -1 on error (0)
 ## similar
 
 Do you need anything similar?
-- [enpm-validate] can validate package fields.
+- [enpm-search] can search for NPM packages.
 - [enpm-rev-parse] can get local package details.
 
 Suggestions are welcome. Please [create an issue].
 
 
 [![nodef](https://i.imgur.com/8rbhhqI.jpg)](https://nodef.github.io)
-> References: [npm-which], [which].
+> References: [validate-npm-package-name], [semver], [validate-npm-package-license], [npm-user-validate].
 
 [extra-npm]: https://www.npmjs.com/package/extra-npm
 
-[enpm-validate]: https://www.npmjs.com/package/@extra-npm/validate
+[enpm-search]: https://www.npmjs.com/package/@extra-npm/search
 [enpm-rev-parse]: https://www.npmjs.com/package/@extra-npm/rev-parse
 [create an issue]: https://github.com/nodef/extra-npm/issues
 
-[npm-which]: https://www.npmjs.com/package/npm-which
-[which]: https://en.wikipedia.org/wiki/Which_(Unix)
+[validate-npm-package-name]: https://www.npmjs.com/package/validate-npm-package-name
+[semver]: https://www.npmjs.com/package/semver
+[validate-npm-package-license]: https://www.npmjs.com/package/validate-npm-package-license
+[npm-user-validate]: https://www.npmjs.com/package/npm-user-validate
