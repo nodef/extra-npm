@@ -10,11 +10,16 @@ const STDIO = [0, 1, 2];
 
 
 // Get requires from code.
-function pkgRequires(txt) {
+function pkgRequires(pth, z=[]) {
+  var dat = fs.readFileSync(pth, 'utf8');
   var pkgs = [], re = /require\(\'(.*?)\'\)/g;
-  for(var m=null; (m=re.exec(txt))!=null;)
-    pkgs.push(m[1]);
-  return pkgs;
+  for(var m=null; (m=re.exec(dat))!=null;)
+  { pkgs.push(m[1]); z.push(m[1]); }
+  if(pkgs.length===0) return z;
+  var dir = path.dirname(pth);
+  for(var p of pkgs)
+    if(!/^[\.\/]/.test(p)) pkgRequires(path.join(dir, p), z);
+  return z;
 };
 
 // Update package information.
@@ -43,12 +48,7 @@ function pkgScatter(pth, o) {
   var index = fs.readFileSync(pth, 'utf8');
   index = index.replace(new RegExp(`less (.*?)${name}.md`, 'g'), `less $1README.md`);
   var main = 'index'+path.extname(pth);
-  var requires = pkgRequires(index);
-  for(var r of Array.from(requires)) {
-    if(!/^[\.\/]/.test(r)) continue;
-    var src = path.join(path.dirname(pth), r);
-    Array.prototype.push.apply(requires, pkgRequires(fs.readFileSync(src, 'utf8')));
-  }
+  var requires = pkgRequires(pth);
   var pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
   pkgUpdate(pkg, Object.assign({name, license, readme, index, main, requires}, o));
   var dir = tempy.directory();
