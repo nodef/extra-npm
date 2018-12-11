@@ -98,7 +98,7 @@ function shell(a) {
   var o = {};
   for(var i=2, I=a.length; i<I;)
     i = options(o, a[i], a, i);
-  if(o.help) return cp.execSync('less README.md', {cwd: __dirname, stdio: STDIO});
+  if(o.help) return cp.execSync('less validate.md', {cwd: __dirname, stdio: STDIO});
   validate(o.type, o.value, o);
 };
 if(require.main===module) shell(process.argv);

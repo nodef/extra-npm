@@ -11,7 +11,7 @@ const OPTIONS = {
   help: false,
   cwd: null,
   command: E['ENPM_WHICH_COMMAND']||null,
-  silent: boolean(E['ENPM_WHICH_SILENT']||E['ENPM_SILENT']||'0')
+  silent: boolean(E['ENPM_SILENT']||'0')
 };
 const STDIO = [0, 1, 2];
 

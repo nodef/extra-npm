@@ -1,32 +1,32 @@
-Locate a program or locally installed node module executable.
+Validate Node.js package field.
 <br>
 
 
 ## usage
 
 ```bash
-npm install -g extra-googletts
-enpm-which googletts
-# get path of globally installed "googletts"
-## C:\Users\wolfram77\AppData\Roaming\npm\googletts.CMD
+enpm-validate name boolean
+# is name "boolean" is valid?
+## 1
 
-npm install extra-stillvideo
-enpm-which stillvideo
-# get path of locally installed "stillvideo"
-## C:\Base\Forge\wikipedia-tts\node_modules\.bin\stillvideo.CMD
+enpm-validate version 0.1.1.exe
+# is version "0.1.1.exe" valid?
+## error: invalid semver format
 
-enpm-which youtubeuploader --silent
-# "youtubeuploader" isn't installed locally or globally
+enpm-validate license hyd-license --silent
+# is license "hyd-license" valid?
 ## -1
 ```
-> With [extra-npm] try `enpm which` instead.
+> With [extra-npm] try `enpm validate` instead.
 
 ### reference
 
 ```bash
-enpm-which <command> [options]
-# command: name of program / node module
-# -> path of program / node module
+enpm-validate <field> [options]
+# command: package field to validate
+## name, version, license, email, username
+# -> 1 if valid for new packages
+# -> 0 if valid for old packages
 # -> -1 otherwise (error)
 
 # Options:
