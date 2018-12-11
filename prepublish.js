@@ -32,7 +32,6 @@ function shell() {
     if(!req.includes(d)) pkg.dependencies = undefined;
   pkg.devDependencies = undefined;
   var dir = tempy.directory();
-  fs.mkdirSync(dir);
   fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify(pkg, null, 2));
   fs.writeFileSync(path.join(dir, 'LICENSE'), lic);
   fs.writeFileSync(path.join(dir, 'README.md'), rdm);
