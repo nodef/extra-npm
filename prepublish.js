@@ -56,7 +56,7 @@ function pkgScatter(pth, o) {
   fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify(pkg, null, 2));
   fs.writeFileSync(path.join(dir, 'LICENSE'), license);
   fs.writeFileSync(path.join(dir, 'README.md'), readme);
-  fs.writeFileSync(path.join(dir, 'index.js'), index);
+  fs.writeFileSync(path.join(dir, main), index);
   cp.execSync('npm publish', {cwd: dir, stdio: STDIO});
   cp.execSync(`rm -rf ${dir}`, {stdio: STDIO});
 };
