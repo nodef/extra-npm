@@ -29,7 +29,7 @@ function shell() {
   pkg.keywords.push('which');
   var req = requires(idx);
   for(var d of Object.keys(pkg.dependencies))
-    if(!req.includes(d)) pkg.dependencies = undefined;
+    if(!req.includes(d)) pkg.dependencies[d] = undefined;
   pkg.devDependencies = undefined;
   var dir = tempy.directory();
   fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify(pkg, null, 2));
