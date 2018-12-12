@@ -162,7 +162,7 @@ function dependents(nam) {
 
 // Get downloads.
 async function downloads(nam) {
-  var res = await got(encodeURI('https://api.npmjs.org/downloads/range/last-month/'+nam));
+  var res = await got('https://api.npmjs.org/downloads/range/last-month/'+nam);
   var a = JSON.parse(res.body), detail = a.downloads;
   var day = 0, week = 0, month = 0;
   for(var i=detail.length-1, j=0; i>=0; i--, j++) {
