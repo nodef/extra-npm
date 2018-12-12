@@ -9,7 +9,6 @@ const npmAvailable = require('npm-available');
 const boolean = require('boolean');
 const kleur = require('kleur');
 const got = require('got');
-const packageJson = require('package-json');
 const cp = require('child_process');
 
 
@@ -54,6 +53,11 @@ function error(err, o) {
 
 // Log output value.
 function log(val, o) {
+  if(o.field.startsWith('#')) {
+    if(Array.isArray(val)) val = val.length;
+    else if(typeof val==='string') val = val.length;
+    else if(typeof val==='object') val = Object.keys(val).length;
+  }
   if(Array.isArray(val)) {
     if(o.name) console.log(kleur.green(o.field+' ='));
     for(var v of val) console.log(v);
@@ -100,7 +104,7 @@ async function date(pkg, o) {
   var d = null;
   if((pkg=package(pkg, o))==null) return;
   if((d=await details(pkg, o))==null) return;
-  log(o.field==='date.rel'? d.package.date.rel:d.package.date.ts, o);
+  log(o.field.includes('date.rel')? d.package.date.rel:d.package.date.ts, o);
 };
 
 // Get publisher of package.
@@ -117,8 +121,8 @@ async function maintainers(pkg, o) {
   if((pkg=package(pkg, o))==null) return;
   if((d=await details(pkg, o))==null) return;
   if(o.count) return log(d.package.maintainers.length, o);
-  if(o.field==='maintainers.username') log(d.package.maintainers.map(m => m.username), o);
-  else if(o.field==='maintainers.email') log(d.package.maintainers.map(m => m.email), o);
+  if(o.field.includes('maintainers.username')) log(d.package.maintainers.map(m => m.username), o);
+  else if(o.field.includes('maintainers.email')) log(d.package.maintainers.map(m => m.email), o);
   else log(d.package.maintainers.map(m => `${m.username} (${m.email})`), o);
 };
 
@@ -127,9 +131,9 @@ async function score(pkg, o) {
   var d = null;
   if((pkg=package(pkg, o))==null) return;
   if((d=await details(pkg, o))==null) return;
-  if(o.field==='score.quality') log(d.score.detail.quality, o);
-  else if(o.field==='score.popularity') log(d.score.detail.popularity, o);
-  else if(o.field==='score.maintenance') log(d.score.detail.maintenance, o);
+  if(o.field.includes('score.quality')) log(d.score.detail.quality, o);
+  else if(o.field.includes('score.popularity')) log(d.score.detail.popularity, o);
+  else if(o.field.includes('score.maintenance')) log(d.score.detail.maintenance, o);
   else log(d.score.final, o);
 };
 
@@ -198,18 +202,17 @@ function available(pkg, o) {
 
 // Get infomation on a package.
 async function view(pkg, flds, o) {
-  return console.log(await packageJson(pkg, {fullMetadata: true, version: '0.0.1'}));
   var o = Object.assign({}, OPTIONS, o);
   var fbas = [], fspc = [];
   o.name = flds.length>1;
   for(var f of flds) {
-    if(pkg==='.' || !f.startsWith(':')) fbas.push(f);
+    if(pkg==='.' || !FUNCTION.has(f.replace(/^#/, '').replace(/\..*/, ''))) fbas.push(f);
     else fspc.push(f);
   }
   if(flds.length===0 || fbas.length>0) cp.execSync('npm view '+pkg+' '+fbas.join(' '), {stdio: STDIO});
   for(var f of fspc) {
-    var fn = FUNCTION.get(f.substring(1).replace(/\..*/, ''));
-    if(fn!=null) fn(pkg, Object.assign({}, o, {field: f.substring(1)}));
+    var fn = FUNCTION.get(f.replace(/^#/, '').replace(/\..*/, ''));
+    if(fn!=null) fn(pkg, Object.assign({}, o, {field: f}));
   }
 };
 
