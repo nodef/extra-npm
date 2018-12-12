@@ -1,3 +1,7 @@
+const npmPackageVersions = require('npm-package-versions');
+const npmPackageStars = require('npm-package-stars');
+const listNpmContents = require('list-npm-contents');
+const packageJson = require('package-json');
 const boolean = require('boolean');
 const got = require('got');
 const cp = require('child_process');
@@ -30,41 +34,57 @@ const SEARCH = new Set([
   'author', 'publisher', 'maintainers', 'score', 'searchScore'
 ]);
 const SPECIAL = new Set([
-  'stars', 'versions', 'contents', 'readme', 'dependents', 'downloads', 'available'
+  'stars', 'versions', 'contents', 'readme', 'dependents', 'downloads'
 ]);
 
 
 
-// Search a page.
-async function searchPage(qry, pag) {
-  var opt = {headers: {'x-spiferack': 1}};
-  var url = `https://www.npmjs.com/search?perPage=20&page=${pag}&q=${qry}`;
-  var a = JSON.parse((await got(url, opt)).body);
-  return a.ghapi? JSON.parse((await got(url+'*', opt)).body):a;
+// Get root of a field.
+function root(fld) {
+  return fld.replace(/^#/, '').replace(/\..*/, '');
 };
 
-// Search all packages.
-async function search(qry, off=0, lim=Number.MAX_SAFE_INTEGER) {
-  var aps = [], as = [];
-  var tot = -1, off = off, end = off+lim;
-  do {
-    var ap = searchPage(qry, Math.floor(off/20));
-    if(tot<0) { aps.push(await ap); tot = aps[0].total; }
-    else aps.push(ap);
-    off += 20-(off%20);
-  }while(off<end && off<tot);
-  for(var a of await Promise.all(aps))
-    Array.prototype.push.apply(as, a.objects);
-  return as;
+// Populate package json for a search result.
+function populateJson(a) {
+  var {name, version} = a.package, fullMetadata = true;
+  return packageJson(name, {version, fullMetadata}).then(v => a.json = v, () => {
+    return packageJson(name, {fullMetadata}).then(v => a.json = v);
+  });
+};
+
+function populateSpecial(a, set) {
+  var {name, version} = a.package;
+  var ps = [], b = (a.special=a.special||{});
+  if(set.has('stars')) ps.push(npmPackageStars(name).then(v => b.stars = v));
+  if(set.has('versions')) ps.push(new Promise((fres, frej) => {
+    npmPackageVersions(name, (e, v) => e? frej(e):fres(b.versions = v))
+  }));
+  if(set.has('contents')) ps.push(listNpmContents(name, version).then(v => b.contents = v, () => {
+    return listNpmContents(name).then(v => b.contents = v);
+  }));
+  
 };
 
 // Populate search results with necessary fields.
-async function populate(as, flds) {
-  
+function populate(as, flds) {
+  var aps = [];
+  var spc = new Set(), jsn = false;
+  for(var f of flds) {
+    var r = root(f);
+    if(SEARCH.has(r)) continue;
+    if(SPECIAL.has(r)) pop.add(r);
+    else jsn = true;
+  }
+  if(spc.size) {
+    for(var a of as) a.special = a.special||{};
+  }
+  if(jsn) { for(var a of as) aps.push(populateJson(a)); }
+  return Promise.all(aps);
 };
 
 async function shell() {
   var as = await search('maintainer:wolfram77', 0, 1000000);
+  await populate(as, ['license']);
   console.log(as.length, as[0]);
 };
 shell();
