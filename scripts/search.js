@@ -29,7 +29,8 @@ const OPTIONS = {
 
 async function shell() {
   var as = await _package.search('maintainer:wolfram77', 0, 1000000);
-  await _package.populate(as, ['license']);
-  console.log(as.length, as[0]);
+  await _package.populate(as, ['downloads']);
+  _package.sortBy(as, 'downloads');
+  console.log(as.length, as.slice(0, 10));
 };
 shell();

@@ -162,7 +162,7 @@ function dependents(nam) {
 
 // Get downloads.
 async function downloads(nam) {
-  var res = await got('https://api.npmjs.org/downloads/range/last-month/'+nam);
+  var res = await got(encodeURI('https://api.npmjs.org/downloads/range/last-month/'+nam));
   var a = JSON.parse(res.body), detail = a.downloads;
   var day = 0, week = 0, month = 0;
   for(var i=detail.length-1, j=0; i>=0; i--, j++) {
@@ -194,10 +194,10 @@ function populateJson(a) {
 };
 
 // Populate special for a search result.
-function populateSpecial(a) {
+function populateSpecial(a, flds) {
   var {name, version} = a.package;
-  return special(name, version).then(v => a.special = v, () => {
-    return special(name).then(v => a.special = v);
+  return special(name, version, flds).then(v => a.special = v, () => {
+    return special(name, undefined, flds).then(v => a.special = v);
   });
 };
 
@@ -213,7 +213,7 @@ function populate(as, flds) {
   var aps = [];
   for(var a of as) {
     if(jsn) aps.push(populateJson(a));
-    if(spc.size) aps.push(populateSpecial(a));
+    if(spc.size) aps.push(populateSpecial(a, spc));
   }
   return Promise.all(aps);
 };
