@@ -3,6 +3,7 @@ const moduleDependents = require('module-dependents');
 const npmPackageStars = require('npm-package-stars');
 const listNpmContents = require('list-npm-contents');
 const packageJson = require('package-json');
+const dotProp = require('dot-prop');
 const got = require('got');
 
 
@@ -14,6 +15,47 @@ const FSEARCH = new Set([
 const FSPECIAL = new Set([
   'stars', 'versions', 'contents', 'readme', 'dependents', 'downloads'
 ]);
+const FGET = new Map([
+  ['name', a => a.package.name],
+  ['scope', a => a.package.scope],
+  ['version', a => a.package.version],
+  ['description', a => a.package.description],
+  ['keywords', a => a.package.keywords],
+  ['date', a => a.package.date.ts],
+  ['date.rel', a => a.package.date.rel],
+  ['links', a => a.package.links.npm],
+  ['links.npm', a => a.package.links.npm],
+  ['links.homepage', a => a.package.links.homepage],
+  ['links.repository', a => a.package.links.repository],
+  ['links.bugs', a => a.package.links.bugs],
+  ['author', a => user(a.package.author)],
+  ['publisher', a => user(a.package.publisher)],
+  ['publisher.name', a => a.package.publisher.name],
+  ['publisher.username', a => a.package.publisher.name],
+  ['publisher.email', a => a.package.publisher.email],
+  ['maintainers', a => a.package.maintainers.map(v => user(v))],
+  ['maintainers.username', a => a.package.maintainers.map(v => v.username)],
+  ['maintainers.email', a => a.package.maintainers.map(v => v.email)],
+  ['score', a => a.score.final],
+  ['optimal', a => a.score.final],
+  ['score.quality', a => a.score.detail.quality],
+  ['quality', a => a.score.detail.quality],
+  ['score.popularity', a => a.score.detail.popularity],
+  ['popularity', a => a.score.detail.popularity],
+  ['score.maintenance', a => a.score.detail.maintenance],
+  ['maintenance', a => a.score.detail.maintenance],
+  ['searchScore', a => a.searchScore],
+  ['stars', a => a.special.stars],
+  ['versions', a => a.special.versions],
+  ['contents', a => a.special.contents],
+  ['readme', a => a.special.readme],
+  ['dependents', a => a.special.dependents],
+  ['downloads', a => a.special.downloads.month],
+  ['downloads.day', a => a.special.downloads.day],
+  ['downloads.week', a => a.special.downloads.week],
+  ['downloads.month', a => a.special.downloads.month],
+  ['downloads.detail', a => a.special.downloads.detail],
+]);
 const SPECIAL = {
   stars: 0,
   versions: null,
@@ -24,9 +66,30 @@ const SPECIAL = {
 };
 
 
+
+// Get user info string.
+function user(dat) {
+  if(typeof dat==='string') return dat;
+  var a = dat.name||dat.username;
+  if(dat.email) a += ` <${dat.email}>`;
+  if(dat.url) a += ` (${dat.url})`;
+  return a;
+};
+
 // Get root of a field.
 function froot(fld) {
   return fld.replace(/^#/, '').replace(/\..*/, '');
+};
+
+// Get value of a field.
+function fget(a, fld) {
+  var b = fld.replace(/^#/, '');
+  var v = FGET.has(b)? FGET.get(b)(a):dotProp(a.json, b);
+  if(fld[0]!=='#') return v;
+  if(Array.isArray(v)) return v.length;
+  if(typeof v==='string') return v.length;
+  if(typeof v==='object') return Object.keys(v).length;
+  return v;
 };
 
 // Search a page.
@@ -155,7 +218,19 @@ function populate(as, flds) {
   return Promise.all(aps);
 };
 
+// Sort search results by field.
+function sortBy(as, fld) {
+  return as.sort((a, b) => {
+    var x = fget(a, fld), y = fget(b, fld);
+    if(Array.isArray(x)) return x.join().localeCompare(y.join());
+    if(typeof x==='string') return x.localeCompare(y);
+    if(typeof x==='object') return JSON.stringify(x).localeCompare(JSON.stringify(y));
+    return x-y;
+  });
+};
+
 exports.froot = froot;
+exports.fget = fget;
 exports.search = search;
 exports.main = main;
 exports.json = json;
@@ -167,3 +242,4 @@ exports.dependents = dependents;
 exports.downloads = downloads;
 exports.special = special;
 exports.populate = populate;
+exports.sortBy = sortBy;
