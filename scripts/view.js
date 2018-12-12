@@ -39,8 +39,7 @@ const OPTIONS = {
   fields: null,
   name: null,
   field: null,
-  silent: boolean(E['ENPM_VIEW_SILENT']||E['ENPM_SILENT']||'0'),
-  count: boolean(E['ENPM_COUNT']||'0')
+  silent: boolean(E['ENPM_SILENT']||'0')
 };
 const STDIO = [0, 1, 2];
 
@@ -234,7 +233,7 @@ function shell(a) {
   var o = {};
   for(var i=2, I=a.length; i<I;)
     i = options(o, a[i], a, i);
-  if(o.help) return cp.execSync('less README.md', {cwd: __dirname, stdio: STDIO});
+  if(o.help) return cp.execSync('less view.md', {cwd: __dirname, stdio: STDIO});
   view(o.package, o.fields, o);
 };
 if(require.main===module) shell(process.argv);

@@ -74,6 +74,7 @@ function shell(a) {
   pkgScatter('scripts/push.sh', o);
   pkgScatter('scripts/rev-parse.js', o);
   pkgScatter('scripts/validate.js', o);
+  pkgScatter('scripts/view.js', o);
   pkgScatter('scripts/which.js', o);
 };
 if(require.main===module) shell(process.argv);
