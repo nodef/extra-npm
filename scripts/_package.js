@@ -7,6 +7,13 @@ const got = require('got');
 
 
 // Global variables.
+const FSEARCH = new Set([
+  'name', 'scope', 'version', 'description', 'keywords', 'date', 'links',
+  'author', 'publisher', 'maintainers', 'score', 'searchScore'
+]);
+const FSPECIAL = new Set([
+  'stars', 'versions', 'contents', 'readme', 'dependents', 'downloads'
+]);
 const SPECIAL = {
   stars: 0,
   versions: null,
@@ -16,6 +23,11 @@ const SPECIAL = {
   downloads: null
 };
 
+
+// Get root of a field.
+function froot(fld) {
+  return fld.replace(/^#/, '').replace(/\..*/, '');
+};
 
 // Search a page.
 async function searchPage(qry, pag) {
@@ -110,6 +122,40 @@ function special(nam, ver, flds) {
   return Promise.all(ps).then(() => a);
 };
 
+// Populate json for a search result.
+function populateJson(a) {
+  var {name, version} = a.package;
+  return json(name, version).then(v => a.json = v, () => {
+    return json(name).then(v => a.json = v);
+  });
+};
+
+// Populate special for a search result.
+function populateSpecial(a) {
+  var {name, version} = a.package;
+  return special(name, version).then(v => a.special = v, () => {
+    return special(name).then(v => a.special = v);
+  });
+};
+
+// Populate search results with necessary fields.
+function populate(as, flds) {
+  var spc = new Set(), jsn = false;
+  for(var f of flds) {
+    var r = froot(f);
+    if(FSEARCH.has(r)) continue;
+    if(FSPECIAL.has(r)) spc.add(r);
+    else jsn = true;
+  }
+  var aps = [];
+  for(var a of as) {
+    if(jsn) aps.push(populateJson(a));
+    if(spc.size) aps.push(populateSpecial(a));
+  }
+  return Promise.all(aps);
+};
+
+exports.froot = froot;
 exports.search = search;
 exports.main = main;
 exports.json = json;
@@ -120,3 +166,4 @@ exports.readme = readme;
 exports.dependents = dependents;
 exports.downloads = downloads;
 exports.special = special;
+exports.populate = populate;
