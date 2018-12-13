@@ -73,6 +73,7 @@ function shell(a) {
   pkgScatter('scripts/init.sh', o);
   pkgScatter('scripts/push.sh', o);
   pkgScatter('scripts/rev-parse.js', o);
+  pkgScatter('scripts/search.js', o);
   pkgScatter('scripts/validate.js', o);
   pkgScatter('scripts/view.js', o);
   pkgScatter('scripts/which.js', o);

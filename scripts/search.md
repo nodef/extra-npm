@@ -65,19 +65,19 @@ $ENPM_SILENT # enable showing only -1 on error (0)
 ## similar
 
 Do you need anything similar?
-- [enpm-search] can search for NPM packages.
+- [enpm-validate] can validate package fields.
 - [enpm-rev-parse] can get local package details.
 
 Suggestions are welcome. Please [create an issue].
 
 
 [![nodef](https://i.imgur.com/8rbhhqI.jpg)](https://nodef.github.io)
-> References: [npm view].
+> References: [npm search].
 
 [extra-npm]: https://www.npmjs.com/package/extra-npm
 
-[enpm-search]: https://www.npmjs.com/package/@extra-npm/search
+[enpm-validate]: https://www.npmjs.com/package/@extra-npm/validate
 [enpm-rev-parse]: https://www.npmjs.com/package/@extra-npm/rev-parse
 [create an issue]: https://github.com/nodef/extra-npm/issues
 
-[npm view]: https://docs.npmjs.com/cli/view.html
+[npm search]: https://docs.npmjs.com/cli/search.html
