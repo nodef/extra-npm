@@ -29,14 +29,14 @@ enpm install package
 
 ### reference
 
-- [clone]: Clone NPM package to local or GitHub.
-- [init]: Initialize Node.js reporitory.
-- [push]: Push changes to both Git and NPM?
-- [rev-parse]: Pick out and massage parameters.
-- [search]: Search for packages.
-- [validate]: Validate Node.js package field.
-- [view]: View registry info about a package.
-- [which]: Locate a program or locally installed node module executable.
+- [clone]> Clone NPM package to local or GitHub.
+- [init]> Initialize Node.js reporitory.
+- [push]> Push changes to both Git and NPM?
+- [rev-parse]> Pick out and massage parameters.
+- [search]> Search for packages.
+- [validate]> Validate Node.js package field.
+- [view]> View registry info about a package.
+- [which]> Locate a program or locally installed node module executable.
 <br>
 
 
