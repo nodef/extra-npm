@@ -115,7 +115,8 @@ function options(o, k, a, i) {
   else if(k==='--offset') o.offset = parseInt(a[++i], 10);
   else if(k==='--detailed') o.detailed = true;
   else if(k==='--sortby') o.sortBy = a[++i];
-  else if(k==='--acsending') o.ascending = true;
+  else if(k==='--ascending') o.ascending = true;
+  else if(k==='--fields') o.fields = true;
   else o.query += a[i]+' ';
   return i+1;
 };
