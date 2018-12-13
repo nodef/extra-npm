@@ -56,7 +56,7 @@ Suggestions are welcome. Please [create an issue].
 [push]: https://www.npmjs.com/package/@extra-npm/push
 [clone]: https://www.npmjs.com/package/@extra-npm/clone
 [rev-parse]: https://www.npmjs.com/package/@extra-npm/rev-parse
-[search]: https://www.npmjs.com/package/@extra-npm/serach
+[search]: https://www.npmjs.com/package/@extra-npm/search
 [validate]: https://www.npmjs.com/package/@extra-npm/validate
 [view]: https://www.npmjs.com/package/@extra-npm/view
 [which]: https://www.npmjs.com/package/@extra-npm/which
