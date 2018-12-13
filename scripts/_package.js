@@ -103,6 +103,12 @@ function fget(a, fld) {
   return v;
 };
 
+// Get field as string.
+function fstring(a, fld) {
+  var v = fget(a, fld);
+  return typeof v==='object'? JSON.stringify(v):''+v;
+};
+
 // Get runnable query.
 function query(txt, inc=[], exc=[]) {
   txt += inc.join(' ')+exc.map(v => '-'+v).join(' ');
@@ -253,6 +259,7 @@ function sortBy(as, fld) {
 
 exports.froot = froot;
 exports.fget = fget;
+exports.fstring = fstring;
 exports.query = query;
 exports.ranking = ranking;
 exports.search = search;
