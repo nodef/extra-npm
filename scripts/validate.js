@@ -85,7 +85,7 @@ function validate(fld, val, o) {
 
 // Get options from arguments.
 function options(o, k, a, i) {
-  if(k==='-help') o.help = true;
+  if(k==='--help') o.help = true;
   else if(k==='--silent') o.silent = true;
   else if(!o.field) o.field = a[i];
   else o.value = a[i];
