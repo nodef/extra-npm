@@ -2,7 +2,7 @@
 const boolean = require('boolean');
 const kleur = require('kleur');
 const cp = require('child_process');
-const _package = require('./_package');
+const _package = require('./_package.js');
 
 
 // Global variables.
