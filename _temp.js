@@ -101,29 +101,6 @@ async function search(qrys, o) {
 async function searchAll(qry, o) {
 };
 
-// Get options from arguments.
-function options(o, k, a, i) {
-  o.querys = o.querys||[];
-  if(k==='--help') o.help = true;
-  else if(k==='--silent') o.silent = true;
-  else if(k==='-l' || k==='--long') o.long = true;
-  else if(k==='--json') o.json = true;
-  else if(k==='--parseable') o.parseable = true;
-  else if(k==='--no-description') o.description = false;
-  else if(k==='--searchopts') o.searchopts = a[++i];
-  else if(k==='--searchexclude') o.searchexclude = a[++i];
-  else if(k==='--searchstaleness') o.searchstaleness = parseInt(a[++i], 10);
-  else if(k==='--limit') o.limit = parseInt(a[++i], 10);
-  else if(k==='--offset') o.offset = parseInt(a[++i], 10);
-  else if(k==='--detailed') o.detailed = true;
-  else if(k==='--sortby') o.sortBy = a[++i];
-  else if(k==='--maintenance') o.maintenance = parseFloat(a[++i]);
-  else if(k==='--popularity') o.popularity = parseFloat(a[++i]);
-  else if(k==='--quality') o.quality = parseFloat(a[++i]);
-  else o.querys.push(a[i]);
-  return i+1;
-};
-
 search.options = options;
 module.exports = search;
 

@@ -80,6 +80,7 @@ const SPECIAL = {
 
 // Get user info string.
 function user(dat) {
+  var dat = dat||'';
   if(typeof dat==='string') return dat;
   var a = dat.name||dat.username;
   if(dat.email) a += ` <${dat.email}>`;
