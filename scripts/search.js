@@ -10,7 +10,7 @@ const E = process.env;
 const OPTIONS = {
   help: false,
   query: null,
-  silent: boolean(E['ENPM_SEARCH_SILENT']||E['ENPM_SILENT']||'0'),
+  silent: boolean(E['ENPM_SILENT']||'0'),
   long: boolean(E['ENPM_SEARCH_LONG']||'0'),
   json: boolean(E['ENPM_SEARCH_JSON']||'0'),
   parseable: boolean(E['ENPM_SEARCH_PARSEABLE']||'0'),
@@ -87,12 +87,12 @@ function outputJson(as) {
 async function search(qry, o) {
   var o = Object.assign({}, OPTIONS, o);
   var qry = _package.query(qry, o.searchopts||[], o.searchexclude||[]), rnk = _package.ranking(o.sortBy);
-  // contol offset, limit here through rnk
-  var as = await _package.search(qry, rnk, o.offset||0, o.limit||Number.MAX_SAFE_INTEGER);
+  var as = await _package.search(qry, rnk, rnk? o.offset:0, rnk? o.limit:Number.MAX_SAFE_INTEGER);
   var flds = o.fields.split(','); if(!rnk) flds.push(o.sortBy);
   await _package.populate(as, flds);
   if(!rnk) _package.sortBy(as, o.sortBy);
   if(o.ascending) as = as.reverse();
+  if(!rnk) as = as.slice(o.offset, o.limit);
   if(o.json) outputJson(as);
   else if(o.parseable) outputParseable(as, flds);
   else outputDefault(as, flds, qry);

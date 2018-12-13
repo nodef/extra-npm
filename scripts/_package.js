@@ -67,6 +67,7 @@ const RANKING = new Map([
   ['maintenance', 'maintenance'],
   ['searchScore', 'optimal'],
 ]);
+const DOWNLOADS = {day: 0, week: 0, month: 0, detail: []};
 const SPECIAL = {
   stars: 0,
   versions: null,
@@ -75,7 +76,6 @@ const SPECIAL = {
   dependents: null,
   downloads: null
 };
-
 
 
 // Get user info string.
@@ -210,7 +210,7 @@ function special(nam, ver, flds) {
   if(flds.has('contents')) ps.push(contents(nam, ver).then(v => a.contents=v, () => a.contents=[]));
   if(flds.has('readme')) ps.push(readme(nam, ver).then(v => a.readme=v, () => a.readme=''));
   if(flds.has('dependents')) ps.push(dependents(nam).then(v => a.dependents=v, () => a.dependents=[]));
-  if(flds.has('downloads')) ps.push(downloads(nam).then(v => a.downloads=v, () => a.downloads={}));
+  if(flds.has('downloads')) ps.push(downloads(nam).then(v => a.downloads=v, () => a.downloads=DOWNLOADS));
   return Promise.all(ps).then(() => a);
 };
 
