@@ -56,6 +56,17 @@ const FGET = new Map([
   ['downloads.month', a => a.special.downloads.month],
   ['downloads.detail', a => a.special.downloads.detail],
 ]);
+const RANKING = new Map([
+  ['score', 'optimal'],
+  ['optimal', 'optimal'],
+  ['score.quality', 'quality'],
+  ['quality', 'quality'],
+  ['score.popularity', 'popularity'],
+  ['popularity', 'popularity'],
+  ['score.maintenance', 'maintenance'],
+  ['maintenance', 'maintenance'],
+  ['searchScore', 'optimal'],
+]);
 const SPECIAL = {
   stars: 0,
   versions: null,
@@ -92,20 +103,31 @@ function fget(a, fld) {
   return v;
 };
 
+// Get runnable query.
+function query(txt, inc=[], exc=[]) {
+  txt += inc.join(' ')+exc.map(v => '-'+v).join(' ');
+  return txt.replace(/=/g, 'maintainer:').replace(/\+/g, 'keyword:').replace(/[^\w\-\/:@]+/, '');
+};
+
+// Get ranking from field.
+function ranking(fld) {
+  return RANKING.get(fld)||null;
+};
+
 // Search a page.
-async function searchPage(qry, pag) {
-  var opt = {headers: {'x-spiferack': 1}};
-  var url = `https://www.npmjs.com/search?perPage=20&page=${pag}&q=${qry}`;
+async function searchPage(qry, rnk, pag) {
+  var opt = {headers: {'x-spiferack': 1}}, rnk = rnk||'optimal';
+  var url = `https://www.npmjs.com/search?ranking=${rnk}&perPage=20&page=${pag}&q=${qry}`;
   var a = JSON.parse((await got(url, opt)).body);
   return a.ghapi? JSON.parse((await got(url+'*', opt)).body):a;
 };
 
 // Search all packages.
-async function search(qry, off=0, lim=Number.MAX_SAFE_INTEGER) {
+async function search(qry, rnk=null, off=0, lim=Number.MAX_SAFE_INTEGER) {
   var aps = [], as = [];
   var tot = -1, off = off, end = off+lim;
   do {
-    var ap = searchPage(qry, Math.floor(off/20));
+    var ap = searchPage(qry, rnk, Math.floor(off/20));
     if(tot<0) { aps.push(await ap); tot = aps[0].total; }
     else aps.push(ap);
     off += 20-(off%20);
@@ -117,7 +139,7 @@ async function search(qry, off=0, lim=Number.MAX_SAFE_INTEGER) {
 
 // Get main.
 function main(nam) {
-  search(nam, 0, 1).then(as => as[0]);
+  search(nam, null, 0, 1).then(as => as[0]);
 };
 
 // Get json.
@@ -176,12 +198,12 @@ async function downloads(nam) {
 // Get special.
 function special(nam, ver, flds) {
   var a = Object.assign({}, SPECIAL), ps = [];
-  if(flds.has('stars')) ps.push(stars(nam).then(v => a.stars=v));
-  if(flds.has('versions')) ps.push(versions(nam).then(v => a.versions=v));
-  if(flds.has('contents')) ps.push(contents(nam, ver).then(v => a.contents=v));
-  if(flds.has('readme')) ps.push(readme(nam, ver).then(v => a.readme=v));
-  if(flds.has('dependents')) ps.push(dependents(nam).then(v => a.dependents=v));
-  if(flds.has('downloads')) ps.push(downloads(nam).then(v => a.downloads=v));
+  if(flds.has('stars')) ps.push(stars(nam).then(v => a.stars=v, () => a.stars=0));
+  if(flds.has('versions')) ps.push(versions(nam).then(v => a.versions=v, () => a.versions=[]));
+  if(flds.has('contents')) ps.push(contents(nam, ver).then(v => a.contents=v, () => a.contents=[]));
+  if(flds.has('readme')) ps.push(readme(nam, ver).then(v => a.readme=v, () => a.readme=''));
+  if(flds.has('dependents')) ps.push(dependents(nam).then(v => a.dependents=v, () => a.dependents=[]));
+  if(flds.has('downloads')) ps.push(downloads(nam).then(v => a.downloads=v, () => a.downloads={}));
   return Promise.all(ps).then(() => a);
 };
 
@@ -221,7 +243,7 @@ function populate(as, flds) {
 // Sort search results by field.
 function sortBy(as, fld) {
   return as.sort((a, b) => {
-    var x = fget(a, fld), y = fget(b, fld);
+    var y = fget(a, fld), x = fget(b, fld);
     if(Array.isArray(x)) return x.join().localeCompare(y.join());
     if(typeof x==='string') return x.localeCompare(y);
     if(typeof x==='object') return JSON.stringify(x).localeCompare(JSON.stringify(y));
@@ -231,6 +253,8 @@ function sortBy(as, fld) {
 
 exports.froot = froot;
 exports.fget = fget;
+exports.query = query;
+exports.ranking = ranking;
 exports.search = search;
 exports.main = main;
 exports.json = json;

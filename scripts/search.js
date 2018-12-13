@@ -16,21 +16,21 @@ const OPTIONS = {
   searchopts: E['ENPM_SEARCH_SEARCHOPTS']||'',
   searchexclude: E['ENPM_SEARCH_SEARCHEXCLUDE']||'',
   searchstaleness: parseInt(E['ENPM_SEARCH_SEARCHSTALELESS']||'900', 10),
-  registry: E['ENPM_REGISTRY']||'https://registry.npmjs.org/',
   limit: parseInt(E['ENPM_SEARCH_LIMIT']||'20', 10),
   offset: parseInt(E['ENPM_SEARCH_OFFSET']||'0', 10),
   detailed: boolean(E['ENPM_SEARCH_DETAILED']||'1'),
-  sortBy: E['ENPM_SEARCH_SORTBY']||'optimal',
-  maintenance: parseFloat(E['ENPM_SEARCH_MAINTENAMCE']||'0.65'),
-  popularity: parseFloat(E['ENPM_SEARCH_POPULARITY']||'0.98'),
-  quality: parseFloat(E['ENPM_SEARCH_QUALITY']||'0.5')
+  sortBy: E['ENPM_SEARCH_SORTBY']||'optimal'
 };
 
-
-async function shell() {
-  var as = await _package.search('maintainer:wolfram77', 0, 1000000);
-  await _package.populate(as, ['downloads']);
-  _package.sortBy(as, 'downloads');
-  console.log(as.length, as.slice(0, 10));
+// pre: sortBy
+// progress 10%, 80%, 10%
+async function search(qry, o) {
+  var qry = _package.query(qry, o.searchopts||[], o.searchexclude||[]), rnk = _package.ranking(o.sortBy);
+  var as = await _package.search(qry, rnk, o.offset||0, o.limit||Number.MAX_SAFE_INTEGER);
+  var flds = (o.output||'').split(','); flds.push(o.sortBy);
+  await _package.populate(as, flds);
+  if(!rnk) _package.sortBy(as, o.sortBy);
+  for (var a of as.slice(0, 10))
+    console.log(a.package.name, a.special.downloads.month);
 };
-shell();
+search('=wolfram77 ', {sortBy: 'downloads'});
