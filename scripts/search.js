@@ -22,6 +22,7 @@ const OPTIONS = {
   offset: parseInt(E['ENPM_SEARCH_OFFSET']||'0', 10),
   detailed: boolean(E['ENPM_SEARCH_DETAILED']||'1'),
   sortBy: E['ENPM_SEARCH_SORTBY']||'optimal',
+  ascending: boolean(E['ENPM_SEARCH_ASCENDING']||'0'),
   fields: E['ENPM_SEARCH_FIELDS']||'name,version,description,author',
 };
 const STDIO = [0, 1, 2];
@@ -91,6 +92,7 @@ async function search(qry, o) {
   var flds = o.fields.split(','); if(!rnk) flds.push(o.sortBy);
   await _package.populate(as, flds);
   if(!rnk) _package.sortBy(as, o.sortBy);
+  if(o.ascending) as = as.reverse();
   if(o.json) outputJson(as);
   else if(o.parseable) outputParseable(as, flds);
   else outputDefault(as, flds, qry);
@@ -113,6 +115,7 @@ function options(o, k, a, i) {
   else if(k==='--offset') o.offset = parseInt(a[++i], 10);
   else if(k==='--detailed') o.detailed = true;
   else if(k==='--sortby') o.sortBy = a[++i];
+  else if(k==='--acsending') o.ascending = true;
   else o.query += a[i]+' ';
   return i+1;
 };
