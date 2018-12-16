@@ -123,7 +123,7 @@ if [[ "$rep" != "" ]]; then
     ${gto:+-gt} "$gto" ${lto:+-lt} "$lto" repocreate
   git clone "$rep"
 elif [[ "$typ" == "version" ]]; then
-  pkgdir="$pkg"
+  pkgdir="${pkg/\//-}"
   mkdir "$pkgdir"
 else
   pkgdirs="1"
@@ -134,9 +134,9 @@ if [[ "$pkg" == "" ]]; then exit; fi
 for ver in $(npm view $pkg $typ); do
   ver="${ver//[\[\]\',]}"
   if [[ "$ver" == "" ]]; then continue; fi
-  pkgver="${pkg%%@*}@${ver}"
+  p1="${pkg:1}"; pkgver="${pkg:0:1}${p1%%@*}@${ver}"
   if [[ "$pkgdirs" == "1" ]]; then
-    pkgdir="$pkgver"
+    pkgdir="${pkgver/\//-}"
     mkdir "$pkgdir"
   fi
   tmpdir=$(mktemp -d -t)
