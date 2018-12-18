@@ -116,7 +116,7 @@ function options(o, k, a, i) {
   else if(k==='--detailed') o.detailed = true;
   else if(k==='--sortby') o.sortBy = a[++i];
   else if(k==='--ascending') o.ascending = true;
-  else if(k==='--fields') o.fields = true;
+  else if(k==='--fields') o.fields = a[++i];
   else o.query += a[i]+' ';
   return i+1;
 };
