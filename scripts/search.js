@@ -46,7 +46,7 @@ function outputSizes(as, flds) {
   var cols = (process.stdout.columns||Number.MAX_SAFE_INTEGER)-3*flds.length-1;
   var sizs = flds.map(f => Math.max.apply(null, as.map(a => Math.min(_package.fstring(a, f).length, 32)).concat([f.length])));
   var sizt = sizs.reduce((a, v) => a+v);
-  return sizt>cols? sizs.map(v => Math.floor(v*(sizt/cols))):sizs;
+  return sizt>cols? sizs.map(v => Math.floor(v*(cols/sizt))):sizs;
 };
 
 // Get highlighted text.
