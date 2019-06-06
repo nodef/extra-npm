@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "description": "Prograde NPM for Node.js package maintainers.",
   "main": "index.js",
   "preferGlobal": true,
@@ -31,7 +31,7 @@
   "author": "wolfram77@gmail.com",
   "license": "MIT",
   "dependencies": {
-    "@octokit/rest": "^16.25.3",
+    "@octokit/rest": "^16.27.3",
     "boolean": "^1.0.0",
     "dot-prop": "^5.0.0",
     "got": "^9.6.0",
@@ -46,10 +46,10 @@
     "npm-user-validate": "^1.0.0",
     "npm-which": "^3.0.1",
     "package-json": "^6.3.0",
-    "pkg-dir": "^4.1.0",
+    "pkg-dir": "^4.2.0",
     "pkg-downloads": "^2.3.1",
     "promptly": "^3.0.3",
-    "semver": "^6.0.0",
+    "semver": "^6.1.1",
     "validate-npm-package-license": "^3.0.4",
     "validate-npm-package-name": "^3.0.0"
   },
