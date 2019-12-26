@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 const validateNpmPackageName = require('validate-npm-package-name');
 const validateNpmPackageLicense = require('validate-npm-package-license');
-const npmUserValidate = require('npm-user-validate');
 const boolean = require('boolean');
 const semver = require('semver');
 const kleur = require('kleur');
@@ -61,19 +60,30 @@ function license(txt, o) {
     console.warn(kleur.yellow('warning:'), m);
 };
 
-// Validate email.
-function email(txt, o) {
-  var e = npmUserValidate.email(txt);
-  if(e) return error(e, o);
-  console.log(1);
-};
+/**
+ * Validates email.
+ * @param {string} x email address
+ * @returns {string} null if valid, else error message
+ */
+function email(x) {
+  if (!/^.+@.+\..+$/.test(x)) return 'Email must be an email address';
+  return null;
+}
 
-// Validate username.
-function username(txt, o) {
-  var e = npmUserValidate.username(txt);
-  if(e) return error(e, o);
-  console.log(1);
-};
+/**
+ * Validates username.
+ * @param {string} x username
+ * @returns {string} null if valid, else error message
+ */
+function username(x) {
+  if (x.length > 214)               return 'Name length must be less than or equal to 214 characters long';
+  if (x.startsWith('.'))            return 'Name may not start with "."';
+  if (x.includes("'"))              return 'Name may not contain illegal character';
+  if (x !== encodeURIComponent(x))  return 'Name may not contain non-url-safe chars';
+  if (x !== x.toLowerCase())        return 'Name must be lowercase';
+  return null;
+}
+
 
 // Validate something, dont leave to chance!
 function validate(fld, val, o) {
