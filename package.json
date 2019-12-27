@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "1.2.12",
+  "version": "1.2.13",
   "description": "Prograde NPM for Node.js package maintainers.",
   "main": "index.js",
   "preferGlobal": true,
@@ -49,8 +49,7 @@
     "pkg-downloads": "2",
     "promptly": "3",
     "semver": "^7.1.1",
-    "validate-npm-package-license": "3",
-    "validate-npm-package-name": "3"
+    "validate-npm-package-license": "3"
   },
   "devDependencies": {
     "tempy": "0"
