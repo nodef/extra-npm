@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-const boolean = require('boolean');
 const kleur = require('kleur');
 const path = require('path');
 const fs = require('fs');
+require('extra-boolean');
 
 
 // Global variables.
@@ -11,7 +11,7 @@ const OPTIONS = {
   help: false,
   parameter: null,
   args: null,
-  silent: boolean(E['ENPM_SILENT']||'0')
+  silent: Boolean.parse(E['ENPM_SILENT']||'0')
 };
 const STDIO = [0, 1, 2];
 
@@ -62,12 +62,16 @@ function error(err, o) {
  * @returns {Promise<string>} null if not found, else path
  */
 function package(dir) {
-  return new Promise((fres, frej) => _package(dir||'.', p => p? fres(p) : frej()));
+  return new Promise((fres, frej) => _package(dir||'.', p => p? fres(p):frej()));
 };
 function _package(dir, fn) {
   dir = dir.startsWith('/')? dir:path.resolve(dir);
   var pkg = path.join(dir, 'package.json');
-  fs.access(pkg, err => dir==='/'? fn(null):package(path.dirname(dir), fn));
+  fs.access(pkg, err => {
+    if(!err) return fn(dir);
+    if(path.isAbsolute(dir)) return fn(null);
+    _package(path.dirname(dir), fn);
+  });
 }
 
 
@@ -81,8 +85,8 @@ function rootPackage(dir) {
 };
 function _rootPackage(dir, fn) {
   _package(dir, p => {
-    if(!p) fn(null);
-    rootPackage(path.dirname(p), (q) => fn(!q? p:q));
+    if(!p) return fn(null);
+    _rootPackage(path.dirname(p), q => fn(!q? p:q));
   });
 }
 
