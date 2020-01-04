@@ -24,7 +24,7 @@ function main(a) {
   for(var i=2, I=a.length; i<I;)
     i = options(o, a[i], a, i);
   if(o.help) return cp.execSync('less rev-parse.md', {cwd: __dirname, stdio: STDIO});
-  revParse(o.parameter, o.args, o);
+  revParse(o.parameter||'', o.args, o);
 };
 
 // Get options from arguments.
@@ -40,17 +40,17 @@ function options(o, k, a, i) {
 // Get value of parameter.
 function revParse(par, args, o) {
   var o = Object.assign({}, OPTIONS, o);
-  switch(par.toLowerCase().replace(/-/, '')) {
-    case 'package': package(args[0]).then(console.log, () => error('no package.json found', o));
-    case 'rootpackage': rootPackage(args[0]).then(console.log, () => error('no package.json found', o));
-    default: error('unknown parameter', o);
+  switch(par.toLowerCase().replace(/-/g, '')) {
+    case 'package': return package(args[0]).then(console.log, () => error('no package.json found', o));
+    case 'rootpackage': return rootPackage(args[0]).then(console.log, () => error('no package.json found', o));
+    default: return error('unknown parameter', o);
   }
 };
 
 // Log error message.
 function error(err, o) {
   if(o.silent) console.log(-1);
-  else console.error(kleur.red('error:'), err.message);
+  else console.error(kleur.red('error:'), err);
 };
 
 

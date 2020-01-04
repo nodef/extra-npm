@@ -5,7 +5,7 @@ Pick out and massage parameters.
 <br>
 
 
-## usage
+## console
 
 ```bash
 enpm-rev-parse --package
@@ -21,7 +21,7 @@ enpm-rev-parse --root-package
 ```bash
 enpm-rev-parse <parameter> [args] [options]
 # parameter: name of parameter to get
-## --package, --top-package
+## --package, --root-package
 # args: arguments for parameter
 # -> value of parameter
 # -> -1 otherwise (error)
@@ -34,7 +34,26 @@ enpm-rev-parse <parameter> [args] [options]
 $ENPM_SILENT # enable showing only -1 on error (0)
 ```
 <br>
+<br>
 
+## javascript
+
+```javascript
+const revParse = require('@extra-npm/rev-parse');
+// revParse.package([dir]): nearest package path (promise)
+// revParse.rootPackage([dir]): root package path (promise)
+
+process.cwd();
+// cd D:\Documents\extra-npm\node_modules\kleur
+
+await revParse.package();
+// D:\Documents\extra-npm\node_modules\kleur
+
+await revParse.rootPackage();
+// D:\Documents\extra-npm
+```
+<br>
+<br>
 
 ## similar
 
