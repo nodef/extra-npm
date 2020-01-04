@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "1.2.13",
+  "version": "1.3.0",
   "description": "Prograde NPM for Node.js package maintainers.",
   "main": "index.js",
   "preferGlobal": true,
@@ -8,7 +8,7 @@
     "enpm": "index.cmd"
   },
   "scripts": {
-    "install": "node ./install",
+    "install": "exit && node ./install",
     "prepublishOnly": "node ./prepublish",
     "test": "exit"
   },
