@@ -62,15 +62,14 @@ const BUILTINS = [
 const STDIO = [0, 1, 2];
 
 
-
-// Validate something, dont leave to chance!
-function validate(fld, val, o) {
-  var o = Object.assign({}, OPTIONS, o);
-  var fn = FUNCTION.get(fld);
-  if(!fn) return error('cannot validate '+fld, o);
-  var ans = fn(val, o);
-  if(ans) error(ans, o);
-  else console.log(1);
+// CONSOLE
+// Run on shell.
+function main(a) {
+  var o = {};
+  for(var i=2, I=a.length; i<I;)
+    i = options(o, a[i], a, i);
+  if(o.help) return cp.execSync('less validate.md', {cwd: __dirname, stdio: STDIO});
+  validate(o.field, o.value, o);
 };
 
 // Get options from arguments.
@@ -82,15 +81,15 @@ function options(o, k, a, i) {
   return i+1;
 };
 
-// Run on shell.
-function main(a) {
-  var o = {};
-  for(var i=2, I=a.length; i<I;)
-    i = options(o, a[i], a, i);
-  if(o.help) return cp.execSync('less validate.md', {cwd: __dirname, stdio: STDIO});
-  validate(o.field, o.value, o);
+// Validate something, dont leave to chance!
+function validate(fld, val, o) {
+  var o = Object.assign({}, OPTIONS, o);
+  var fn = FUNCTION.get(fld);
+  if(!fn) return error('cannot validate '+fld, o);
+  var ans = fn(val, o);
+  if(ans) error(ans, o);
+  else console.log(1);
 };
-if(require.main===module) main(process.argv);
 
 
 // Log error message.
@@ -100,6 +99,7 @@ function error(msg, o) {
 };
 
 
+// JAVASCRIPT
 /**
  * Validates package name.
  * @param {string} x package name
@@ -165,3 +165,4 @@ exports.version = version;
 exports.license = license;
 exports.username = username;
 exports.email = email;
+if(require.main===module) main(process.argv);

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// const validateNpmPackageName = require('validate-npm-package-name');
+const validate = require('./validate.js');
 // const npmPackageVersions = require('npm-package-versions');
 // const listNpmContents = require('list-npm-contents');
 // const moduleDependents = require('module-dependents');
@@ -75,13 +75,10 @@ function log(val, o) {
 // Get package name, with validation.
 function package(nam, o) {
   nam = nam.replace(/(.)@.*/, '$1');
-  var a = validateNpmPackageName(nam);
-  if(a.validForNewPackages || a.validForOldPackages) return nam;
+  var a = validate.name(nam);
+  if(a==null) return nam;
   if(o.silent) return console.log(-1);
-  for(var m of a.errors||[])
-    console.error(kleur.red('error:'), m);
-  for(var m of a.warnings||[])
-    console.warn(kleur.yellow('warning:'), m);
+  console.error(kleur.red('error:'), a);
 };
 
 // Get package details.

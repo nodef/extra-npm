@@ -101,8 +101,8 @@ if [[ "$yes" != "1" ]]; then
   while : ; do
     if [[ "$_name" == "" ]]; then read -p "package name: ($name) " _name; fi
     _name=$(echo "$_name" | tr '[:upper:]' '[:lower:]')
-    name_valid=$(node "${dp0}_name" "$_name")
-    if [[ "$name_valid" == "true" ]]; then break; fi
+    name_valid=$(node "${dp0}validate" name "$_name" --silent)
+    if [[ "$name_valid" == "1" ]]; then break; fi
     _name=""; printf "${cr}${cm}Bad package name. "
     printf "Please check https://www.npmjs.com/package/validate-npm-package-name.${cr}${ci}\n"
   done

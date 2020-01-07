@@ -4,7 +4,6 @@ const path = require('path');
 const fs = require('fs');
 require('extra-boolean');
 
-
 // Global variables.
 const E = process.env;
 const OPTIONS = {
