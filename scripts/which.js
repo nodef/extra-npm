@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const npmWhich = require('npm-which');
+const revParse = require('./rev-parse');
 const kleur = require('kleur');
 const cp = require('child_process');
 const path = require('path');
@@ -10,10 +10,7 @@ require('extra-boolean');
 
 // Global variables.
 const E = process.env;
-const PATH = E['PATH']||'';
-const PATHEXT = (E['PATHEXT']||'').toLowerCase();
-const WIN32 = os.platform()==='win32';
-const PATHSEP = WIN32? ';':':';
+const PATHS = (E['PATH']||'').split(path.delimiter);
 const OPTIONS = {
   help: false,
   cwd: null,
@@ -31,24 +28,18 @@ function error(err, o) {
 
 
 function which(prog, opt=null) {
-  
+  var o = Object.assign({cwd: process.cwd()}, opt);
+  o.paths = [o.cwd, ...bins(o.cwd), ...PATHS];
+  return fs.which(prog, o);
 }
-
-function _bins(dir, ans, fn) {
-  _package(dir, pkg => {
-    if(!pkg) return fn(ans);
+async function bins(dir) {
+  var ans = [];
+  while(true) {
+    var pkg = await revParse.package(dir);
+    if(!pkg) return ans;
     ans.push(path.join(pkg, 'node_modules', '.bin'));
-    _bins(path.dirname(pkg), ans, _bins);
-  });
-}
-function _package(dir, fn) {
-  dir = dir.startsWith('/')? dir:path.resolve(dir);
-  var pkg = path.join(dir, 'package.json');
-  fs.access(pkg, err => {
-    if(!err) return fn(dir);
-    if(path.isAbsolute(dir)) return fn(null);
-    _package(path.dirname(dir), fn);
-  });
+    dir = path.dirname(dir);
+  }
 }
 
 // Get options from arguments.
@@ -64,7 +55,7 @@ module.exports = which;
 
 // Run on shell.
 function shell(a) {
-  var o = {};
+  var o = Object.assign({}, OPTIONS);
   for(var i=2, I=a.length; i<I;)
     i = options(o, a[i], a, i);
   if(o.help) return cp.execSync('less which.md', {cwd: __dirname, stdio: STDIO});
