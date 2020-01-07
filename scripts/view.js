@@ -1,15 +1,14 @@
 #!/usr/bin/env node
-const validateNpmPackageName = require('validate-npm-package-name');
-const npmPackageVersions = require('npm-package-versions');
-const npmPackageStars = require('npm-package-stars');
-const listNpmContents = require('list-npm-contents');
-const moduleDependents = require('module-dependents');
-const pkgDownloads = require('pkg-downloads');
-const boolean = require('boolean');
+// const validateNpmPackageName = require('validate-npm-package-name');
+// const npmPackageVersions = require('npm-package-versions');
+// const listNpmContents = require('list-npm-contents');
+// const moduleDependents = require('module-dependents');
+// const pkgDownloads = require('pkg-downloads');
+// const boolean = require('boolean');
 const kleur = require('kleur');
-const got = require('got');
 const cp = require('child_process');
 const https = require('https');
+require('extra-boolean');
 
 
 // Global variables.
@@ -45,7 +44,7 @@ const OPTIONS = {
   fields: null,
   name: null,
   field: null,
-  silent: boolean(E['ENPM_SILENT']||'0')
+  silent: Boolean.parse(E['ENPM_SILENT']||'0')
 };
 const STDIO = [0, 1, 2];
 
