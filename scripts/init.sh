@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # require('./_github.js')
-# require('./_name.js')
 # require('./_json.sh')
 
 # global variables
