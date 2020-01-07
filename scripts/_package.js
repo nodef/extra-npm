@@ -8,7 +8,7 @@ const FSEARCH = new Set([
   'author', 'publisher', 'maintainers', 'score', 'searchScore'
 ]);
 const FSPECIAL = new Set([
-  'stars', 'versions', 'contents', 'readme', 'dependents', 'downloads'
+  'versions', 'contents', 'readme', 'dependents', 'downloads'
 ]);
 const FGET = new Map([
   ['name', a => a.package.name],
@@ -40,7 +40,6 @@ const FGET = new Map([
   ['score.maintenance', a => a.score.detail.maintenance],
   ['maintenance', a => a.score.detail.maintenance],
   ['searchScore', a => a.searchScore],
-  ['stars', a => a.special.stars],
   ['versions', a => a.special.versions],
   ['contents', a => a.special.contents],
   ['readme', a => a.special.readme],
@@ -64,7 +63,6 @@ const RANKING = new Map([
 ]);
 const DOWNLOADS = {day: 0, week: 0, month: 0, detail: []};
 const SPECIAL = {
-  stars: 0,
   versions: null,
   contents: null,
   readme: null,
@@ -164,23 +162,23 @@ function main(nam) {
 
 // Get json.
 function json(nam, ver) {
-  // return packageJson(nam, {version: ver, fullMetadata: true});
-};
-
-// Get stars.
-function stars(nam) {
-  // return npmPackageStars(nam);
+  var ans = JSON.parse((await got(`https://registry.npmjs.com/${nam}`)).body);
+  if(ver) return ans.versions[ver];
+  return ans.versions[ans.versions.length-1];
 };
 
 // Get versions.
 function versions(nam) {
-  // return new Promise((fres, frej) => npmPackageVersions(nam, (e, v) => e? frej(e):fres(v)));
+  var ans = JSON.parse((await got(`https://registry.npmjs.com/${nam}`)).body);
+  return Object.keys(ans.versions);
 };
 
 // Get contents.
-function contents(nam, ver) {
-  // return listNpmContents(nam, ver);
-};
+async function contents(nam, ver) {
+  var ans = JSON.parse((await got(`https://registry.npmjs.com/${nam}`)).body);
+  if(ver) return ans.versions[ver].files;
+  return ans.versions[ans.versions.length-1].files;
+}
 
 // Get readme.
 async function readme(nam, ver) {
@@ -218,7 +216,6 @@ async function downloads(nam) {
 // Get special.
 function special(nam, ver, flds) {
   var a = Object.assign({}, SPECIAL), ps = [];
-  if(flds.has('stars')) ps.push(stars(nam).then(v => a.stars=v, () => a.stars=0));
   if(flds.has('versions')) ps.push(versions(nam).then(v => a.versions=v, () => a.versions=[]));
   if(flds.has('contents')) ps.push(contents(nam, ver).then(v => a.contents=v, () => a.contents=[]));
   if(flds.has('readme')) ps.push(readme(nam, ver).then(v => a.readme=v, () => a.readme=''));
@@ -279,7 +276,6 @@ exports.ranking = ranking;
 exports.search = search;
 exports.main = main;
 exports.json = json;
-exports.stars = stars;
 exports.versions = versions;
 exports.contents = contents;
 exports.readme = readme;
