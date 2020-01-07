@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-const validateNpmPackageLicense = require('validate-npm-package-license');
 const boolean = require('boolean');
 const semver = require('semver');
 const kleur = require('kleur');

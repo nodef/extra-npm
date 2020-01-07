@@ -1,10 +1,5 @@
-const npmPackageVersions = require('npm-package-versions');
-const moduleDependents = require('module-dependents');
-const npmPackageStars = require('npm-package-stars');
-const listNpmContents = require('list-npm-contents');
-const packageJson = require('package-json');
 const dotProp = require('dot-prop');
-const got = require('got');
+const https = require('https');
 
 
 // Global variables.
@@ -76,6 +71,24 @@ const SPECIAL = {
   dependents: null,
   downloads: null
 };
+
+
+
+// Get response body
+function got(url, opt) {
+  return new Promise((fres, frej) => {
+    var req = https.request(url, opt||{}, (res) => {
+      var code = res.statusCode, body = '';
+      if(code>=400) { res.resume(); return frej(new Error(`Request to ${url} returned ${code}`)); }
+      if(code>=300 && code<400) return got(res.headers.location, opt).then(fres);
+      res.on('error', frej);
+      res.on('data', b => body+=b);
+      res.on('end', () => fres({body}));
+    });
+    req.on('error', frej);
+    req.end();
+  });
+}
 
 
 // Get user info string.
@@ -151,22 +164,22 @@ function main(nam) {
 
 // Get json.
 function json(nam, ver) {
-  return packageJson(nam, {version: ver, fullMetadata: true});
+  // return packageJson(nam, {version: ver, fullMetadata: true});
 };
 
 // Get stars.
 function stars(nam) {
-  return npmPackageStars(nam);
+  // return npmPackageStars(nam);
 };
 
 // Get versions.
 function versions(nam) {
-  return new Promise((fres, frej) => npmPackageVersions(nam, (e, v) => e? frej(e):fres(v)));
+  // return new Promise((fres, frej) => npmPackageVersions(nam, (e, v) => e? frej(e):fres(v)));
 };
 
 // Get contents.
 function contents(nam, ver) {
-  return listNpmContents(nam, ver);
+  // return listNpmContents(nam, ver);
 };
 
 // Get readme.
