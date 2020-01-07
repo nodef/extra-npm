@@ -29,16 +29,18 @@ function error(err, o) {
   else console.error(kleur.red('error:'), err.message);
 };
 
-// Get path of local bin.
-// function which(cmd, o) {
-//   var o = Object.assign({}, OPTIONS, o);
-//   var cwd = o.cwd||process.cwd();
-//   npmWhich(cwd)(cmd, (err, pth) => {
-//     if(err) return error(err, o);
-//     console.log(pth);
-//   });
-// };
 
+function which(prog, opt=null) {
+  
+}
+
+function _bins(dir, ans, fn) {
+  _package(dir, pkg => {
+    if(!pkg) return fn(ans);
+    ans.push(path.join(pkg, 'node_modules', '.bin'));
+    _bins(path.dirname(pkg), ans, _bins);
+  });
+}
 function _package(dir, fn) {
   dir = dir.startsWith('/')? dir:path.resolve(dir);
   var pkg = path.join(dir, 'package.json');
@@ -47,51 +49,6 @@ function _package(dir, fn) {
     if(path.isAbsolute(dir)) return fn(null);
     _package(path.dirname(dir), fn);
   });
-}
-
-
-function which(prog) {
-  return new Promise((fres, frej) => whichOs(prog, fres));
-}
-
-function whichNode() {
-
-}
-
-function whichOs(prog, fn) {
-  var map = new Map();
-  var ps = PATH.split(PATHSEP);
-  for(var i=0, j=0, I=ps.length; i<I; i++) {
-    whichDir(prog, ps[i], map, err => {
-      if(++j>=I) fn(map.values());
-    });
-  }
-}
-
-
-
-function whichDir(prog, dir, map, fn) {
-  var isExe = WIN32? isExeWin32:isExeNix;
-  fs.readdir(dir, {withFileTypes: true}, (err, files) => {
-    if(err) return fn(err);
-    for(var f of files) {
-      if(!f.isFile()) continue;
-      var base = path.basename(f.name);
-      var p = path.join(dir, f.name);
-      var p0 = map.get(base)||null;
-      if(!prog.test(base)) continue;
-      if(isExe(p, p0)) map.set(base, p);
-    }
-    fn(null);
-  });
-}
-function isExeWin32(p1, p0) {
-  var i0 = PATHEXT.indexOf(path.extname(p0||'f.zzz').toLowerCase());
-  var i1 = PATHEXT.indexOf(path.extname(p1).toLowerCase());
-  return i1>=0 && (i0<0 || i1<i0);
-}
-function isExeNix(p1) {
-  return path.extname(p1)==='';
 }
 
 // Get options from arguments.
