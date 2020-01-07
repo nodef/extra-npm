@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const revParse = require('./rev-parse');
+const revParse = require('./rev-parse.js');
 const kleur = require('kleur');
 const cp = require('child_process');
 const path = require('path');
