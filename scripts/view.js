@@ -5,11 +5,11 @@ const npmPackageStars = require('npm-package-stars');
 const listNpmContents = require('list-npm-contents');
 const moduleDependents = require('module-dependents');
 const pkgDownloads = require('pkg-downloads');
-const npmAvailable = require('npm-available');
 const boolean = require('boolean');
 const kleur = require('kleur');
 const got = require('got');
 const cp = require('child_process');
+const https = require('https');
 
 
 // Global variables.
@@ -32,6 +32,12 @@ const FUNCTION = new Map([
 const URL = 'https://www.npmjs.com/search?q=';
 const HEADERS = {
   'x-spiferack': 1
+};
+const AVAILABLEOPT = {
+  method: 'HEAD',
+  host: 'registry.npmjs.com',
+  path: null,
+  headers: {'User-Agent': 'extra-npm'}
 };
 const OPTIONS = {
   help: false,
@@ -198,6 +204,26 @@ function available(pkg, o) {
     log(ok, o);
   });
 };
+
+// https://github.com/watson/npm-available/blob/master/index.js
+function available(pkg) {
+  return new Promise((fres, frej) => _available(pkg, (err, ans) => err? frej(err):fres(ans)));
+}
+function _available(pkg, fn) {
+  var o = Object.assign({}, AVAILABLEOPT);
+  o.path = '/'+pkg;
+  var req = https.request(o, res => {
+    res.resume();
+    switch(res.statusCode) {
+      case 200: return fn(null, false);
+      case 404: return fn(null, true);
+      default: return fn(new Error('Unknown status code returned from npm: '+res.statusCode));
+    }
+  });
+  req.on('error', fn);
+  req.on('close', () => fn(new Error('Connection with NPM closed unexpectedly')));
+  req.end();
+}
 
 // Get infomation on a package.
 async function view(pkg, flds, o) {

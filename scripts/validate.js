@@ -25,6 +25,9 @@ const STDIO = [0, 1, 2];
 const BUILTINS = [];
 
 
+
+
+
 // Log error message.
 function error(err, o) {
   if(o.silent) console.log(-1);
@@ -74,6 +77,9 @@ function version(x) {
   return null;
 };
 
+function validateNpmPackageLicense(txt) {
+  return {validForNewPackages: true, validForOldPackages: true};
+}
 
 // Validate package license.
 function license(txt, o) {
