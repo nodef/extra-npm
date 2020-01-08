@@ -32,6 +32,11 @@ const DAYS = new Map([
 const NPMJSOPT = {
   headers: {'x-spiferack': 1}
 };
+const VIEWOPT = {
+  score: true,
+  downloads: 'last-year',
+  dependents: true
+};
 const OPTIONS = {
   help: false,
   package: null,
@@ -222,26 +227,30 @@ function version(pkg) {
 async function view(pkg, opt) {
   var o = Object.assign({}, VIEWOPT, opt);
   var nam = name(pkg), ver = version(pkg);
-  var ans = await getJson('https://registry.npmjs.com/'+nam+'/'+ver);
-  if(o.fields.some(f => /^#?downloads/.test(f))) ans.downloads = await downloads(nam);
-  if(o.fields.some(f => /^score/.test(f))) ans.score = await score(nam);
-  if(o.fields.includes('dependents')) ans.dependents = await dependents(nam);
-  else if(o.fields.includes('#dependents')) ans.dependents = await dependentsCount(nam);
-  return ans;
+  var [x, package, search, downloads, depended] = await Promise.all([
+    getJson(`https://registry.npmjs.com/${nam}/${ver}`),
+    getJson(`https://www.npmjs.com/package/${nam}`, NPMJSOPT),
+    o.score? getJson(`https://www.npmjs.com/search?q=${nam}`, NPMJSOPT):null,
+    o.downloads? getJson(`https://api.npmjs.org/downloads/range/${o.downloads}/${nam}`):null,
+    o.dependents? getDependents(nam):null
+  ]);
+  ver = x.versions? last(Object.keys(x.versions)):ver;
+  Object.assign(x, x.versions[ver]);
+  x.private = package.private;
+  var {author, maintainers, versions} = package.packument;
+  Object.assign(x.author, author);
+  var i = 0; for(var m of x.maintainers)
+    Object.assign(m, maintainers[i++]);
+  Object.assign(x, versions.find(v => v===ver));
+  i = 0; for(var v in x.versions)
+    Object.assign(v, versions[i++]);
+  if(search && search.objects) x.score = search.objects[0].score;
+  if(downloads) x.downloads = downloads.downloads;
+  // Q: is it a good ideato create null arrays here?
+  x.dependents = depended||new Array(package.dependents.dependentsCount).fill(null);
+  return x;
 }
-async function downloads(nam) {
-  var x = await getJson('https://api.npmjs.org/downloads/range/last-year/'+nam, null);
-  return x.downloads;
-}
-async function score(nam) {
-  var x = await getJson('https://www.npmjs.com/search?q='+nam, NPMJSOPT);
-  return x.objects[0].score;
-}
-async function dependentsCount(nam) {
-  var x = await getJson('https://www.npmjs.com/package/'+nam, NPMJSOPT);
-  return x.dependents.dependentsCount;
-}
-async function dependents(nam) {
+async function getDependents(nam) {
   var ans = [], offset = 0;
   do {
     var x = await getJson('https://www.npmjs.com/browse/depended/'+nam+'?offset='+offset, NPMJSOPT);
