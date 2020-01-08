@@ -5,21 +5,23 @@ const cp = require('child_process');
 const https = require('https');
 require('extra-boolean');
 
-
 // Global variables.
 const E = process.env;
 const FUNCTION = new Map([
-  ['scope', scope],
-  ['date', date],
-  ['publisher', publisher],
-  ['maintainers', maintainers],
-  ['score', score],
-  ['versions', versions],
-  ['contents', contents],
-  ['readme', readme],
-  ['dependents', dependents],
-  ['downloads', downloads],
-  ['available', available]
+  ['scope', $scope],
+  ['time', $time],
+  ['date', $time],
+  ['author', $author],
+  ['publisher', $author],
+  ['maintainers', $maintainers],
+  ['score', $score],
+  ['versions', $versions],
+  ['files', $files],
+  ['contents', $files],
+  ['readme', $readme],
+  ['dependents', $dependents],
+  ['downloads', $downloads],
+  ['available', $available]
 ]);
 const DAYS = new Map([
   ['day', 1],
@@ -27,15 +29,8 @@ const DAYS = new Map([
   ['month', 30],
   ['year', 365]
 ]);
-const URL = 'https://www.npmjs.com/search?q=';
-const HEADERS = {
-  'x-spiferack': 1
-};
-const AVAILABLEOPT = {
-  method: 'HEAD',
-  host: 'registry.npmjs.com',
-  path: null,
-  headers: {'User-Agent': 'extra-npm'}
+const NPMJSOPT = {
+  headers: {'x-spiferack': 1}
 };
 const OPTIONS = {
   help: false,
@@ -150,7 +145,8 @@ function $readme(json, o) {
 
 // Get dependents of package.
 function $dependents(json, o) {
-  log(json.dependents, o);
+  var names = json.dependents.map(p => p.name);
+  log(names, o);
 };
 
 // Get downloads of package.
@@ -223,41 +219,55 @@ function version(pkg) {
   return pkg.replace(/.@(.*)/, '$1');
 }
 
-
-
 async function view(pkg, opt) {
   var o = Object.assign({}, VIEWOPT, opt);
-  var ans = await httpsGetJson('https://registry.npmjs.com/'+pkg, null);
-  if(o.fields.includes('downloads')) ans.downloads = await httpsGetJson(
-    'https://api.npmjs.org/downloads/range/last-year/'+pkg, null
-  );
-  if(o.fields.includes('score')) ans.score = await httpsGetJson(
-    'https://www.npmjs.com/search?q='+pkg, NPMJSOPT
-  );
-  if(o.fields.includes('#dependents')) ans['#dependents'] = (await httpsGetJson(
-    'https://www.npmjs.com/package/'+pkg, NPMJSOPT
-  )).dependents.dependentsCount;
-  if(o.fields.includes('dependents')) ans.dependents = await _dependents(pkg);
+  var nam = name(pkg), ver = version(pkg);
+  var ans = await getJson('https://registry.npmjs.com/'+nam+'/'+ver);
+  if(o.fields.some(f => /^#?downloads/.test(f))) ans.downloads = await downloads(nam);
+  if(o.fields.some(f => /^score/.test(f))) ans.score = await score(nam);
+  if(o.fields.includes('dependents')) ans.dependents = await dependents(nam);
+  else if(o.fields.includes('#dependents')) ans.dependents = await dependentsCount(nam);
+  return ans;
+}
+async function downloads(nam) {
+  var x = await getJson('https://api.npmjs.org/downloads/range/last-year/'+nam, null);
+  return x.downloads;
+}
+async function score(nam) {
+  var x = await getJson('https://www.npmjs.com/search?q='+nam, NPMJSOPT);
+  return x.objects[0].score;
+}
+async function dependentsCount(nam) {
+  var x = await getJson('https://www.npmjs.com/package/'+nam, NPMJSOPT);
+  return x.dependents.dependentsCount;
+}
+async function dependents(nam) {
+  var ans = [], offset = 0;
+  do {
+    var x = await getJson('https://www.npmjs.com/browse/depended/'+nam+'?offset='+offset, NPMJSOPT);
+    Array.prototype.push.apply(ans, x.packages);
+    offset += x.packages.length;
+  } while(x.hasNext);
   return ans;
 }
 
-// Get response body
-function got(url, opt) {
+// Get response JSON
+function getJson(url, opt) {
   return new Promise((fres, frej) => {
-    var req = https.request(url, opt||{}, res => {
-      var code = res.statusCode, body = '';
-      if(code>=400) { res.resume(); return frej(new Error(`Request to ${url} returned ${code}`)); }
-      if(code>=300 && code<400) return got(res.headers.location, opt).then(fres);
-      res.on('error', frej);
-      res.on('data', b => body+=b);
-      res.on('end', () => fres({body}));
-    });
-    req.on('error', frej);
-    req.end();
+    getBody(url, opt, (err, ans) => err? frej(err):fres(JSON.parse(ans)));
   });
 }
-
-exports.scope = scope;
-exports.name = name;
-exports.version = version;
+function getBody(url, opt, fn) {
+  var req = https.request(url, opt||{}, res => {
+    var code = res.statusCode, body = '';
+    if(code>=400) { res.resume(); return fn(new Error(`Request to ${url} returned ${code}`)); }
+    if(code>=300 && code<400) return getBody(res.headers.location, opt, fn);
+    res.on('error', fn);
+    res.on('data', b => body+=b);
+    res.on('end', () => fn(null, body));
+  });
+  req.on('error', fn);
+  req.end();
+}
+module.exports = view;
 if(require.main===module) main(process.argv);
