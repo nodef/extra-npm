@@ -69,33 +69,41 @@ const SPECIAL = {
   dependents: null,
   downloads: null
 };
+const NPMJSOPT = {
+  headers: {'x-spiferack': 1}
+};
+
+
 
 
 
 // Get response body
-function got(url, opt) {
+function httpGetJson(url, opt) {
   return new Promise((fres, frej) => {
-    var req = https.request(url, opt||{}, (res) => {
-      var code = res.statusCode, body = '';
-      if(code>=400) { res.resume(); return frej(new Error(`Request to ${url} returned ${code}`)); }
-      if(code>=300 && code<400) return got(res.headers.location, opt).then(fres);
-      res.on('error', frej);
-      res.on('data', b => body+=b);
-      res.on('end', () => fres({body}));
-    });
-    req.on('error', frej);
-    req.end();
+    _httpGet(url, opt, (err, ans) => err? frej(err):fres(JSON.parse(ans)));
   });
+}
+function _httpGet(url, opt, fn) {
+  var req = https.request(url, opt||{}, res => {
+    var code = res.statusCode, body = '';
+    if(code>=400) { res.resume(); return fn(new Error(`Request to ${url} returned ${code}`)); }
+    if(code>=300 && code<400) return _httpGet(res.headers.location, opt, fn);
+    res.on('error', fn);
+    res.on('data', b => body+=b);
+    res.on('end', () => fn(null, body));
+  });
+  req.on('error', fn);
+  req.end();
 }
 
 
 // Get user info string.
-function user(dat) {
-  var dat = dat||'';
-  if(typeof dat==='string') return dat;
-  var a = dat.name||dat.username;
-  if(dat.email) a += ` <${dat.email}>`;
-  if(dat.url) a += ` (${dat.url})`;
+function user(x) {
+  x = x||'';
+  if(typeof x==='string') return x;
+  var a = x.name||x.username;
+  if(x.email) a += ` <${x.email}>`;
+  if(x.url) a += ` (${x.url})`;
   return a;
 };
 
@@ -136,8 +144,8 @@ function ranking(fld) {
 async function searchPage(qry, rnk, pag) {
   var opt = {headers: {'x-spiferack': 1}}, rnk = rnk||'optimal';
   var url = `https://www.npmjs.com/search?ranking=${rnk}&perPage=20&page=${pag}&q=${qry}`;
-  var a = JSON.parse((await got(url, opt)).body);
-  return a.ghapi? JSON.parse((await got(url+'*', opt)).body):a;
+  var a = await httpGetJson(url, opt);
+  return a.ghapi? await httpGetJson(url+'*', opt):a;
 };
 
 // Search all packages.
@@ -162,20 +170,20 @@ function main(nam) {
 
 // Get json.
 function json(nam, ver) {
-  var ans = JSON.parse((await got(`https://registry.npmjs.com/${nam}`)).body);
+  var ans = await httpGetJson(`https://registry.npmjs.com/${nam}`);
   if(ver) return ans.versions[ver];
   return ans.versions[ans.versions.length-1];
 };
 
 // Get versions.
 function versions(nam) {
-  var ans = JSON.parse((await got(`https://registry.npmjs.com/${nam}`)).body);
+  var ans = await httpGet(`https://registry.npmjs.com/${nam}`);
   return Object.keys(ans.versions);
 };
 
 // Get contents.
 async function contents(nam, ver) {
-  var ans = JSON.parse((await got(`https://registry.npmjs.com/${nam}`)).body);
+  var ans = await httpGet(`https://registry.npmjs.com/${nam}`);
   if(ver) return ans.versions[ver].files;
   return ans.versions[ans.versions.length-1].files;
 }
@@ -186,7 +194,7 @@ async function readme(nam, ver) {
   for(var f of (await listNpmContents(nam, ver)))
     if(/^readme(\..+)?/i.test(f)) { fil = f; break; }
   if(fil==null) throw new Error(pkg+' has no readme');
-  return (await got(`https://unpkg.com/${pkg}/${fil}`)).body;
+  return await httpGet(`https://unpkg.com/${pkg}/${fil}`);
 };
 
 
@@ -202,8 +210,8 @@ function dependents(nam) {
 
 // Get downloads.
 async function downloads(nam) {
-  var res = await got('https://api.npmjs.org/downloads/range/last-month/'+nam);
-  var a = JSON.parse(res.body), detail = a.downloads;
+  var a = await httpGet('https://api.npmjs.org/downloads/range/last-month/'+nam);
+  var detail = a.downloads;
   var day = 0, week = 0, month = 0;
   for(var i=detail.length-1, j=0; i>=0; i--, j++) {
     if(j<1) day += detail[i].downloads;
