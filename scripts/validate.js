@@ -13,6 +13,7 @@ const OPTIONS = {
   silent: Boolean.parse(E['ENPM_SILENT']||'0')
 };
 const FUNCTION = new Map([
+  ['full', full],
   ['name', name],
   ['version', version],
   ['license', license],
@@ -101,11 +102,29 @@ function error(msg, o) {
 
 // JAVASCRIPT
 /**
+ * Validates full package name.
+ * @param {string} x full package name (with version)
+ * @returns {string} null if valid, else error message
+ */
+function full(x) {
+  var nam = x.replace(/(.)@.*/, '$1');
+  var ver = x.substring(nam.length+1);
+  return name(nam)||(ver? version(ver):null);
+}
+
+/**
  * Validates package name.
  * @param {string} x package name
  * @returns {string} null if valid, else error message
  */
 function name(x) {
+  if(!x.startsWith('@')) return _name(x);
+  var i = x.indexOf('/');
+  var org = x.substring(1, i);
+  var nam = x.substring(i+1);
+  return _name(org) || _name(nam);
+}
+ function _name(x) {
   if (x.length === 0)               return 'Package name length should be greater than zero';
   if (x.length > 214)               return 'Package name length cannot exceed 214';
   if (x !== x.toLowerCase())        return 'All the characters in the package name must be lowercase';
@@ -160,6 +179,7 @@ function email(x) {
   if (!/^.+@.+\..+$/.test(x)) return 'Email must be an email address';
   return null;
 }
+exports.full = full;
 exports.name = name;
 exports.version = version;
 exports.license = license;
