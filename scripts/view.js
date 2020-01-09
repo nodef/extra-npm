@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-const validate = require('./validate.js');
 const kleur = require('kleur');
 const cp = require('child_process');
 const https = require('https');
@@ -11,7 +10,6 @@ const FUNCTION = new Map([
   ['scope', $scope],
   ['time', $time],
   ['date', $time],
-  ['author', $author],
   ['publisher', $author],
   ['maintainers', $maintainers],
   ['score', $score],
@@ -32,6 +30,7 @@ const DAYS = new Map([
 const NPMJSOPT = {
   headers: {'x-spiferack': 1}
 };
+const NPMJSPAGE = 36;
 const VIEWOPT = {
   score: true,
   downloads: 'last-year',
@@ -72,6 +71,7 @@ function options(o, k, a, i) {
 // Get infomation on a package.
 async function $view(pkg, flds, o) {
   var o = Object.assign({}, OPTIONS, o);
+  if(!pkg) return error(new Error('No package mentioned'), o);
   var fbas = [], fspc = [];
   o.name = flds.length>1;
   for(var f of flds) {
@@ -79,24 +79,26 @@ async function $view(pkg, flds, o) {
     else fspc.push(f);
   }
   if(flds.length===0 || fbas.length>0) cp.execSync('npm view '+pkg+' '+fbas.join(' '), {stdio: STDIO});
+  var json = await view(pkg, {
+    score: fspc.includes($score),
+    downloads: fspc.includes($downloads)? 'last-year': null,
+    dependents: flds.includes('dependents')
+  });
   for(var f of fspc) {
     var fn = FUNCTION.get(f.replace(/^#/, '').replace(/\..*/, ''));
-    if(fn!=null) fn(pkg, Object.assign({}, o, {field: f}));
+    if(fn!=null) fn(json, Object.assign({}, o, {field: f}));
   }
 };
 
 
 // Get scope of package.
-function $scope(pkg, o) {
-  if((nam=package(pkg, o))==null) return;
-  log(scope(pkg)||'unscoped', o);
+function $scope(json, o) {
+  log(scope(json.name)||'unscoped', o);
 }
 
 // Get package name, with validation.
-function $name(pkg, o) {
-  var nam = name(pkg);
-  var err = validate.name(nam);
-  return err? error(err, o):nam;
+function $name(json, o) {
+  log(name(json.name)||'unscoped', o);
 };
 
 // Get versions of package.
@@ -113,24 +115,29 @@ function $time(json, o) {
 
 // Get author of package.
 function $author(json, o) {
-  log(json.author.name, o);
+  var a = json.author;
+  if(o.field.includes('.name')) log(a.name, o);
+  else if(o.field.includes('.username')) log(a.username, o);
+  else if(o.field.includes('.email')) log(a.email, o);
+  else log(`${a.name||a.username} <${a.email}>`, o);
 };
 
 // Get maintainers of package.
-function $maintainers(pkg, o) {
+function $maintainers(json, o) {
   var {maintainers} = json;
   if(o.count) return log(maintainers.length, o);
-  if(o.field.includes('maintainers.username')) log(maintainers.map(m => m.username), o);
-  else if(o.field.includes('maintainers.email')) log(maintainers.map(m => m.email), o);
-  else log(maintainers.map(m => `${m.username} (${m.email})`), o);
+  if(o.field.includes('.name')) log(maintainers.map(m => m.name), o);
+  else if(o.field.includes('.username')) log(maintainers.map(m => m.username), o);
+  else if(o.field.includes('.email')) log(maintainers.map(m => m.email), o);
+  else log(maintainers.map(m => `${m.name||m.username} <${m.email}>`), o);
 };
 
 // Get score of package.
 function $score(json, o) {
   var {score} = json, {final, detail} = score;
-  if(o.field.includes('score.quality')) log(detail.quality, o);
-  else if(o.field.includes('score.popularity')) log(detail.popularity, o);
-  else if(o.field.includes('score.maintenance')) log(detail.maintenance, o);
+  if(o.field.includes('.quality')) log(detail.quality, o);
+  else if(o.field.includes('.popularity')) log(detail.popularity, o);
+  else if(o.field.includes('.maintenance')) log(detail.maintenance, o);
   else log(final, o);
 };
 
@@ -150,7 +157,8 @@ function $readme(json, o) {
 
 // Get dependents of package.
 function $dependents(json, o) {
-  var names = json.dependents.map(p => p.name);
+  if(o.field.startsWith('#')) return log({length: json.dependentsCount}, o);
+  var names = json.dependents.map(p => p? p.name:p);
   log(names, o);
 };
 
@@ -172,7 +180,7 @@ function $available(pkg, o) {
 // Log output value.
 function log(val, o) {
   if(o.field.startsWith('#')) {
-    if(Array.isArray(val)) val = val.length;
+    if(val.length) val = val.length;
     else if(typeof val==='string') val = val.length;
     else if(typeof val==='object') val = Object.keys(val).length;
   }
@@ -220,7 +228,7 @@ function name(pkg) {
  * @returns {string} package version
  */
 function version(pkg) {
-  return pkg.replace(/.@(.*)/, '$1');
+  return pkg.substring(name(pkg).length+1);
 }
 
 /**
@@ -239,7 +247,8 @@ async function view(pkg, opt) {
     o.downloads? getJson(`https://api.npmjs.org/downloads/range/${o.downloads}/${nam}`):null,
   ]);
   var depCount = package.dependents.dependentsCount;
-  var depended = o.dependents? (await getDependents(nam, depCount)):null;
+  x.dependents = o.dependents? (await getDependents(nam, depCount)):null;
+  x.dependentsCount = depCount;
   ver = x.versions? last(Object.keys(x.versions)):ver;
   Object.assign(x, x.versions[ver]);
   x.private = package.private;
@@ -252,20 +261,21 @@ async function view(pkg, opt) {
     Object.assign(v, versions[i++]);
   if(search && search.objects) x.score = search.objects[0].score;
   if(downloads) x.downloads = downloads.downloads;
-  // Q: is it a good ideato create null arrays here?
-  x.dependents = depended||new Array(depCount).fill(null);
   return x;
 }
-function getDependents(nam, count) {
-  var deps = new Array(count).fill(null), ps = [];
-  for(var i=0; i<deps; i+=NPMJSPAGE)
-    ps.push(getDependentsPage(nam, i, deps));
-  return Promise.all(ps).then(() => deps);
+async function getDependents(nam, count) {
+  var ans = new Array(count).fill(null), ps = [];
+  for(var i=0; i<count; i+=NPMJSPAGE)
+    ps.push(getDependentsPage(nam, i, ans));
+  await Promise.all(ps);
+  for(var i=ans.length-1; i>=0 && !ans[i]; i--);
+  ans.length = i+1;
+  return ans;
 }
 async function getDependentsPage(nam, off, ans) {
   var x = await getJson(`https://www.npmjs.com/browse/depended/${nam}?offset=${off}`, NPMJSOPT);
-  var i = 0; for(var p of x.packages)
-    ans[off+(i++)] = p;
+  for(var p of x.packages)
+    ans[off++] = p;
 }
 
 // Get response JSON
@@ -285,6 +295,10 @@ function getBody(url, opt, fn) {
   });
   req.on('error', fn);
   req.end();
+}
+
+function last(x) {
+  return x[x.length-1];
 }
 module.exports = view;
 if(require.main===module) main(process.argv);
