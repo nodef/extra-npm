@@ -194,6 +194,7 @@ function error(err, o) {
 
 
 
+// JAVASCRIPT
 /**
  * Gives package scope (organization).
  * @param {string} pkg full package name
@@ -231,13 +232,14 @@ function version(pkg) {
 async function view(pkg, opt) {
   var o = Object.assign({}, VIEWOPT, opt);
   var nam = name(pkg), ver = version(pkg);
-  var [x, package, search, downloads, depended] = await Promise.all([
+  var [x, package, search, downloads] = await Promise.all([
     getJson(`https://registry.npmjs.com/${nam}/${ver}`),
     getJson(`https://www.npmjs.com/package/${nam}`, NPMJSOPT),
     o.score? getJson(`https://www.npmjs.com/search?q=${nam}`, NPMJSOPT):null,
     o.downloads? getJson(`https://api.npmjs.org/downloads/range/${o.downloads}/${nam}`):null,
-    o.dependents? getDependents(nam):null
   ]);
+  var depCount = package.dependents.dependentsCount;
+  var depended = o.dependents? (await getDependents(nam, depCount)):null;
   ver = x.versions? last(Object.keys(x.versions)):ver;
   Object.assign(x, x.versions[ver]);
   x.private = package.private;
@@ -251,17 +253,19 @@ async function view(pkg, opt) {
   if(search && search.objects) x.score = search.objects[0].score;
   if(downloads) x.downloads = downloads.downloads;
   // Q: is it a good ideato create null arrays here?
-  x.dependents = depended||new Array(package.dependents.dependentsCount).fill(null);
+  x.dependents = depended||new Array(depCount).fill(null);
   return x;
 }
-async function getDependents(nam) {
-  var ans = [], offset = 0;
-  do {
-    var x = await getJson('https://www.npmjs.com/browse/depended/'+nam+'?offset='+offset, NPMJSOPT);
-    Array.prototype.push.apply(ans, x.packages);
-    offset += x.packages.length;
-  } while(x.hasNext);
-  return ans;
+function getDependents(nam, count) {
+  var deps = new Array(count).fill(null), ps = [];
+  for(var i=0; i<deps; i+=NPMJSPAGE)
+    ps.push(getDependentsPage(nam, i, deps));
+  return Promise.all(ps).then(() => deps);
+}
+async function getDependentsPage(nam, off, ans) {
+  var x = await getJson(`https://www.npmjs.com/browse/depended/${nam}?offset=${off}`, NPMJSOPT);
+  var i = 0; for(var p of x.packages)
+    ans[off+(i++)] = p;
 }
 
 // Get response JSON
