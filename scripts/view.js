@@ -194,8 +194,6 @@ function error(err, o) {
 
 
 
-
-
 /**
  * Gives package scope (organization).
  * @param {string} pkg full package name
@@ -224,6 +222,12 @@ function version(pkg) {
   return pkg.replace(/.@(.*)/, '$1');
 }
 
+/**
+ * Gives package details from npmjs.com.
+ * @param {string} pkg full package name
+ * @param {object?} opt options {score, downloads, dependents}
+ * @returns {object} package details
+ */
 async function view(pkg, opt) {
   var o = Object.assign({}, VIEWOPT, opt);
   var nam = name(pkg), ver = version(pkg);
