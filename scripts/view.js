@@ -21,16 +21,6 @@ const FUNCTION = new Map([
   ['downloads', $downloads],
   ['available', $available]
 ]);
-const DAYS = new Map([
-  ['day', 1],
-  ['week', 7],
-  ['month', 30],
-  ['year', 365]
-]);
-const NPMJSOPT = {
-  headers: {'x-spiferack': 1}
-};
-const NPMJSPAGE = 36;
 const VIEWOPT = {
   score: true,
   downloads: 'last-year',
@@ -262,43 +252,6 @@ async function view(pkg, opt) {
   if(search && search.objects) x.score = search.objects[0].score;
   if(downloads) x.downloads = downloads.downloads;
   return x;
-}
-async function getDependents(nam, count) {
-  var ans = new Array(count).fill(null), ps = [];
-  for(var i=0; i<count; i+=NPMJSPAGE)
-    ps.push(getDependentsPage(nam, i, ans));
-  await Promise.all(ps);
-  for(var i=ans.length-1; i>=0 && !ans[i]; i--);
-  ans.length = i+1;
-  return ans;
-}
-async function getDependentsPage(nam, off, ans) {
-  var x = await getJson(`https://www.npmjs.com/browse/depended/${nam}?offset=${off}`, NPMJSOPT);
-  for(var p of x.packages)
-    ans[off++] = p;
-}
-
-// Get response JSON
-function getJson(url, opt) {
-  return new Promise((fres, frej) => {
-    getBody(url, opt, (err, ans) => err? frej(err):fres(JSON.parse(ans)));
-  });
-}
-function getBody(url, opt, fn) {
-  var req = https.request(url, opt||{}, res => {
-    var code = res.statusCode, body = '';
-    if(code>=400) { res.resume(); return fn(new Error(`Request to ${url} returned ${code}`)); }
-    if(code>=300 && code<400) return getBody(res.headers.location, opt, fn);
-    res.on('error', fn);
-    res.on('data', b => body+=b);
-    res.on('end', () => fn(null, body));
-  });
-  req.on('error', fn);
-  req.end();
-}
-
-function last(x) {
-  return x[x.length-1];
 }
 module.exports = view;
 if(require.main===module) main(process.argv);

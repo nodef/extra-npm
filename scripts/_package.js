@@ -69,32 +69,19 @@ const SPECIAL = {
   dependents: null,
   downloads: null
 };
+const DAYS = new Map([
+  ['day', 1],
+  ['week', 7],
+  ['month', 30],
+  ['year', 365]
+]);
 const NPMJSOPT = {
   headers: {'x-spiferack': 1}
 };
+const NPMJSPAGE = 36;
 
 
 
-
-
-// Get response body
-function httpGetJson(url, opt) {
-  return new Promise((fres, frej) => {
-    _httpGet(url, opt, (err, ans) => err? frej(err):fres(JSON.parse(ans)));
-  });
-}
-function _httpGet(url, opt, fn) {
-  var req = https.request(url, opt||{}, res => {
-    var code = res.statusCode, body = '';
-    if(code>=400) { res.resume(); return fn(new Error(`Request to ${url} returned ${code}`)); }
-    if(code>=300 && code<400) return _httpGet(res.headers.location, opt, fn);
-    res.on('error', fn);
-    res.on('data', b => body+=b);
-    res.on('end', () => fn(null, body));
-  });
-  req.on('error', fn);
-  req.end();
-}
 
 
 // Get user info string.
@@ -140,14 +127,6 @@ function ranking(fld) {
   return RANKING.get(fld)||null;
 };
 
-// Search a page.
-async function searchPage(qry, rnk, pag) {
-  var opt = {headers: {'x-spiferack': 1}}, rnk = rnk||'optimal';
-  var url = `https://www.npmjs.com/search?ranking=${rnk}&perPage=20&page=${pag}&q=${qry}`;
-  var a = await httpGetJson(url, opt);
-  return a.ghapi? await httpGetJson(url+'*', opt):a;
-};
-
 // Search all packages.
 async function search(qry, rnk=null, off=0, lim=Number.MAX_SAFE_INTEGER) {
   var aps = [], as = [];
@@ -166,46 +145,6 @@ async function search(qry, rnk=null, off=0, lim=Number.MAX_SAFE_INTEGER) {
 // Get main.
 function main(nam) {
   search(nam, null, 0, 1).then(as => as[0]);
-};
-
-// Get json.
-function json(nam, ver) {
-  var ans = await httpGetJson(`https://registry.npmjs.com/${nam}`);
-  if(ver) return ans.versions[ver];
-  return ans.versions[ans.versions.length-1];
-};
-
-// Get versions.
-function versions(nam) {
-  var ans = await httpGet(`https://registry.npmjs.com/${nam}`);
-  return Object.keys(ans.versions);
-};
-
-// Get contents.
-async function contents(nam, ver) {
-  var ans = await httpGet(`https://registry.npmjs.com/${nam}`);
-  if(ver) return ans.versions[ver].files;
-  return ans.versions[ans.versions.length-1].files;
-}
-
-// Get readme.
-async function readme(nam, ver) {
-  var pkg = ver? nam+'@'+ver:nam;
-  for(var f of (await listNpmContents(nam, ver)))
-    if(/^readme(\..+)?/i.test(f)) { fil = f; break; }
-  if(fil==null) throw new Error(pkg+' has no readme');
-  return await httpGet(`https://unpkg.com/${pkg}/${fil}`);
-};
-
-
-// Get dependents.
-function dependents(nam) {
-  var deps = [], req = moduleDependents(nam);
-  return new Promise((fres, frej) => {
-    req.on('error', frej)
-    req.on('data', p => deps.push(p.name));
-    req.on('end', () => fres(deps));
-  });
 };
 
 // Get downloads.
@@ -276,6 +215,79 @@ function sortBy(as, fld) {
   });
 };
 
+// Get package info from npmjs.com.
+function getPackage(nam) {
+  return getJson(`https://www.npmjs.com/search?q=${nam}`, NPMJSOPT);
+}
+
+// Get search results from npmjs.com.
+async function getSearch(qry, lim=1, rnk='optimal') {
+  var {objects, total} = await getSearchPage(qry, 0, rnk);
+  var pages = Math.floor((total-1)/20)+1, w = [];
+  pages = lim<0? pages : Math.min(pages, lim);
+  for(var p=1; p<pages; p++)
+    w.push(getSearchPage(qry, p, rnk));
+  var searches = await Promise.all(w);
+  for(var s of searches)
+    Array.prototype.push.apply(objects, s.objects);
+  return objects;
+}
+// Get search results from npmjs.com (one page).
+async function getSearchPage(qry, pag, rnk='optimal') {
+  var url = `https://www.npmjs.com/search?ranking=${rnk}&perPage=20&page=${pag}&q=${qry}`;
+  var a = await getJson(url, NPMJSOPT);
+  return a.ghapi? await getJson(url+'*', NPMJSOPT):a;
+}
+
+// Get downloads from npmjs.org.
+function getDownloads(nam, range='last-year') {
+  // add day, week, month, year?
+  return getJson(`https://api.npmjs.org/downloads/range/${range}/${nam}`);
+}
+
+// Get dependent packages from npmjs.com.
+async function getDependents(nam, count) {
+  var ans = new Array(count).fill(null), ps = [];
+  for(var i=0; i<count; i+=NPMJSPAGE)
+    ps.push(getDependentsPage(nam, i, ans));
+  await Promise.all(ps);
+  for(var i=ans.length-1; i>=0 && !ans[i]; i--);
+  ans.length = i+1;
+  return ans;
+}
+// Get dependent packages (one page) from npmjs.com.
+async function getDependentsPage(nam, off, ans) {
+  var url = `https://www.npmjs.com/browse/depended/${nam}?offset=${off}`;
+  var a = await getJson(url, NPMJSOPT);
+  for(var p of a.packages)
+    ans[off++] = p;
+}
+
+
+// Get JSON response from URL.
+function getJson(url, opt) {
+  return new Promise((fres, frej) => {
+    getBody(url, opt, (err, ans) => err? frej(err):fres(JSON.parse(ans)));
+  });
+}
+// Get text response (body) from URL.
+function getBody(url, opt, fn) {
+  var req = https.request(url, opt||{}, res => {
+    var code = res.statusCode, body = '';
+    if(code>=400) { res.resume(); return fn(new Error(`Request to ${url} returned ${code}`)); }
+    if(code>=300 && code<400) return getBody(res.headers.location, opt, fn);
+    res.on('error', fn);
+    res.on('data', b => body+=b);
+    res.on('end', () => fn(null, body));
+  });
+  req.on('error', fn);
+  req.end();
+}
+
+// Get last value in array.
+function last(x) {
+  return x[x.length-1];
+}
 exports.froot = froot;
 exports.fget = fget;
 exports.fstring = fstring;
