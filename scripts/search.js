@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const kleur = require('kleur');
 const cp = require('child_process');
-const _package = require('./_package.js');
+const _package = require('./_api.js/index.js');
 require('extra-boolean');
 
 // Global variables.
@@ -114,23 +114,77 @@ function outputJson(as) {
   console.log(']');
 }
 
+async function $search(qry, o) {
+  var a = await search(qry, o);
+  var flds = o.fields.split(',');
+  if(o.sortBy) flds.push(o.sortBy);
+  if(o.json) outputJson(a);
+  else if(o.parseable) outputParseable(a, flds);
+  else outputDefault(a, flds, qry);
+}
+
 // pre: sortBy
 // progress 10%, 80%, 10%
 async function search(qry, o) {
   var o = Object.assign({}, OPTIONS, o);
-  var qry = _package.query(qry, o.searchopts||[], o.searchexclude||[]), rnk = _package.ranking(o.sortBy);
-  var as = await _package.search(qry, rnk, rnk? o.offset:0, rnk? o.limit:Number.MAX_SAFE_INTEGER);
-  var flds = o.fields.split(','); if(!rnk) flds.push(o.sortBy);
-  await _package.populate(as, flds);
-  if(!rnk) _package.sortBy(as, o.sortBy);
-  if(o.ascending) as = as.reverse();
-  if(!rnk) as = as.slice(o.offset, o.limit);
-  if(o.json) outputJson(as);
-  else if(o.parseable) outputParseable(as, flds);
-  else outputDefault(as, flds, qry);
+  var rnk = $npm.ranking(o.sortBy);
+  var qry = query(qry, o.searchopts||[], o.searchexclude||[]);
+  var rows = await $npm.getSearch(qry, o.offset||0, o.limit||-1, rnk);
+  var cols = getColumns(o.fields, rnk? null:o.sortBy);
+  await _package.populate(rows, cols);
+  if(!rnk) _package.sortBy(rows, o.sortBy);
+  if(o.ascending) rows = rows.reverse();
+  if(!rnk) rows = rows.slice(o.offset, o.limit);
+  if(o.json) outputJson(rows);
+  else if(o.parseable) outputParseable(rows, cols);
+  else outputDefault(rows, cols, qry);
 }
 
+// Get columns for each row.
+function getColumns(cols, sortby) {
+  var a = cols? cols.slice():[];
+  if(!a.includes('name')) a.unshift('name');
+  if(!a.includes('version')) a.unshift('version');
+  if(sortby) a.push(sortby);
+  return a;
+}
 
-search.options = options;
+// Get APIs needed for the columns.
+function getApis(cols) {
+  var a = new Set();
+  for(var c of cols)
+    a.add(FAPI.get(c));
+  return a;
+}
+
+function getRows(rows, apis) {
+  
+}
+
+// Populate search results with necessary fields.
+function populate(rs, flds) {
+  return rs.map(r => {
+    var a = {};
+    for(var f of flds)
+      a[f] = fget(r, f);
+  });
+}
+
+// Sort search results by field.
+function sortBy(rs, fld) {
+  return rs.sort((a, b) => {
+    var y = fget(a, fld), x = fget(b, fld);
+    if(Array.isArray(x)) return x.join().localeCompare(y.join());
+    if(typeof x==='string') return x.localeCompare(y);
+    if(typeof x==='object') return JSON.stringify(x).localeCompare(JSON.stringify(y));
+    return x-y;
+  });
+}
+
+// Get runnable query.
+function query(x, inc, exc) {
+  x += inc.join(' ')+exc.map(v => '-'+v).join(' ');
+  return x.replace(/=/g, 'maintainer:').replace(/\+/g, 'keyword:').replace(/[^\w\-\/:@]+/, '');
+}
 module.exports = search;
 if(require.main===module) main(process.argv);

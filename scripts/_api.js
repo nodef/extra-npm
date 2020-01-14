@@ -116,116 +116,32 @@ function fstring(a, fld) {
   return typeof v==='object'? JSON.stringify(v):''+v;
 };
 
-// Get runnable query.
-function query(txt, inc=[], exc=[]) {
-  txt += inc.join(' ')+exc.map(v => '-'+v).join(' ');
-  return txt.replace(/=/g, 'maintainer:').replace(/\+/g, 'keyword:').replace(/[^\w\-\/:@]+/, '');
-};
-
 // Get ranking from field.
 function ranking(fld) {
   return RANKING.get(fld)||null;
 };
 
-// Search all packages.
-async function search(qry, rnk=null, off=0, lim=Number.MAX_SAFE_INTEGER) {
-  var aps = [], as = [];
-  var tot = -1, off = off, end = off+lim;
-  do {
-    var ap = searchPage(qry, rnk, Math.floor(off/20));
-    if(tot<0) { aps.push(await ap); tot = aps[0].total; }
-    else aps.push(ap);
-    off += 20-(off%20);
-  }while(off<end && off<tot);
-  for(var a of await Promise.all(aps))
-    Array.prototype.push.apply(as, a.objects);
-  return as;
-};
-
 // Get main.
 function main(nam) {
-  search(nam, null, 0, 1).then(as => as[0]);
+  getSearch(nam, null, 0, 1).then(as => as[0]);
 };
 
-// Get downloads.
-async function downloads(nam) {
-  var a = await httpGet('https://api.npmjs.org/downloads/range/last-month/'+nam);
-  var detail = a.downloads;
-  var day = 0, week = 0, month = 0;
-  for(var i=detail.length-1, j=0; i>=0; i--, j++) {
-    if(j<1) day += detail[i].downloads;
-    if(j<7) week += detail[i].downloads;
-    month += detail[i].downloads;
-  }
-  return {day, week, month, detail};
-};
-
-// Get special.
-function special(nam, ver, flds) {
-  var a = Object.assign({}, SPECIAL), ps = [];
-  if(flds.has('versions')) ps.push(versions(nam).then(v => a.versions=v, () => a.versions=[]));
-  if(flds.has('contents')) ps.push(contents(nam, ver).then(v => a.contents=v, () => a.contents=[]));
-  if(flds.has('readme')) ps.push(readme(nam, ver).then(v => a.readme=v, () => a.readme=''));
-  if(flds.has('dependents')) ps.push(dependents(nam).then(v => a.dependents=v, () => a.dependents=[]));
-  if(flds.has('downloads')) ps.push(downloads(nam).then(v => a.downloads=v, () => a.downloads=DOWNLOADS));
-  return Promise.all(ps).then(() => a);
-};
-
-// Populate json for a search result.
-function populateJson(a) {
-  var {name, version} = a.package;
-  return json(name, version).then(v => a.json = v, () => {
-    return json(name).then(v => a.json = v);
-  });
-};
-
-// Populate special for a search result.
-function populateSpecial(a, flds) {
-  var {name, version} = a.package;
-  return special(name, version, flds).then(v => a.special = v, () => {
-    return special(name, undefined, flds).then(v => a.special = v);
-  });
-};
-
-// Populate search results with necessary fields.
-function populate(as, flds) {
-  var spc = new Set(), jsn = false;
-  for(var f of flds) {
-    var r = froot(f);
-    if(FSEARCH.has(r)) continue;
-    if(FSPECIAL.has(r)) spc.add(r);
-    else jsn = true;
-  }
-  var aps = [];
-  for(var a of as) {
-    if(jsn) aps.push(populateJson(a));
-    if(spc.size) aps.push(populateSpecial(a, spc));
-  }
-  return Promise.all(aps);
-};
-
-// Sort search results by field.
-function sortBy(as, fld) {
-  return as.sort((a, b) => {
-    var y = fget(a, fld), x = fget(b, fld);
-    if(Array.isArray(x)) return x.join().localeCompare(y.join());
-    if(typeof x==='string') return x.localeCompare(y);
-    if(typeof x==='object') return JSON.stringify(x).localeCompare(JSON.stringify(y));
-    return x-y;
-  });
-};
+// Get registry info from npmjs.com.
+function getRegistry(nam, ver) {
+  return getJson(`https://registry.npmjs.com/${nam}/${ver||''}`);
+}
 
 // Get package info from npmjs.com.
 function getPackage(nam) {
-  return getJson(`https://www.npmjs.com/search?q=${nam}`, NPMJSOPT);
+  return getJson(`https://www.npmjs.com/package/${nam}`, NPMJSOPT);
 }
 
 // Get search results from npmjs.com.
-async function getSearch(qry, lim=1, rnk='optimal') {
-  var {objects, total} = await getSearchPage(qry, 0, rnk);
+async function getSearch(qry, off=0, lim=1, rnk='optimal') {
+  var {objects, total} = await getSearchPage(qry, off, rnk);
   var pages = Math.floor((total-1)/20)+1, w = [];
   pages = lim<0? pages : Math.min(pages, lim);
-  for(var p=1; p<pages; p++)
+  for(var p=off+1; p<pages; p++)
     w.push(getSearchPage(qry, p, rnk));
   var searches = await Promise.all(w);
   for(var s of searches)
@@ -240,9 +156,18 @@ async function getSearchPage(qry, pag, rnk='optimal') {
 }
 
 // Get downloads from npmjs.org.
-function getDownloads(nam, range='last-year') {
-  // add day, week, month, year?
-  return getJson(`https://api.npmjs.org/downloads/range/${range}/${nam}`);
+async function getDownloads(nam, range='year') {
+  var a = await getJson(`https://api.npmjs.org/downloads/range/last-${range}/${nam}`);
+  var detail = a.downloads;
+  var day = 0, week = 0, month = 0, year = 0;
+  day = detail[0].downloads;
+  for(var d of detail.slice(0, 7))
+    week += d.downloads;
+  for(var d of detail.slice(0, 30))
+    month += d.downloads;
+  for(var d of detail)
+    year += d.downloads;
+  return {day, week, month, year, detail};
 }
 
 // Get dependent packages from npmjs.com.
@@ -293,7 +218,6 @@ exports.fget = fget;
 exports.fstring = fstring;
 exports.query = query;
 exports.ranking = ranking;
-exports.search = search;
 exports.main = main;
 exports.json = json;
 exports.versions = versions;
@@ -304,3 +228,11 @@ exports.downloads = downloads;
 exports.special = special;
 exports.populate = populate;
 exports.sortBy = sortBy;
+
+exports.getRegistry = getRegistry;
+exports.getPackage = getPackage;
+exports.getSearch = getSearch;
+exports.getDownloads = getDownloads;
+exports.getDependents = getDependents;
+exports.getJson = getJson;
+exports.getBody = getBody;

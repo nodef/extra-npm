@@ -1,7 +1,7 @@
 #!/usr/bin/env node
+const $api = require('./_api');
 const kleur = require('kleur');
 const cp = require('child_process');
-const https = require('https');
 require('extra-boolean');
 
 // Global variables.
@@ -231,10 +231,10 @@ async function view(pkg, opt) {
   var o = Object.assign({}, VIEWOPT, opt);
   var nam = name(pkg), ver = version(pkg);
   var [x, package, search, downloads] = await Promise.all([
-    getJson(`https://registry.npmjs.com/${nam}/${ver}`),
-    getJson(`https://www.npmjs.com/package/${nam}`, NPMJSOPT),
-    o.score? getJson(`https://www.npmjs.com/search?q=${nam}`, NPMJSOPT):null,
-    o.downloads? getJson(`https://api.npmjs.org/downloads/range/${o.downloads}/${nam}`):null,
+    $api.getRegistry(nam, ver),
+    $api.getPackage(name),
+    o.score? $api.getSearch(nam):null,
+    o.downloads? $api.getDownloads(nam):null,
   ]);
   var depCount = package.dependents.dependentsCount;
   x.dependents = o.dependents? (await getDependents(nam, depCount)):null;
