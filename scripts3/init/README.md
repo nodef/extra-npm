@@ -9,18 +9,18 @@
 ## usage
 
 ```bash
-enpm-init --repository
+enpm init --repository
 # initialize package.json in current directory
 
-enpm-init --version 0.1.0 --author "Po Po <pp@baking.com> (https://pp.github.io)" -r
+enpm init --version 0.1.0 --author "Po Po <pp@baking.com> (https://pp.github.io)" -r
 # initialize with some prespecified options
 
-enpm-init --yes -v 0.1.0 -a pp@baking.com --username pp --password **** -r https://github.com/pp/paper
+enpm init --yes -v 0.1.0 -a pp@baking.com --username pp --password **** -r https://github.com/pp/paper
 # initialize with given options and defaults (include github credentials)
 
 GITHUB_USERNAME=pp
 GITHUB_PASSWORD=****
-enpm-init --yes -v 0.1.0 -a pp@baking.com -r pp/paper
+enpm init --yes -v 0.1.0 -a pp@baking.com -r pp/paper
 # initialize with given options and defaults (dont ask)
 ```
 > With [extra-npm] try `enpm init` instead.
@@ -28,7 +28,7 @@ enpm-init --yes -v 0.1.0 -a pp@baking.com -r pp/paper
 ### reference
 
 ```bash
-enpm-init [options]
+enpm init [options]
 # --help:    show this help 
 # -y, --yes: accept defaults
 # -n, --name:          package name

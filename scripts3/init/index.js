@@ -1,5 +1,5 @@
 const execute = require('./execute_from_npm');
-const validate = require('./validate');
+const validate = require('../validate');
 const fs = require('fs');
 
 const OPTIONS = {};
