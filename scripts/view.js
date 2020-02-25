@@ -1,30 +1,37 @@
 #!/usr/bin/env node
-const $api = require('./_api');
+const validateNpmPackageName = require('validate-npm-package-name');
+const npmPackageVersions = require('npm-package-versions');
+const npmPackageStars = require('npm-package-stars');
+const listNpmContents = require('list-npm-contents');
+const moduleDependents = require('module-dependents');
+const pkgDownloads = require('pkg-downloads');
+const npmAvailable = require('npm-available');
+const boolean = require('boolean');
 const kleur = require('kleur');
+const got = require('got');
 const cp = require('child_process');
-require('extra-boolean');
+
 
 // Global variables.
 const E = process.env;
+
 const FUNCTION = new Map([
-  ['scope', $scope],
-  ['time', $time],
-  ['date', $time],
-  ['publisher', $author],
-  ['maintainers', $maintainers],
-  ['score', $score],
-  ['versions', $versions],
-  ['files', $files],
-  ['contents', $files],
-  ['readme', $readme],
-  ['dependents', $dependents],
-  ['downloads', $downloads],
-  ['available', $available]
+  ['scope', scope],
+  ['date', date],
+  ['publisher', publisher],
+  ['maintainers', maintainers],
+  ['score', score],
+  ['stars', stars],
+  ['versions', versions],
+  ['contents', contents],
+  ['readme', readme],
+  ['dependents', dependents],
+  ['downloads', downloads],
+  ['available', available]
 ]);
-const VIEWOPT = {
-  score: true,
-  downloads: 'last-year',
-  dependents: true
+const URL = 'https://www.npmjs.com/search?q=';
+const HEADERS = {
+  'x-spiferack': 1
 };
 const OPTIONS = {
   help: false,
@@ -32,145 +39,21 @@ const OPTIONS = {
   fields: null,
   name: null,
   field: null,
-  silent: Boolean.parse(E['ENPM_SILENT']||'0')
+  silent: boolean(E['ENPM_SILENT']||'0')
 };
 const STDIO = [0, 1, 2];
 
 
-
-// CONSOLE
-// Run on shell.
-function main(a) {
-  var o = {};
-  for(var i=2, I=a.length; i<I;)
-    i = options(o, a[i], a, i);
-  if(o.help) return cp.execSync('less view.md', {cwd: __dirname, stdio: STDIO});
-  $view(o.package, o.fields, o);
-};
-
-// Get options from arguments.
-function options(o, k, a, i) {
-  o.fields = o.fields||[];
-  if(k==='--help') o.help = true;
-  else if(k==='--silent') o.silent = true;
-  else if(!o.package) o.package = a[i];
-  else o.fields.push(a[i]);
-  return i+1;
-};
-
-// Get infomation on a package.
-async function $view(pkg, flds, o) {
-  var o = Object.assign({}, OPTIONS, o);
-  if(!pkg) return error(new Error('No package mentioned'), o);
-  var fbas = [], fspc = [];
-  o.name = flds.length>1;
-  for(var f of flds) {
-    if(pkg==='.' || !FUNCTION.has(f.replace(/^#/, '').replace(/\..*/, ''))) fbas.push(f);
-    else fspc.push(f);
-  }
-  if(flds.length===0 || fbas.length>0) cp.execSync('npm view '+pkg+' '+fbas.join(' '), {stdio: STDIO});
-  var json = await view(pkg, {
-    score: fspc.includes($score),
-    downloads: fspc.includes($downloads)? 'last-year': null,
-    dependents: flds.includes('dependents')
-  });
-  for(var f of fspc) {
-    var fn = FUNCTION.get(f.replace(/^#/, '').replace(/\..*/, ''));
-    if(fn!=null) fn(json, Object.assign({}, o, {field: f}));
-  }
-};
-
-
-// Get scope of package.
-function $scope(json, o) {
-  log(scope(json.name)||'unscoped', o);
-}
-
-// Get package name, with validation.
-function $name(json, o) {
-  log(name(json.name)||'unscoped', o);
-};
-
-// Get versions of package.
-function $versions(json, o) {
-  log(Object.keys(json.versions||[]), o);
-};
-
-// Get publish time of package.
-function $time(json, o) {
-  var {time} = json;
-  if(!time) return log('', o);
-  log(o.field.includes('created')? time.created:time.modified, o);
-};
-
-// Get author of package.
-function $author(json, o) {
-  var a = json.author;
-  if(o.field.includes('.name')) log(a.name, o);
-  else if(o.field.includes('.username')) log(a.username, o);
-  else if(o.field.includes('.email')) log(a.email, o);
-  else log(`${a.name||a.username} <${a.email}>`, o);
-};
-
-// Get maintainers of package.
-function $maintainers(json, o) {
-  var {maintainers} = json;
-  if(o.count) return log(maintainers.length, o);
-  if(o.field.includes('.name')) log(maintainers.map(m => m.name), o);
-  else if(o.field.includes('.username')) log(maintainers.map(m => m.username), o);
-  else if(o.field.includes('.email')) log(maintainers.map(m => m.email), o);
-  else log(maintainers.map(m => `${m.name||m.username} <${m.email}>`), o);
-};
-
-// Get score of package.
-function $score(json, o) {
-  var {score} = json, {final, detail} = score;
-  if(o.field.includes('.quality')) log(detail.quality, o);
-  else if(o.field.includes('.popularity')) log(detail.popularity, o);
-  else if(o.field.includes('.maintenance')) log(detail.maintenance, o);
-  else log(final, o);
-};
-
-// Get files of package.
-function $files(json, o) {
-  if(json.files) return log(json.files, o);
-  var vers = Object.keys(json.versions);
-  var latest = vers[vers.length-1];
-  log(json.versions[latest].files, o);
-};
-
-// Get readme of package.
-function $readme(json, o) {
-  if(json.readme) log(json.readme, o);
-  else error(new Error(json.name+' has no readme'), o);
-};
-
-// Get dependents of package.
-function $dependents(json, o) {
-  if(o.field.startsWith('#')) return log({length: json.dependentsCount}, o);
-  var names = json.dependents.map(p => p? p.name:p);
-  log(names, o);
-};
-
-// Get downloads of package.
-function $downloads(json, o) {
-  var period = o.field.split('.')[1]||'year';
-  var days = DAYS.get(period)||365, total = 0;
-  for(var i=0; i<days; i++)
-    total += json.downloads[i];
-  log(total, o);
-};
-
-// Check if package name is available.
-function $available(pkg, o) {
-  var ans = view(pkg).then(() => true, () => false);
-  log(ans, o);
+// Log error message.
+function error(err, o) {
+  if(o.silent) console.log(-1);
+  else console.error(kleur.red('error:'), err.message);
 };
 
 // Log output value.
 function log(val, o) {
   if(o.field.startsWith('#')) {
-    if(val.length) val = val.length;
+    if(Array.isArray(val)) val = val.length;
     else if(typeof val==='string') val = val.length;
     else if(typeof val==='object') val = Object.keys(val).length;
   }
@@ -184,74 +67,173 @@ function log(val, o) {
   }
 };
 
-// Log error message.
-function error(err, o) {
-  if(o.silent) console.log(-1);
-  else console.error(kleur.red('error:'), err.message);
+// Get package name, with validation.
+function package(nam, o) {
+  nam = nam.replace(/(.)@.*/, '$1');
+  var a = validateNpmPackageName(nam);
+  if(a.validForNewPackages || a.validForOldPackages) return nam;
+  if(o.silent) return console.log(-1);
+  for(var m of a.errors||[])
+    console.error(kleur.red('error:'), m);
+  for(var m of a.warnings||[])
+    console.warn(kleur.yellow('warning:'), m);
 };
 
+// Get package details.
+async function details(nam, o) {
+  try {
+    var a = JSON.parse((await got(URL+nam, {headers: HEADERS})).body);
+    if(a.ghapi) a = JSON.parse((await got(URL+nam+'*', {headers: HEADERS})).body);
+    for(var d of a.objects)
+      if(d.package.name===nam) return d;
+    throw new Error('cannot find package '+nam);
+  }
+  catch(e) { error(e, o); }
+};
 
+// Get scope of package.
+function scope(pkg, o) {
+  if((pkg=package(pkg, o))==null) return;
+  if(!pkg.startsWith('@')) log('unscoped', o);
+  else log(pkg.substring(1).replace(/\/.*/, ''), o);
+};
 
-// JAVASCRIPT
-/**
- * Gives package scope (organization).
- * @param {string} pkg full package name
- * @returns {string} null if unscoped, else scope
- */
-function scope(pkg) {
-  if(!pkg.startsWith('@')) return null;
-  return pkg.substring(1).replace(/\/.*/, '');
-}
+// Get last publish date of package.
+async function date(pkg, o) {
+  var d = null;
+  if((pkg=package(pkg, o))==null) return;
+  if((d=await details(pkg, o))==null) return;
+  log(o.field.includes('date.rel')? d.package.date.rel:d.package.date.ts, o);
+};
 
-/**
- * Gives package name (excluding version).
- * @param {string} pkg full package name
- * @returns {string} package name
- */
-function name(pkg) {
-  return pkg.replace(/(.)@.*/, '$1');
-}
+// Get publisher of package.
+async function publisher(pkg, o) {
+  var d = null;
+  if((pkg=package(pkg, o))==null) return;
+  if((d=await details(pkg, o))==null) return;
+  log(d.package.publisher.name, o);
+};
 
-/**
- * Gives package version.
- * @param {string} pkg full package name
- * @returns {string} package version
- */
-function version(pkg) {
-  return pkg.substring(name(pkg).length+1);
-}
+// Get maintainers of package.
+async function maintainers(pkg, o) {
+  var d = null;
+  if((pkg=package(pkg, o))==null) return;
+  if((d=await details(pkg, o))==null) return;
+  if(o.count) return log(d.package.maintainers.length, o);
+  if(o.field.includes('maintainers.username')) log(d.package.maintainers.map(m => m.username), o);
+  else if(o.field.includes('maintainers.email')) log(d.package.maintainers.map(m => m.email), o);
+  else log(d.package.maintainers.map(m => `${m.username} (${m.email})`), o);
+};
 
-/**
- * Gives package details from npmjs.com.
- * @param {string} pkg full package name
- * @param {object?} opt options {score, downloads, dependents}
- * @returns {object} package details
- */
-async function view(pkg, opt) {
-  var o = Object.assign({}, VIEWOPT, opt);
-  var nam = name(pkg), ver = version(pkg);
-  var [x, package, search, downloads] = await Promise.all([
-    $api.getRegistry(nam, ver),
-    $api.getPackage(name),
-    o.score? $api.getSearch(nam):null,
-    o.downloads? $api.getDownloads(nam):null,
-  ]);
-  var depCount = package.dependents.dependentsCount;
-  x.dependents = o.dependents? (await getDependents(nam, depCount)):null;
-  x.dependentsCount = depCount;
-  ver = x.versions? last(Object.keys(x.versions)):ver;
-  Object.assign(x, x.versions[ver]);
-  x.private = package.private;
-  var {author, maintainers, versions} = package.packument;
-  Object.assign(x.author, author);
-  var i = 0; for(var m of x.maintainers)
-    Object.assign(m, maintainers[i++]);
-  Object.assign(x, versions.find(v => v===ver));
-  i = 0; for(var v in x.versions)
-    Object.assign(v, versions[i++]);
-  if(search && search.objects) x.score = search.objects[0].score;
-  if(downloads) x.downloads = downloads.downloads;
-  return x;
-}
+// Get score of package.
+async function score(pkg, o) {
+  var d = null;
+  if((pkg=package(pkg, o))==null) return;
+  if((d=await details(pkg, o))==null) return;
+  if(o.field.includes('score.quality')) log(d.score.detail.quality, o);
+  else if(o.field.includes('score.popularity')) log(d.score.detail.popularity, o);
+  else if(o.field.includes('score.maintenance')) log(d.score.detail.maintenance, o);
+  else log(d.score.final, o);
+};
+
+// Get stars of package.
+async function stars(pkg, o) {
+  if((pkg=package(pkg, o))==null) return;
+  try { log(await npmPackageStars(pkg), o); }
+  catch(e) { error(e, o); }
+};
+
+// Get versions of package.
+function versions(pkg, o) {
+  if((pkg=package(pkg, o))==null) return;
+  npmPackageVersions(pkg, (e, vers) => {
+    if(e) return error(e, o);
+    log(vers, o);
+  });
+};
+
+// Get contents of package.
+async function contents(pkg, o) {
+  var nam = pkg.replace(/(.)@.*/, '$1');
+  var ver = pkg.indexOf('@')>0? pkg.replace(/(.).*?@/, ''):null;
+  try { log(await listNpmContents(nam, ver), o); }
+  catch(e) { error(e, o); }
+};
+
+// Get readme of package.
+async function readme(pkg, o) {
+  var nam = pkg.replace(/(.)@.*/, '$1'), fil = null;
+  var ver = pkg.indexOf('@')>0? pkg.replace(/(.).*?@/, ''):null;
+  try {
+    for(var f of (await listNpmContents(nam, ver)))
+      if(/^readme(\..+)?/i.test(f)) { fil = f; break; }
+    if(fil==null) throw new Error(pkg+' has no readme');
+    log([(await got(`https://unpkg.com/${pkg}/${fil}`)).body], o);
+  }
+  catch(e) { error(e, o); }
+};
+
+// Get dependents of package.
+function dependents(pkg, o) {
+  if((pkg=package(pkg, o))==null) return;
+  var deps = [], req = moduleDependents(pkg)
+  req.on('error', e => error(e, o))
+  req.on('data', p => deps.push(p.name));
+  req.on('end', () => log(deps, o));
+};
+
+// Get downloads of package.
+async function downloads(pkg, o) {
+  if((pkg=package(pkg, o))==null) return;
+  var period = o.field.split('.')[1]||'month';
+  try { log(await pkgDownloads(pkg, {period}), o); }
+  catch(e) { error(e, o); }
+};
+
+// Check if package name is available.
+function available(pkg, o) {
+  if((pkg=package(pkg, o))==null) return;
+  npmAvailable(pkg, (e, ok) => {
+    if(e) return error(e, o);
+    log(ok, o);
+  });
+};
+
+// Get infomation on a package.
+async function view(pkg, flds, o) {
+  var o = Object.assign({}, OPTIONS, o);
+  var fbas = [], fspc = [];
+  o.name = flds.length>1;
+  for(var f of flds) {
+    if(pkg==='.' || !FUNCTION.has(f.replace(/^#/, '').replace(/\..*/, ''))) fbas.push(f);
+    else fspc.push(f);
+  }
+  if(flds.length===0 || fbas.length>0) cp.execSync('npm view '+pkg+' '+fbas.join(' '), {stdio: STDIO});
+  for(var f of fspc) {
+    var fn = FUNCTION.get(f.replace(/^#/, '').replace(/\..*/, ''));
+    if(fn!=null) fn(pkg, Object.assign({}, o, {field: f}));
+  }
+};
+
+// Get options from arguments.
+function options(o, k, a, i) {
+  o.fields = o.fields||[];
+  if(k==='--help') o.help = true;
+  else if(k==='--silent') o.silent = true;
+  else if(!o.package) o.package = a[i];
+  else o.fields.push(a[i]);
+  return i+1;
+};
+
+view.options = options;
 module.exports = view;
-if(require.main===module) main(process.argv);
+
+// Run on shell.
+function shell(a) {
+  var o = {};
+  for(var i=2, I=a.length; i<I;)
+    i = options(o, a[i], a, i);
+  if(o.help) return cp.execSync('less view.md', {cwd: __dirname, stdio: STDIO});
+  view(o.package, o.fields, o);
+};
+if(require.main===module) shell(process.argv);

@@ -1,7 +1,6 @@
 'use strict';
 const fs = require('fs');
 const os = require('os');
-const cp = require('child_process');
 
 
 // I. global variables

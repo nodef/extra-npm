@@ -1,5 +1,3 @@
-# UNDER CONSTRUCTION!
-
 *Prograde* **NPM** for Node.js *package maintainers*.
 > Do you want to:
 > - Clone NPM package to local or GitHub?
