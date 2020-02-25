@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const $api = require('./_api');
+const $api = require('../../scripts2/_api');
 const kleur = require('kleur');
 const cp = require('child_process');
 require('extra-boolean');
