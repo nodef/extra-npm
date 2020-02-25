@@ -5,24 +5,24 @@ Validate Node.js package field.
 ## usage
 
 ```bash
-enpm-validate name boolean
+enpm validate name boolean
 # is name "boolean" is valid?
 ## 1
 
-enpm-validate version 0.1.1.exe
+enpm validate version 0.1.1.exe
 # is version "0.1.1.exe" valid?
 ## error: invalid semver format
 
-enpm-validate license hyd-license --silent
+enpm validate license hyd-license --silent
 # is license "hyd-license" valid?
 ## -1
 ```
-> With [extra-npm] try `enpm validate` instead.
+> With [@extra-npm/validate] try `enpm-validate` instead.
 
 ### reference
 
 ```bash
-enpm-validate <field> <value> [options]
+enpm validate <field> <value> [options]
 # field: package field to validate
 ## name, version, license, email, username
 # value: value of field
