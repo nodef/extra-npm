@@ -23,70 +23,7 @@ pwd="${GITHUB_PASSWORD}"
 if [[ "$all" == "1" ]]; then typ="versions"; fi
 if [[ "$rpp" == "" ]]; then rpp="$usr"; fi
 
-psd() {
-  # present script directory
-  z="${BASH_SOURCE[0]}"
-  if [ -h "$z" ]; then z="$(readlink "$z")"; fi
-  cd "$(dirname "$0")" && cd "$(dirname "$z")" && pwd
-}
 
-fullRep() {
-  # get full repository url from partial
-  if [[ "$1" == "git://"* ]] || [[ "$1" == "http://"* ]] || [[ "$1" == "https://"* ]]; then echo "$1"
-  elif [[ "$1" == "github.com"* ]]; then echo "https://$1"
-  elif [[ "$1" == *"/"* ]]; then echo "https://github.com/$1"
-  else echo "https://github.com/${rpp}/$1"
-  fi
-}
-
-pkgDescription() {
-  # get description from npm
-  npm view $1 description
-}
-
-pkgHomepage() {
-  # get homepage from npm
-  z="$(npm view $1 homepage)"; a="$1"
-  if [[ "$z" == *"github.com"* ]]; then z="https://www.npmjs.com/package/${a%%@*}"; fi
-  echo "$z"
-}
-
-pkgKeywords() {
-  # get keywords from npm
-  z="$(npm view $1 keywords)"
-  z="${z//[\[\]\', ]}"; z="${z//$'\n'/,}"
-  echo "${z/#,}"
-}
-
-fetchPkg() {
-  # fetch npm package to temp-dir/package (returns temp-dir)
-  pushd "$2" >/dev/null
-  printf "${cm}npm pack $1${cr}\n"
-  npm pack "$1"
-  tgz=$(ls *.tgz)
-  printf "${cm}tar extract ${tgz}${cr}\n"
-  tar -xvzf "$tgz"
-  popd >/dev/null
-}
-
-movePkg() {
-  # move temp-dir/package to packagedir
-  rm -rf "$2/"*
-  shopt -s dotglob nullglob
-  mv "$1/package/"* "$2/".
-  shopt -u dotglob nullglob
-  rm -rf "$1"
-}
-
-gitPush() {
-  # push packagedir with message
-  printf "${cm}git push \"$2\"${cr}\n"
-  pushd "$1" >/dev/null
-  git add .
-  git commit -m "$2"
-  git push
-  popd >/dev/null
-}
 
 # read arguments
 dp0="$(psd)/"
