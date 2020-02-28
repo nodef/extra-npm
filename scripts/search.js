@@ -70,7 +70,7 @@ function outputDefault(as, flds, qry) {
 // Output in parseable mode.
 function outputParseable(as, flds) {
   for(var a of as)
-    console.log(flds.map(f => _package.fstring(a, f).join('\t')));
+    console.log(flds.map(f => _package.fstring(a, f)).join('\t'));
 };
 
 // Output in JSON mode.
