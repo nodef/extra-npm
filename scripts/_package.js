@@ -78,6 +78,10 @@ const SPECIAL = {
 };
 
 
+function sleep(t) {
+  return new Promise((fres, frej) => setTimeout(fres, t));
+}
+
 // Get user info string.
 function user(dat) {
   var dat = dat||'';
@@ -135,6 +139,7 @@ async function search(qry, rnk=null, off=0, lim=Number.MAX_SAFE_INTEGER) {
   var tot = -1, off = off, end = off+lim;
   do {
     var ap = searchPage(qry, rnk, Math.floor(off/20));
+    await sleep(200);
     if(tot<0) { aps.push(await ap); tot = aps[0].total; }
     else aps.push(ap);
     off += 20-(off%20);
