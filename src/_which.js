@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 const revParse = require('./rev-parse.js');
 const kleur = require('kleur');
 const fs = require('extra-fs');

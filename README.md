@@ -1,3 +1,7 @@
+**LAST STABLE VERSION 1.5.5**
+
+> npm install -g extra-npm@1.5.5
+
 *Prograde* **NPM** for Node.js *package maintainers*.
 > Do you want to:
 > - Clone NPM package to local or GitHub?
