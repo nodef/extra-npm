@@ -1,2 +1,9 @@
 module details from path
 https://stackoverflow.com/questions/34071621/query-npmjs-registry-via-api
+- https://www.npmjs.com/browse/depended/registry-url
+- https://www.npmjs.com/package/scoped-regex
+- https://www.npmjs.com/package/parse-authors
+- https://www.npmjs.com/package/parse-author
+- https://www.npmjs.com/package/author-regex
+- https://www.npmjs.com/package/node-modules-regexp
+- https://www.npmjs.com/package/semver-regex
