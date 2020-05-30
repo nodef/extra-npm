@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "2.0.9",
+  "version": "2.0.10",
   "description": "npm is the default package manager for Node.js.",
   "main": "index.js",
   "preferGlobal": true,
@@ -25,5 +25,8 @@
     "npm"
   ],
   "author": "wolfram77@gmail.com",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "extra-build": "^1.0.155"
+  }
 }
