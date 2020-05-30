@@ -1,3 +1,8 @@
+get download stats
+ - in descending order
+
+list author packages
+
 module details from path
 https://stackoverflow.com/questions/34071621/query-npmjs-registry-via-api
 - https://www.npmjs.com/browse/depended/registry-url
