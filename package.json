@@ -1,7 +1,7 @@
 {
   "name": "extra-npm",
-  "version": "2.0.5",
-  "description": "Prograde NPM for Node.js package maintainers.",
+  "version": "2.0.6",
+  "description": "npm is the default package manager for Node.js.",
   "main": "index.js",
   "preferGlobal": true,
   "bin": {

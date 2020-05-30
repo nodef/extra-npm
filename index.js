@@ -1,2 +1,0 @@
-// browserify
-// apollo-client (graphQL)
