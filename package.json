@@ -1,16 +1,24 @@
 {
   "name": "extra-npm",
-  "version": "2.0.11",
+  "version": "2.0.12",
   "description": "npm is the default package manager for Node.js.",
   "main": "index.js",
+  "module": "index.mjs",
+  "exports": {
+    "require": "./index.js",
+    "import": "./index.mjs"
+  },
+  "scripts": {
+    "einit": "ebuild init",
+    "ecode": "ebuild update --docs false",
+    "eupdate": "ebuild update",
+    "escatter": "ebuild scatter",
+    "test": "exit"
+  },
+  "runkitExampleFilename": "example.js",
   "preferGlobal": true,
   "bin": {
     "enpm": "index.cmd"
-  },
-  "scripts": {
-    "install": "exit && node ./install",
-    "prepublishOnly": "",
-    "test": "exit"
   },
   "repository": {
     "type": "git",
