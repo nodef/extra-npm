@@ -209,10 +209,6 @@ function getBody(url, opt, fn) {
   req.end();
 }
 
-// Get last value in array.
-function last(x) {
-  return x[x.length-1];
-}
 exports.froot = froot;
 exports.fget = fget;
 exports.fstring = fstring;
