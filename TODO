@@ -21,6 +21,7 @@ https://stackoverflow.com/questions/34071621/query-npmjs-registry-via-api
 - https://www.npmjs.com/package/node-modules-regexp
 - https://www.npmjs.com/package/semver-regex
 https://www.npmjs.com/package/npm-run-path
+ncu -u
 
 "@octokit/rest": "^16.27.3",
 "boolean": "^1.0.0",
