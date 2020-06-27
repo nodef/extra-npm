@@ -17,7 +17,7 @@ function npmPathGet() {
   }
   else {
     var nodeDir = dirname(ep);
-    var npmPath = execSync('readlink -f ' + join(nodeDir, 'npm'), { encoding: 'utf8' });
+    var npmPath = execSync('readlink -f '+join(nodeDir, 'npm'), {encoding: 'utf8'});
     return dirname(dirname(npmPath.trim()));
   }
 }
