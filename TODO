@@ -1,3 +1,11 @@
+RAUTHOR
+RNAME
+RVERSION
+
+parseAuthor
+stringifyAuthor
+
+
 get download stats
  - in descending order
 

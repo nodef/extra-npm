@@ -1,9 +1,5 @@
 #!/usr/bin/env node
 const validateNpmPackageName = require('validate-npm-package-name');
-const listNpmContents = require('list-npm-contents');
-const moduleDependents = require('module-dependents');
-const pkgDownloads = require('pkg-downloads');
-const npmAvailable = require('npm-available');
 const boolean = require('boolean');
 const kleur = require('kleur');
 const got = require('got');
