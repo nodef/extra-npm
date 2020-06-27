@@ -16,7 +16,8 @@ function configPathFind(): void {
 
 /**
  * Gets path to npmrc file.
- * @param opt options
+ * @param opt options [type=user]
+ * @param ref refresh [false]
  */
 function configPath(opt: IConfig=null, ref: boolean=false): string {
   if(ref || !PBUILTIN) configPathFind();
