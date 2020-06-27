@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "2.0.25",
+  "version": "2.0.26",
   "description": "npm is the default package manager for Node.js.",
   "main": "index.js",
   "module": "index.mjs",
