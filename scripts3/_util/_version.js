@@ -9,17 +9,6 @@ const PWD = process.cwd();
 const NOP = () => 0;
 
 
-// Update version with given type.
-function versionUpdate(ver, typ) {
-  var s = ver.split('.'), n = [];
-  for(var i=0, I=s.length; i<I; i++)
-    n[i] = parseInt(s[i], 10);
-  if(typ==='patch') n[2]++;
-  else if(typ==='minor') { n[1]++; n[2] = 0; }
-  else if(typ==='major') { n[0]++; n[1] = n[2] = 0; }
-  return n.join('.');
-};
-
 // Stringify JSON.
 function jsonStringify(jsn) {
   return JSON.stringify(jsn, null, 2).replace(/\n/g, os.EOL)+os.EOL;

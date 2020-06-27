@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "2.0.13",
+  "version": "2.0.14",
   "description": "npm is the default package manager for Node.js.",
   "main": "index.js",
   "module": "index.mjs",
@@ -35,7 +35,8 @@
   "author": "wolfram77@gmail.com",
   "license": "MIT",
   "devDependencies": {
-    "extra-build": "^1.0.155"
+    "extra-build": "^1.0.155",
+    "extra-version": "^1.0.12"
   },
   "dependencies": {
     "libnpmsearch": "^3.0.0"
