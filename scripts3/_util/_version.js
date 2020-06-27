@@ -20,23 +20,6 @@ function versionUpdate(ver, typ) {
   return n.join('.');
 };
 
-// Update repository URL.
-function repoUpdate(z, url) {
-  if(!url) return z;
-  url = url.endsWith('.git')? url.substring(0, url.length-4):url;
-  url = url.startsWith('git+')? url.substring(4):url;
-  url = url.startsWith('git://')? 'https://'+url.substring(6):url;
-  z['repository'] = {
-    type: 'git',
-    url: `git+${url}.git`
-  };
-  z['bugs'] = {
-    url: `${url}/issues`
-  };
-  z['homepage'] = `${url}#readme`;
-  return z;
-};
-
 // Stringify JSON.
 function jsonStringify(jsn) {
   return JSON.stringify(jsn, null, 2).replace(/\n/g, os.EOL)+os.EOL;

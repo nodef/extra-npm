@@ -3,6 +3,14 @@ const cp = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+// Gives name of init package.
+function initPackage(ini) {
+  if(!ini) return '';
+  var [p, q] = ini.split('/');
+  if(!ini.startsWith('@')) return `create-${p}`;
+  if(!ini.includes('/')) return `${p}/create`;
+  return `${p}/create-${q}`;
+}
 
 // Gets description from README.
 function getDescription() {
