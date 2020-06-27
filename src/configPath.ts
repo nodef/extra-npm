@@ -1,6 +1,6 @@
-import npmPath from './npmPath';
 import {join} from 'path';
 import {homedir} from 'os';
+import npmPath from './npmPath';
 import type {IConfig} from './_types';
 
 var PBUILTIN = null;
