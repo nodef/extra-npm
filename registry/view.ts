@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 const validateNpmPackageName = require('validate-npm-package-name');
-const npmPackageVersions = require('npm-package-versions');
-const npmPackageStars = require('npm-package-stars');
 const listNpmContents = require('list-npm-contents');
 const moduleDependents = require('module-dependents');
 const pkgDownloads = require('pkg-downloads');
