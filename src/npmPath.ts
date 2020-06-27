@@ -23,7 +23,7 @@ function npmPathGet() {
 }
 
 /**
- * Gives path to NPM executable.
+ * Gives path to NPM directory.
  * @param ref refresh [false]
  */
 function npmPath(ref: boolean=false): string {
