@@ -9,6 +9,20 @@ stringifyAuthor
 get download stats
  - in descending order
 
+https://github.com/nodef/extra-npm.config/blob/master/src/list.js
+https://github.com/nodef/extra-npm.config
+https://github.com/nodef/extra-npm.folders
+https://www.npmjs.com/package/npm-prefix
+https://docs.npmjs.com/cli-commands/cache.html
+https://docs.npmjs.com/cli-commands/config.html
+https://docs.npmjs.com/cli-documentation/
+https://github.com/npm/npm-registry-fetch/blob/latest/index.js
+https://www.npmjs.com/search?q=registry
+https://www.npmjs.com/package/yallist
+https://www.npmjs.com/package/npm-package-arg
+https://www.npmjs.com/package/npm-registry-fetch
+https://stackoverflow.com/questions/9679932/how-to-use-executables-from-a-package-installed-locally-in-node-modules
+
 list author packages
 npm-api	API	Base class for retrieving data from the npm registry.
 module details from path
