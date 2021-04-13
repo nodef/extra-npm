@@ -1,34 +1,29 @@
 #!/usr/bin/env bash
-# require('./_github.js')
+## Clone npm package.
 
 # global variables
 cr="\033[0m"
 cfby="\033[1;33m"
 cm="${cm:-$cfby}"
 typ="version"
-pkg="${ENPM_CLONE_PACKAGE}"
-all="${ENPM_CLONE_ALL}"
-pre="${ENPM_CLONE_PREFIX}"
-msg="${ENPM_CLONE_MESSAGE}"
-rpp="${ENPM_CLONE_REPOSITORY_PREFIX}"
-rep="${ENPM_CLONE_REPOSITORY}"
-dsc="${ENPM_CLONE_DESCRIPTION}"
-hom="${ENPM_CLONE_HOMEPAGE}"
-key="${ENPM_CLONE_KEYWORDS}"
-aio="${ENPM_CLONE_AUTO_INIT}"
-gto="${ENPM_CLONE_GITIGNORE_TEMPLATE}"
-lto="${ENPM_CLONE_LICENSE_TEMPLATE}"
+pkg="${NPM_CLONE_PACKAGE}"
+all="${NPM_CLONE_ALL}"
+pre="${NPM_CLONE_PREFIX}"
+msg="${NPM_CLONE_MESSAGE}"
+rpp="${NPM_CLONE_REPOSITORY_PREFIX}"
+rep="${NPM_CLONE_REPOSITORY}"
+dsc="${NPM_CLONE_DESCRIPTION}"
+hom="${NPM_CLONE_HOMEPAGE}"
+key="${NPM_CLONE_KEYWORDS}"
+aio="${NPM_CLONE_AUTO_INIT}"
+gto="${NPM_CLONE_GITIGNORE_TEMPLATE}"
+lto="${NPM_CLONE_LICENSE_TEMPLATE}"
 usr="${GITHUB_USERNAME}"
 pwd="${GITHUB_PASSWORD}"
+psd="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 if [[ "$all" == "1" ]]; then typ="versions"; fi
 if [[ "$rpp" == "" ]]; then rpp="$usr"; fi
 
-psd() {
-  # present script directory
-  z="${BASH_SOURCE[0]}"
-  if [ -h "$z" ]; then z="$(readlink "$z")"; fi
-  cd "$(dirname "$0")" && cd "$(dirname "$z")" && pwd
-}
 
 fullRep() {
   # get full repository url from partial
@@ -38,6 +33,7 @@ fullRep() {
   else echo "https://github.com/${rpp}/$1"
   fi
 }
+
 
 pkgDescription() {
   # get description from npm
@@ -57,6 +53,7 @@ pkgKeywords() {
   z="${z//[\[\]\', ]}"; z="${z//$'\n'/,}"
   echo "${z/#,}"
 }
+
 
 fetchPkg() {
   # fetch npm package to temp-dir/package (returns temp-dir)
@@ -78,6 +75,7 @@ movePkg() {
   rm -rf "$1"
 }
 
+
 gitPush() {
   # push packagedir with message
   printf "${cm}git push \"$2\"${cr}\n"
@@ -88,10 +86,10 @@ gitPush() {
   popd >/dev/null
 }
 
+
 # read arguments
-dp0="$(psd)/"
 while [[ "$#" != "0" ]]; do
-  if [[ "$1" == "--help" ]]; then less "${dp0}clone.md"; exit
+  if [[ "$1" == "--help" ]]; then less "${psd}clone.md"; exit
   elif [[ "$1" == "-a" ]] || [[ "$1" == "--all" ]]; then typ="versions"
   elif [[ "$1" == "-m" ]] || [[ "$1" == "--message" ]]; then msg="$2"; shift
   elif [[ "$1" == "-r" ]] || [[ "$1" == "--repository" ]]; then rep="$2"; shift
@@ -108,6 +106,7 @@ while [[ "$#" != "0" ]]; do
   shift
 done
 
+
 # init package dir
 pkgdirs=""
 if [[ "$rep" != "" ]]; then
@@ -118,7 +117,7 @@ if [[ "$rep" != "" ]]; then
   if [[ "$dsc" == "" ]]; then dsc="$(pkgDescription $pkg)"; fi
   if [[ "$hom" == "" ]]; then hom="$(pkgHomepage $pkg)"; fi
   if [[ "$key" == "" ]]; then key="$(pkgKeywords $pkg)"; fi
-  node "${dp0}_github" ${rep:+-r} "$rep" ${usr:+-u} "$usr" ${pwd:+-p} "$pwd" \
+  node "${psd}_github" ${rep:+-r} "$rep" ${usr:+-u} "$usr" ${pwd:+-p} "$pwd" \
     ${dsc:+-d} "$dsc" ${hom:+-h} "$hom" ${key:+-t} "$key" ${aio:+-ai} "$aio" \
     ${gto:+-gt} "$gto" ${lto:+-lt} "$lto" repocreate
   git clone "$rep"
@@ -128,6 +127,7 @@ elif [[ "$typ" == "version" ]]; then
 else
   pkgdirs="1"
 fi
+
 
 # clone/clone-to
 if [[ "$pkg" == "" ]]; then exit; fi
