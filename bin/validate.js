@@ -36,12 +36,14 @@ function name(txt, o) {
     dash.warn('warning: '+m);
 }
 
+
 // Validate package version.
 function version(txt, o) {
   var a = semver.valid(txt);
   if (a) console.log(1);
   else dash.error('error: invalid semver format', o);
 }
+
 
 // Validate package license.
 function license(txt, o) {
@@ -53,12 +55,14 @@ function license(txt, o) {
     dash.warn('warning: '+m);
 }
 
+
 // Validate email.
 function email(txt, o) {
   var e = npmUserValidate.email(txt);
   if (!e) console.log(1);
   else dash.error('error: '+e.message, o);
 }
+
 
 // Validate username.
 function username(txt, o) {

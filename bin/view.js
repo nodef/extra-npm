@@ -41,6 +41,7 @@ function error(err, o) {
   else console.error(kleur.red('error:'), err.message);
 }
 
+
 // Log output value.
 function log(val, o) {
   if (o.field.startsWith('#')) {
@@ -57,6 +58,8 @@ function log(val, o) {
     else console.log(val);
   }
 }
+
+
 
 
 // Get package name, with validation.
