@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const validateNpmPackageName = require('validate-npm-package-name');
-const boolean = require('boolean');
+const boolean = require('extra-boolean').parse;
 const kleur = require('kleur');
 const got = require('got');
 const cp = require('child_process');

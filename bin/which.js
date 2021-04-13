@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const npmWhich = require('npm-which');
-const boolean = require('boolean');
+const boolean = require('extra-boolean').parse;
 const kleur = require('kleur');
 const cp = require('child_process');
 

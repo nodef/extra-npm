@@ -1,11 +1,11 @@
 #!/usr/bin/env node
+const cp = require('child_process');
+const kleur = require('kleur');
+const semver = require('semver');
+const boolean = require('extra-boolean').parse;
 const validateNpmPackageName = require('validate-npm-package-name');
 const validateNpmPackageLicense = require('validate-npm-package-license');
 const npmUserValidate = require('npm-user-validate');
-const boolean = require('boolean');
-const semver = require('semver');
-const kleur = require('kleur');
-const cp = require('child_process');
 
 
 // Global variables.

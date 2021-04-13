@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-const boolean = require('boolean');
-const kleur = require('kleur');
 const cp = require('child_process');
+const kleur = require('kleur');
+const boolean = require('extra-boolean').parse;
 const _package = require('./_package.js');
 
-
-// Global variables.
 const E = process.env;
+const STDIO = [0, 1, 2];
 const OPTIONS = {
   help: false,
   query: null,
@@ -25,7 +24,8 @@ const OPTIONS = {
   ascending: boolean(E['ENPM_SEARCH_ASCENDING']||'0'),
   fields: E['ENPM_SEARCH_FIELDS']||'name,version,description,author',
 };
-const STDIO = [0, 1, 2];
+
+
 
 
 // Get ellipsis text.
