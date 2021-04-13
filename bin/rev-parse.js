@@ -8,7 +8,7 @@ const E = process.env;
 const OPTIONS = {
   parameter: null,
   args:      null,
-  silent:    boolean(E['ENPM_SILENT']||'0')
+  silent:    boolean(E['NPM_SILENT']||'0')
 };
 
 
