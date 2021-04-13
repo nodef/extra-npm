@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "3.0.8",
+  "version": "3.0.9",
   "description": "Common utility commands for npm packages.",
   "preferGlobal": true,
   "main": "index.sh",
@@ -31,8 +31,12 @@
   },
   "dependencies": {
     "extra-boolean": "^1.7.5",
+    "got": "^11.8.2",
     "kleur": "^4.1.4",
+    "npm-user-validate": "^1.0.1",
     "npm-which": "^3.0.1",
-    "semver": "^7.3.5"
+    "semver": "^7.3.5",
+    "validate-npm-package-license": "^3.0.4",
+    "validate-npm-package-name": "^3.0.0"
   }
 }

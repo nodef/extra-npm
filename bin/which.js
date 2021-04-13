@@ -26,9 +26,11 @@ function which(cmd, o) {
 module.exports = which;
 
 
+
+
 // Get options from arguments.
 function options(o, k, a, i) {
-  if (k === '--silent') o.silent = true;
+  if (k==='--silent') o.silent = true;
   else o.command = a[i];
   return i+1;
 }
@@ -40,4 +42,4 @@ function shell(a) {
     i = options(o, a[i], a, i);
   which(o.command, o);
 }
-if (require.main === module) shell(process.argv);
+if (require.main===module) shell(process.argv);

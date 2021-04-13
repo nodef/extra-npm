@@ -78,9 +78,11 @@ function validate(fld, val, o) {
 module.exports = validate;
 
 
+
+
 // Get options from arguments.
 function options(o, k, a, i) {
-  if (k === '--silent') o.silent = true;
+  if (k==='--silent') o.silent = true;
   else if (!o.field)    o.field = a[i];
   else o.value = a[i];
   return i+1;
@@ -93,4 +95,4 @@ function shell(a) {
     i = options(o, a[i], a, i);
   validate(o.field, o.value, o);
 }
-if(require.main === module) shell(process.argv);
+if(require.main===module) shell(process.argv);
