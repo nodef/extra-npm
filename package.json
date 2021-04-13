@@ -1,25 +1,17 @@
 {
   "name": "extra-npm",
-  "version": "3.0.0",
-  "description": "npm is the default package manager for Node.js.",
-  "main": "index.js",
-  "module": "index.mjs",
-  "exports": {
-    "require": "./index.js",
-    "import": "./index.mjs"
-  },
+  "version": "3.0.1",
+  "description": "Common utility commands for npm packages.",
   "preferGlobal": true,
+  "main": "index.sh",
   "bin": {
-    "enpm": "index.cmd"
+    "enpm": "index.sh",
+    "extra-npm": "index.sh"
   },
   "scripts": {
-    "einit": "ebuild init",
-    "ecode": "ebuild update --docs false",
-    "eupdate": "ebuild update",
-    "escatter": "ebuild scatter",
-    "test": "exit"
+    "test": "exit",
+    "deploy": "ebuild github+publish --publishMin=false --publishBranch=false"
   },
-  "runkitExampleFilename": "example.js",
   "keywords": [
     "extra",
     "npm"
@@ -35,10 +27,6 @@
   },
   "homepage": "https://github.com/nodef/extra-npm#readme",
   "devDependencies": {
-    "extra-build": "^1.1.27",
-    "extra-version": "^1.0.14"
-  },
-  "dependencies": {
-    "ini": "^1.3.5"
+    "extra-build": "^1.3.31"
   }
 }

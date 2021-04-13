@@ -2,10 +2,8 @@ language: node_js
 node_js:
   - "node"
 before_install:
-  - echo "access=public" >> ~/.npmrc
-  - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
-before_script:
-  - npm install -g typescript rollup download-cli browserify uglify-es
-  - git submodule update --init
-  - npm install
-script: npm run escatter
+- if [[ "$GITHUB_TOKEN" != "" ]]; then git clone https://${GITHUB_TOKEN}@github.com/nodef/deploy "$HOME/deploy"; fi
+- if [[ -d ~/deploy ]]; then bash "$HOME/deploy/before_install.sh"; fi
+script:
+- if [[ ! -d "$HOME/deploy" ]]; then npm test; fi
+- if [[ -d "$HOME/deploy" ]]; then bash "$HOME/deploy/script.sh"; fi

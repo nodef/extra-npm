@@ -2,7 +2,8 @@
 
 > npm install -g extra-npm@1.5.5
 
-*Prograde* **NPM** for Node.js *package maintainers*.
+Common utility commands for npm packages.
+
 > Do you want to:
 > - Clone NPM package to local or GitHub?
 > - Initialize Node.js reporitory on GitHub?
@@ -12,6 +13,7 @@
 > - Validate Node.js package fields?
 > - View registry info about a package?
 > - Locate a program or locally installed node module executable?
+
 <br>
 
 
