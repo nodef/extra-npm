@@ -1,11 +1,9 @@
 #!/usr/bin/env node
-const cp = require('child_process');
 const kleur = require('kleur');
 const boolean = require('extra-boolean').parse;
 const _package = require('./_package.js');
 
 const E = process.env;
-const STDIO = [0, 1, 2];
 const OPTIONS = {
   query: null,
   silent:      boolean(E['NPM_SILENT']||'0'),

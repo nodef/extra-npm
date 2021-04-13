@@ -3,7 +3,7 @@ const kleur = require('kleur');
 const got = require('got');
 const validateNpmPackageName = require('validate-npm-package-name');
 const boolean = require('extra-boolean').parse;
-const cpExec = require('./cpExec');
+const cpExec = require('./_cpExec');
 
 const E = process.env;
 const URL = 'https://www.npmjs.com/search?q=';
