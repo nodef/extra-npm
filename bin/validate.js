@@ -49,7 +49,7 @@ function license(txt, o) {
   if (a.validForNewPackages) return console.log(1);
   if (a.validForOldPackages) return console.log(0);
   if (o.silent) return console.log(-1);
-  for(var m of a.warnings||[])
+  for (var m of a.warnings||[])
     dash.warn('warning: '+m);
 }
 
@@ -95,4 +95,4 @@ function shell(a) {
     i = options(o, a[i], a, i);
   validate(o.field, o.value, o);
 }
-if(require.main===module) shell(process.argv);
+if (require.main===module) shell(process.argv);

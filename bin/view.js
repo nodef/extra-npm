@@ -210,11 +210,11 @@ async function view(pkg, flds, o) {
   var o = Object.assign({}, OPTIONS, o);
   var fbas = [], fspc = [];
   o.name = flds.length>1;
-  for(var f of flds) {
-    if(pkg==='.' || !FUNCTION.has(f.replace(/^#/, '').replace(/\..*/, ''))) fbas.push(f);
+  for (var f of flds) {
+    if (pkg==='.' || !FUNCTION.has(f.replace(/^#/, '').replace(/\..*/, ''))) fbas.push(f);
     else fspc.push(f);
   }
-  if(flds.length===0 || fbas.length>0) cpExec('npm view '+pkg+' '+fbas.join(' '));
+  if (flds.length===0 || fbas.length>0) cpExec('npm view '+pkg+' '+fbas.join(' '));
   for (var f of fspc) {
     var fn = FUNCTION.get(f.replace(/^#/, '').replace(/\..*/, ''));
     if (fn!=null) fn(pkg, Object.assign({}, o, {field: f}));
@@ -228,8 +228,8 @@ module.exports = view;
 // Get options from arguments.
 function options(o, k, a, i) {
   o.fields = o.fields||[];
-  if(k==='--silent') o.silent = true;
-  else if(!o.package)  o.package = a[i];
+  if (k==='--silent') o.silent = true;
+  else if (!o.package)  o.package = a[i];
   else o.fields.push(a[i]);
   return i+1;
 }
