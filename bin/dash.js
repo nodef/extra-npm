@@ -13,7 +13,7 @@ function fixup(m) {
 
 function error(m, o={}) {
   if (!o.silent) console.error(kleur.red(fixup(m)));
-  else console.error(-1);
+  else console.log(-1);
 }
 
 function warn(m, o={}) {

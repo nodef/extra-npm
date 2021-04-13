@@ -19,7 +19,7 @@ function which(cmd, o) {
   var o = Object.assign({}, OPTIONS, o);
   var cwd = o.cwd||process.cwd();
   npmWhich(cwd)(cmd, (err, pth) => {
-    if (err) return dash.error(err.message, o);
+    if (err) return dash.error('error: '+err.message, o);
     console.log(pth);
   });
 }
