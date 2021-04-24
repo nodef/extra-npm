@@ -1,36 +1,38 @@
-**LAST STABLE VERSION 1.5.5**
+Common utility commands for [npm] packages.<br>
+:package: [NPM](https://www.npmjs.com/package/extra-npm),
+:smiley_cat: [GitHub](https://github.com/orgs/nodef/packages?repo_name=extra-npm),
+:scroll: [Files](https://unpkg.com/extra-npm/),
+:blue_book: [Wiki](https://github.com/nodef/extra-npm/wiki/).
 
-> npm install -g extra-npm@1.5.5
+Do you want to?<br>
+- Clone NPM package to local or GitHub?
+- Initialize Node.js reporitory on GitHub?
+- Push changes to both Git and NPM?
+- Get root package path?
+- Search for packages, with special fields?
+- Validate Node.js package fields?
+- View registry info about a package?
+- Locate a program or locally installed node module executable?
 
-Common utility commands for npm packages.
+This is an extension of [npm] with some commonly used commands. You can
+install this with `npm install -g extra-npm`.
 
-> Do you want to:
-> - Clone NPM package to local or GitHub?
-> - Initialize Node.js reporitory on GitHub?
-> - Push changes to both Git and NPM?
-> - Get root package path?
-> - Search for packages, with special fields?
-> - Validate Node.js package fields?
-> - View registry info about a package?
-> - Locate a program or locally installed node module executable?
+> Stability: Experimental.
 
 <br>
 
-
-## usage
-
 ```bash
-> enpm [command] [options]
+$ enpm [command] [options]
 # all existing commands of npm supported
 
 # push change to git, npm
-enpm push "commit message"
+$ enpm push "commit message"
 
 # clone all versions of "package" to local
-enpm clone -a package
+$ enpm clone -a package
 
 # install "package"
-enpm install package
+$ enpm install package
 ```
 
 ## References
