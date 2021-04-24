@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "3.0.19",
+  "version": "3.0.20",
   "description": "Common utility commands for npm packages.",
   "preferGlobal": true,
   "main": "index.sh",
@@ -13,8 +13,19 @@
     "deploy": "node ./build.js && ebuild github+publish --publishMin=false --publishBranch=false"
   },
   "keywords": [
+    "cli",
+    "terminal",
+    "console",
     "extra",
-    "npm"
+    "npm",
+    "clone",
+    "init",
+    "push",
+    "rev-parse",
+    "search",
+    "validate",
+    "view",
+    "which"
   ],
   "author": "wolfram77@gmail.com",
   "license": "MIT",
