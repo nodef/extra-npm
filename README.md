@@ -14,8 +14,9 @@ Do you want to?<br>
 - View registry info about a package?
 - Locate a program or locally installed node module executable?
 
-This is an extension of [npm] with some commonly used commands. You can
-install this with `npm install -g extra-npm`.
+This is an extension of [npm] with some commonly used commands. Some
+improvements are still needed here. You can install this with
+`npm install -g extra-npm`.
 
 > Stability: Experimental.
 
