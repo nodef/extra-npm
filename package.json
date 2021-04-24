@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "3.0.22",
+  "version": "3.0.23",
   "description": "Common utility commands for npm packages.",
   "preferGlobal": true,
   "main": "index.sh",
@@ -17,15 +17,7 @@
     "terminal",
     "console",
     "extra",
-    "npm",
-    "clone",
-    "init",
-    "push",
-    "rev-parse",
-    "search",
-    "validate",
-    "view",
-    "which"
+    "npm"
   ],
   "author": "wolfram77@gmail.com",
   "license": "MIT",

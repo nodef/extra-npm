@@ -57,9 +57,10 @@ function writeJson(pth, v) {
 function readDescBin() {
   var a = new Map();
   for (var f of fs.readdirSync('bin')) {
+    if (/^_/.test(f)) continue;
     var d = readFile(`bin/${f}`);
     var name = f.replace(/\..*/, '');
-    var desc = d.match(/^(##|\/\/)\s*(.*)$/m)[1];
+    var desc = d.match(/^(?:##|\/\/)\s*(.*)$/m)[1];
     a.set(name, desc);
   }
   return a;
@@ -125,7 +126,7 @@ function main(f=true) {
   writeFile('index.log', readIndex(descs));
   var p = readJson('package.json');
   p.keywords = [...new Set([...p.keywords, ...descs.keys()])];
-  writeJson('package.json', p);
-  makeExec();
+  if (f) writeJson('package.json', p);
+  if (f) makeExec();
 }
 main(process.argv[2] !== 'local');
