@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "3.0.18",
+  "version": "3.0.19",
   "description": "Common utility commands for npm packages.",
   "preferGlobal": true,
   "main": "index.sh",
@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "exit",
-    "deploy": "ebuild github+publish --publishMin=false --publishBranch=false"
+    "deploy": "node ./build.js && ebuild github+publish --publishMin=false --publishBranch=false"
   },
   "keywords": [
     "extra",
