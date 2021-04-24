@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const npmWhich = require('npm-which');
 const boolean = require('extra-boolean').parse;
-const dash = require('./dash');
+const dash = require('./_dash');
 
 const E = process.env;
 const OPTIONS = {

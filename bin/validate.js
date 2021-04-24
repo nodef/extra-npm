@@ -4,7 +4,7 @@ const validateNpmPackageName = require('validate-npm-package-name');
 const validateNpmPackageLicense = require('validate-npm-package-license');
 const npmUserValidate = require('npm-user-validate');
 const boolean = require('extra-boolean').parse;
-const dash = require('./dash');
+const dash = require('./_dash');
 
 const E = process.env;
 const OPTIONS = {
