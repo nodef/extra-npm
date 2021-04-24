@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Picks out and massages parameters.
 const fs = require('fs');
 const path = require('path');
 const kleur = require('kleur');

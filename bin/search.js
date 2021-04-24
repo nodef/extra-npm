@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Searches for packages.
 const kleur = require('kleur');
 const boolean = require('extra-boolean').parse;
 const _package = require('./_package.js');

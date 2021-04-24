@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-## Print usage details of a command.
+## Prints usage details of a command.
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 url="https://github.com/nodef/extra-npm/issues"
 

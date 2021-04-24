@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Locates a program or locally installed node module executable.
 const npmWhich = require('npm-which');
 const boolean = require('extra-boolean').parse;
 const dash = require('./_dash');

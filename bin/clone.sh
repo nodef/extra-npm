@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-## Clone npm package.
+## Clones NPM package to local or remote.
 
 # global variables
 cr="\033[0m"

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Validates Node.js package field.
 const semver = require('semver');
 const validateNpmPackageName = require('validate-npm-package-name');
 const validateNpmPackageLicense = require('validate-npm-package-license');

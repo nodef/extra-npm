@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# require('./_github.js')
-# require('./_name.js')
-# require('./_json.sh')
+## Initializes a Node.js repository.
 
 # global variables
 cr="\033[0m"

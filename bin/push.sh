@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# require('./_github.js')
+## Pushes changes to both Git and NPM.
 
 # global variables
 cr="\033[0m"

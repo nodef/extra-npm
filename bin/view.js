@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Views registry info about a package.
 const kleur = require('kleur');
 const got = require('got');
 const validateNpmPackageName = require('validate-npm-package-name');
