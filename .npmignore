@@ -11,6 +11,7 @@ tsconfig.json
 rollup.config.js
 jestconfig.json
 build.js
+*.log
 
 # Others
 unused/
