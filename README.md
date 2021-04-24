@@ -22,7 +22,7 @@ install this with `npm install -g extra-npm`.
 <br>
 
 ```bash
-$ enpm [command] [options]
+enpm [command] [options]
 # all existing commands of npm supported
 
 # push change to git, npm
@@ -35,40 +35,36 @@ $ enpm clone -a package
 $ enpm install package
 ```
 
-## References
-
-- [clone]> Clone NPM package to local or GitHub.
-- [init]> Initialize Node.js reporitory.
-- [push]> Push changes to both Git and NPM?
-- [rev-parse]> Pick out and massage parameters.
-- [search]> Search for packages.
-- [validate]> Validate Node.js package field.
-- [view]> View registry info about a package.
-- [which]> Locate a program or locally installed node module executable.
+<br>
 <br>
 
 
-## similar
+## Index
 
-Do you need anything similar?
-- [extra-youtubeuploader] can upload videos with caption to YouTube.
-- [extra-stillvideo] can generate video from audio and image.
+| Command         | Action                       |
+| --------------- | ---------------------------- |
+| [clone] | Clones NPM package to local or remote. |
+| [help] | Prints usage details of a command. |
+| [init] | Initializes a Node.js repository. |
+| [push] | Pushes changes to both Git and NPM. |
+| [rev-parse] | Picks out and massages parameters. |
+| [search] | Searches for packages. |
+| [validate] | Validates Node.js package field. |
+| [view] | Views registry info about a package. |
+| [which] | Locates a program or locally installed node module executable. |
 
-Suggestions are welcome. Please [create an issue].
+<br>
 <br>
 
+[![](https://img.youtube.com/vi/d0PkB45Hda4/maxresdefault.jpg)](https://www.youtube.com/watch?v=d0PkB45Hda4)
 
-[![nodef](https://i.imgur.com/8rbhhqI.jpg)](https://nodef.github.io)
-
-[init]: https://www.npmjs.com/package/@extra-npm/init
-[push]: https://www.npmjs.com/package/@extra-npm/push
-[clone]: https://www.npmjs.com/package/@extra-npm/clone
-[rev-parse]: https://www.npmjs.com/package/@extra-npm/rev-parse
-[search]: https://www.npmjs.com/package/@extra-npm/search
-[validate]: https://www.npmjs.com/package/@extra-npm/validate
-[view]: https://www.npmjs.com/package/@extra-npm/view
-[which]: https://www.npmjs.com/package/@extra-npm/which
-
-[extra-youtubeuploader]: https://www.npmjs.com/package/extra-youtubeuploader
-[extra-stillvideo]: https://www.npmjs.com/package/extra-stillvideo
-[create an issue]: https://github.com/nodef/extra-npm/issues
+[npm]: https://en.wikipedia.org/wiki/Npm_(software)
+[clone]: https://github.com/nodef/extra-npm/wiki/clone
+[help]: https://github.com/nodef/extra-npm/wiki/help
+[init]: https://github.com/nodef/extra-npm/wiki/init
+[push]: https://github.com/nodef/extra-npm/wiki/push
+[rev-parse]: https://github.com/nodef/extra-npm/wiki/rev-parse
+[search]: https://github.com/nodef/extra-npm/wiki/search
+[validate]: https://github.com/nodef/extra-npm/wiki/validate
+[view]: https://github.com/nodef/extra-npm/wiki/view
+[which]: https://github.com/nodef/extra-npm/wiki/which
