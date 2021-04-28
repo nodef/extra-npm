@@ -57,6 +57,14 @@ $ enpm install package
 <br>
 <br>
 
+
+## References
+
+- [Get path of current script when executed through a symlink](https://unix.stackexchange.com/a/17500/166668)
+
+<br>
+<br>
+
 [![](https://img.youtube.com/vi/d0PkB45Hda4/maxresdefault.jpg)](https://www.youtube.com/watch?v=d0PkB45Hda4)
 
 [npm]: https://en.wikipedia.org/wiki/Npm_(software)
