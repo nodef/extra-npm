@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ## Prints usage details of a command.
-dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+dir="$(dirname "$(readlink -f "$0")")"
 url="https://github.com/nodef/extra-npm/issues"
 
 fil="$dir/../man/$1.txt"
