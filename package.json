@@ -1,6 +1,6 @@
 {
   "name": "extra-npm",
-  "version": "3.0.32",
+  "version": "3.0.34",
   "description": "Common utility commands for npm packages.",
   "preferGlobal": true,
   "main": "index.sh",
@@ -30,13 +30,13 @@
   },
   "homepage": "https://github.com/nodef/extra-npm#readme",
   "devDependencies": {
-    "extra-build": "^1.3.31",
+    "extra-build": "^1.4.2",
     "html-entities": "^2.3.2",
     "markdown-to-text": "^0.1.1"
   },
   "dependencies": {
-    "dot-prop": "^5.3.0",
-    "extra-boolean": "^1.7.5",
+    "dot-prop": "^6.0.1",
+    "extra-boolean": "^1.8.1",
     "got": "^11.8.2",
     "kleur": "^4.1.4",
     "list-npm-contents": "^1.0.2",
@@ -44,7 +44,7 @@
     "npm-package-versions": "^1.0.1",
     "npm-user-validate": "^1.0.1",
     "npm-which": "^3.0.1",
-    "package-json": "^6.5.0",
+    "package-json": "^7.0.0",
     "promptly": "^3.2.0",
     "semver": "^7.3.5",
     "validate-npm-package-license": "^3.0.4",
