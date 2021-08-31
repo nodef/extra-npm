@@ -78,9 +78,8 @@ function outputParseable(as, flds) {
 // Output in JSON mode.
 function outputJson(as) {
   console.log('[');
-  for (var i=0, I=as.length-1; i<I; i++)
-    console.log(JSON.stringify(as[i])+',');
-  console.log(as[I]);
+  for (var i=0, I=as.length; i<I; i++)
+    console.log(JSON.stringify(as[i])+(i!=I-1? ',':''));
   console.log(']');
 }
 
