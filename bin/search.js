@@ -126,7 +126,7 @@ function options(o, k, a, i) {
 
 // Run on shell.
 function shell(a) {
-  var o = {};
+  var o = {query: ''};
   for (var i=2, I=a.length; i<I;)
     i = options(o, a[i], a, i);
   search(o.query.trim(), o);
