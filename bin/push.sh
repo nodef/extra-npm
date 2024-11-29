@@ -44,7 +44,9 @@ igit=$(git rev-parse --is-inside-work-tree 2>&1)
 
 # save changes
 if [[ "$ver" == "" ]]; then ver="patch"; fi
-if [[ "$inpm" == "true" ]]; then nver=$(npm --no-git-tag-version version ${ver}); fi
+if [[ "$ver" != "0" ]] && [[ "$inpm" == "true" ]]; then
+  nver=$(npm --no-git-tag-version version ${ver})
+fi
 if [[ "$msg" == "" ]]; then msg="$nver"; fi
 if [[ "$pre" != "" ]]; then msg="$pre $msg"; fi
 # if [[ "$gth" == "1" ]]; then repurl="$(git config --get remote.origin.url)"; fi
