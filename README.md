@@ -66,6 +66,7 @@ $ enpm install package
 <br>
 
 [![](https://img.youtube.com/vi/d0PkB45Hda4/maxresdefault.jpg)](https://www.youtube.com/watch?v=d0PkB45Hda4)
+![](https://ga-beacon.deno.dev/G-RC63DPBH3P:SH3Eq-NoQ9mwgYeHWxu7cw/github.com/nodef/extra-npm)
 
 [npm]: https://en.wikipedia.org/wiki/Npm_(software)
 [clone]: https://github.com/nodef/extra-npm/wiki/clone
